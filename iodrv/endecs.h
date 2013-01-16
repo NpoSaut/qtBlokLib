@@ -31,7 +31,7 @@ public:
     static int decode_epv_state(struct can_frame* frame, int* epv_state);
     static int decode_epv_key(struct can_frame* frame, int* epv_key);
     static int decode_mm_lat_lon(struct can_frame* frame, double* lat, double* lon);
-    static int decode_ipd_datetime(struct can_frame* frame, int* ipd_hours, int* ipd_min, int* ipd_sec);
+    static int decode_ipd_date(struct can_frame* frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds);
 };
 
 

@@ -136,7 +136,8 @@ int can_decoder::decode_trafficlight_light(struct can_frame* frame, int* traffic
 {
     if ((*frame).can_id != 0x050) return -1;
 
-    (*trafficlight_light) = (int) ( (*frame).data[5] & 0b00001111 );
+    // -1 - преобразование для передачи в уровень интерфейса.
+    (*trafficlight_light) = (int) ( (*frame).data[5] & 0b00001111 ) - 1;
 
     return 1;
 }
@@ -206,13 +207,18 @@ int can_decoder::decode_mm_lat_lon(struct can_frame* frame, double* lat, double*
 }
 
 // IPD_DATE
-int can_decoder::decode_ipd_datetime(struct can_frame* frame, int* ipd_hours, int* ipd_min, int* ipd_sec)
+int can_decoder::decode_ipd_date(struct can_frame* frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds)
 {
     if ((*frame).can_id != 0x0C7) return -1;
 
+    *ipd_year = ( ((int)((*frame).data[0])) << 8 ) + (int)((*frame).data[1]);
+
+    *ipd_month = (int) (*frame).data[2];
+    *ipd_day = (int) (*frame).data[3];
+
     *ipd_hours = (int) (*frame).data[4];
-    *ipd_min = (int) (*frame).data[5];
-    *ipd_sec = (int) (*frame).data[6];
+    *ipd_minutes = (int) (*frame).data[5];
+    *ipd_seconds = (int) (*frame).data[6];
 
     return 1;
 }

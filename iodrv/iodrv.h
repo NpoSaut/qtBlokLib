@@ -9,6 +9,12 @@
 
 QT_USE_NAMESPACE_SERIALPORT
 
+enum gps_data_source
+{
+    gps,
+    can
+};
+
 class iodrv : public QObject
 {
     Q_OBJECT
@@ -17,7 +23,7 @@ public:
     iodrv();
 
 public:
-    int start(char* can_iface_name);
+    int start(char* can_iface_name, gps_data_source gps_datasource = gps);
 
 signals:
     // Сигналы вызываются немедленно или у них есть внутренняя очередь, так что они могут передать изменённое значение?
@@ -45,6 +51,7 @@ private slots:
     void slot_can_write_disp_state();
 
 private:
+    gps_data_source gps_source = gps;
     int read_socket = -1;
     int write_socket = -1;
     //struct can_frame read_frame;
@@ -86,6 +93,8 @@ private:
     int decode_passed_distance(struct can_frame* frame);
     int decode_epv_state(struct can_frame* frame);
     int decode_epv_key(struct can_frame* frame);
+    int decode_mm_lat_lon(struct can_frame* frame);
+    int decode_ipd_datetime(struct can_frame* frame);
 
     int process_can_messages(struct can_frame* frame);
 
@@ -94,10 +103,12 @@ private:
     int init_serial_port();
 
     double c_lat = -1; double c_lon = -1;
-    int c_ipd_hours = -1; int c_ipd_min = -1; int c_ipd_sec = -1;
+    int c_ipd_hours = -1; int c_ipd_mins = -1; int c_ipd_secs = -1;
+    int c_ipd_year = -1; int c_ipd_month = -1; int c_ipd_day = -1;
 
     double p_lat = -1; double p_lon = -1;
-    int p_ipd_hours = -1; int p_ipd_min = -1; int p_ipd_sec = -1;
+    int p_ipd_hours = -1; int p_ipd_mins = -1; int p_ipd_secs = -1;
+    int p_ipd_year = -1; int p_ipd_month = -1; int p_ipd_day = -1;
 
 
     QTimer* timer_disp_state = NULL;

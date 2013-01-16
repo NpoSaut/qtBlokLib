@@ -5,8 +5,10 @@ iodrv::iodrv()
 
 }
 
-int iodrv::start(char* can_iface_name)
+int iodrv::start(char* can_iface_name, gps_data_source gps_datasource)
 {
+    gps_source = gps_datasource;
+
     // Инициализация сокетов
     if (init_sktcan(can_iface_name) == 0)
     {
@@ -16,10 +18,14 @@ int iodrv::start(char* can_iface_name)
     // Петля чтения сокета
     QtConcurrent::run(this, &iodrv::read_canmsgs_loop);
 
-    // Инициализация и начало асинхронного чтения с последовательного порта
-    if (init_serial_port() == 0)
+    // Инициализация и начало асинхронного чтения с последовательного порта.
+    // Если не выбрано другое.
+    if (gps_source == gps)
     {
-        return 0;
+        if (init_serial_port() == 0)
+        {
+            return 0;
+        }
     }
 
     // Инициализация и запуск таймеров
@@ -37,8 +43,7 @@ int iodrv::init_sktcan(char* can_iface_name)
 
     // Подготавливаем сокеты
 
-    printf("Инициализация сокета чтения\n");
-    fflush(stdout);
+    printf("Инициализация сокета чтения\n"); fflush(stdout);
     read_socket = getSocket(iface_name);
     if(!read_socket)
     {
@@ -47,15 +52,13 @@ int iodrv::init_sktcan(char* can_iface_name)
     printf("Сокет чтения готов\n"); // TODO: Сообщение об общей готовности или ошибке должно быть в getSocket()
     fflush(stdout);
 
-    printf("Инициализация сокета записи\n");
-    fflush(stdout);
+    printf("Инициализация сокета записи\n"); fflush(stdout);
     write_socket = getSocket(iface_name);
     if(!write_socket)
     {
         return 0;
     }
-    printf("Сокет записи готов\n");
-    fflush(stdout);
+    printf("Сокет записи готов\n"); fflush(stdout);
 
     return 1;
 }
@@ -93,6 +96,12 @@ int iodrv::process_can_messages(struct can_frame *frame)
     decode_passed_distance(frame);
     decode_epv_state(frame);
     decode_epv_key(frame);
+
+    if(gps_source == can)
+    {
+        decode_mm_lat_lon(frame);
+        decode_ipd_datetime(frame);
+    }
 }
 
 int iodrv::decode_speed(struct can_frame* frame)
@@ -103,7 +112,7 @@ int iodrv::decode_speed(struct can_frame* frame)
             if ((p_speed == -1) || (p_speed != -1 && p_speed != c_speed))
             {
                 emit signal_speed(c_speed);
-                printf("Speed: %f", c_speed); fflush(stdout);
+                //printf("Speed: %f\n", c_speed); fflush(stdout);
             }
             p_speed = c_speed;
             break;
@@ -218,6 +227,49 @@ int iodrv::decode_epv_key(struct can_frame* frame)
                 emit signal_epv_key(c_epv_key);
             }
             p_epv_key = c_epv_key;
+            break;
+    }
+}
+
+int iodrv::decode_mm_lat_lon(struct can_frame* frame)
+{
+    switch (can_decoder::decode_mm_lat_lon(frame, &c_lat, &c_lon))
+    {
+        case 1:
+            if ((p_lat == -1) || (p_lat != -1 && p_lat != c_lat))
+            {
+                emit signal_lat(c_lat);
+            }
+            if ((p_lon == -1) || (p_lon != -1 && p_lon != c_lon))
+            {
+                emit signal_lon(c_lon);
+            }
+            p_lat = c_lat;
+            p_lon = c_lon;
+            //printf("Coord: lat = %f, lon = %f\n", c_lat, c_lon); fflush(stdout);
+            break;
+    }
+}
+
+int iodrv::decode_ipd_datetime(struct can_frame* frame)
+{
+    switch (can_decoder::decode_ipd_date(frame, &c_ipd_year, &c_ipd_month, &c_ipd_day, &c_ipd_hours, &c_ipd_mins, &c_ipd_secs))
+    {
+        case 1:
+            if ((p_ipd_secs == -1) || (p_ipd_secs != -1 && p_ipd_secs != c_ipd_secs))
+            {
+                // printf("Time: %d:%d:%d\n", c_ipd_hours, c_ipd_mins, c_ipd_secs); fflush(stdout);
+
+                QString time = QString("%1:%2:%3").arg(c_ipd_hours, 2, '0').arg(c_ipd_mins, 2, '0').arg(c_ipd_secs, 2, '0');
+                emit signal_time(time);
+            }
+            if ((p_ipd_day == -1) || (p_ipd_day != -1 && p_ipd_day != c_ipd_day))
+            {
+                QString date = QString("%1/%2/%3").arg(c_ipd_day, 2, '0').arg(c_ipd_month, 2, '0').arg(c_ipd_year, 2, '0');
+                emit signal_date(date);
+            }
+            p_ipd_secs = c_ipd_secs;
+            p_ipd_day = c_ipd_day;
             break;
     }
 }
