@@ -1,5 +1,5 @@
-#ifndef IODRVMAINWINDOW_H
-#define IODRVMAINWINDOW_H
+#ifndef IODRVMAIN_H
+#define IODRVMAIN_H
 
 
 #include <QMainWindow>
