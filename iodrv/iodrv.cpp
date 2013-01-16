@@ -1,4 +1,5 @@
 #include "iodrv.h"
+#include <QDate>
 
 iodrv::iodrv()
 {
@@ -292,12 +293,14 @@ int iodrv::decode_ipd_datetime(struct can_frame* frame)
             {
                 // printf("Time: %d:%d:%d\n", c_ipd_hours, c_ipd_mins, c_ipd_secs); fflush(stdout);
 
-                QString time = QString("%1:%2:%3").arg(c_ipd_hours, 2, '0').arg(c_ipd_mins, 2, '0').arg(c_ipd_secs, 2, '0');
+                QString time = QString("%1:%2:%3").arg(c_ipd_hours, 2, 10, QChar('0')).arg(c_ipd_mins, 2, 10, QChar('0')).arg(c_ipd_secs, 2, 10, QChar('0'));
                 emit signal_time(time);
             }
             if ((p_ipd_day == -1) || (p_ipd_day != -1 && p_ipd_day != c_ipd_day))
             {
-                QString date = QString("%1/%2/%3").arg(c_ipd_day, 2, '0').arg(c_ipd_month, 2, '0').arg(c_ipd_year, 2, '0');
+                QString monthString[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+                QString date = QString("%1 %2 %3").arg(c_ipd_day, 2, 10, QChar('0')).arg(monthString[c_ipd_month-1]).arg(c_ipd_year, 2, 10, QChar('0'));
+
                 emit signal_date(date);
             }
             p_ipd_secs = c_ipd_secs;
