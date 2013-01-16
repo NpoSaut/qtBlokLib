@@ -5,12 +5,14 @@
 #include <QMainWindow>
 #include <QObject>
 #include <QtConcurrentRun>
-#include <QtAddOnSerialPort/serialport.h>
-#include <QtAddOnSerialPort/serialportinfo.h>
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QList>
 
+#ifdef WITH_SERIALPORT
+#include <QtAddOnSerialPort/serialport.h>
+#include <QtAddOnSerialPort/serialportinfo.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/socket.h>

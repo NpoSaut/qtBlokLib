@@ -6,8 +6,9 @@
 #include "sktcan.h"
 #include "endecs.h"
 
-
+#ifdef WITH_SERIALPORT
 QT_USE_NAMESPACE_SERIALPORT
+#endif
 
 enum gps_data_source
 {
@@ -98,9 +99,11 @@ private:
 
     int process_can_messages(struct can_frame* frame);
 
-
+#ifdef WITH_SERIALPORT
     SerialPort serial_port;
+#endif
     int init_serial_port();
+
 
     double c_lat; double c_lon;
     int c_ipd_hours; int c_ipd_mins; int c_ipd_secs;

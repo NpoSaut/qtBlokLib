@@ -309,6 +309,7 @@ int iodrv::decode_ipd_datetime(struct can_frame* frame)
 
 int iodrv::init_serial_port()
 {
+#ifdef WITH_SERIALPORT
     // В каком место разместить соединение сигнала и слота?
     connect(&serial_port, SIGNAL(readyRead()), this, SLOT(slot_serial_ready_read()));
 
@@ -330,10 +331,15 @@ int iodrv::init_serial_port()
     serial_port.open(QIODevice::ReadOnly);
 
     return 1;
+#else
+    printf("Отключена компиляция SerialPort; используйте WITH_SERIALPORT.\n"); fflush(stdout);
+    return 0;
+#endif
 }
 
 void iodrv::slot_serial_ready_read()
 {
+#ifdef WITH_SERIALPORT
     if (serial_port.canReadLine())
     {
         gps_data gd;    // TODO: Сделать глобальной?
@@ -360,6 +366,7 @@ void iodrv::slot_serial_ready_read()
             emit signal_lon(gd.lon);
         }
     }
+#endif
 }
 
 
