@@ -51,9 +51,9 @@ private slots:
     void slot_can_write_disp_state();
 
 private:
-    gps_data_source gps_source = gps;
-    int read_socket = -1;
-    int write_socket = -1;
+    gps_data_source gps_source;
+    int read_socket;
+    int write_socket;
     //struct can_frame read_frame;
     //struct can_frame write_frame;
     int init_sktcan(char* can_iface_name);
@@ -63,25 +63,25 @@ private:
 
 
     // По-хорошему, эти переменные и работающие с ними функции должны быть объявлены в нити, обрабатывающей read_can_message.
-    double c_speed = -1;
-    int c_speed_limit = -1;
-    int c_stop_flag = -1;
-    int c_movement_direction = -1;
-    int c_trafficlight_light = -1;
-    int c_trafficlight_freq = -1;
-    int c_passed_distance = -1;
-    int c_epv_state = -1;
-    int c_epv_key = -1;
+    double c_speed;
+    int c_speed_limit;
+    int c_stop_flag;
+    int c_movement_direction;
+    int c_trafficlight_light;
+    int c_trafficlight_freq;
+    int c_passed_distance;
+    int c_epv_state;
+    int c_epv_key;
 
-    double p_speed = -1;
-    int p_speed_limit = -1;
-    int p_stop_flag = -1;
-    int p_movement_direction = -1;
-    int p_trafficlight_light = -1;
-    int p_trafficlight_freq = -1;
-    int p_passed_distance = -1;
-    int p_epv_state = -1;
-    int p_epv_key = -1;
+    double p_speed;
+    int p_speed_limit;
+    int p_stop_flag;
+    int p_movement_direction;
+    int p_trafficlight_light;
+    int p_trafficlight_freq;
+    int p_passed_distance;
+    int p_epv_state;
+    int p_epv_key;
 
 
     int decode_speed(struct can_frame* frame);
@@ -102,16 +102,16 @@ private:
     SerialPort serial_port;
     int init_serial_port();
 
-    double c_lat = -1; double c_lon = -1;
-    int c_ipd_hours = -1; int c_ipd_mins = -1; int c_ipd_secs = -1;
-    int c_ipd_year = -1; int c_ipd_month = -1; int c_ipd_day = -1;
+    double c_lat; double c_lon;
+    int c_ipd_hours; int c_ipd_mins; int c_ipd_secs;
+    int c_ipd_year; int c_ipd_month; int c_ipd_day;
 
-    double p_lat = -1; double p_lon = -1;
-    int p_ipd_hours = -1; int p_ipd_mins = -1; int p_ipd_secs = -1;
-    int p_ipd_year = -1; int p_ipd_month = -1; int p_ipd_day = -1;
+    double p_lat; double p_lon;
+    int p_ipd_hours; int p_ipd_mins; int p_ipd_secs;
+    int p_ipd_year; int p_ipd_month; int p_ipd_day;
 
 
-    QTimer* timer_disp_state = NULL;
+    QTimer* timer_disp_state;
     void init_timers();
 };
 

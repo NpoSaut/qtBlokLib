@@ -2,7 +2,39 @@
 
 iodrv::iodrv()
 {
+    gps_source = gps;
+    read_socket = -1;
+    write_socket = -1;
 
+    c_speed = -1;
+    c_speed_limit = -1;
+    c_stop_flag = -1;
+    c_movement_direction = -1;
+    c_trafficlight_light = -1;
+    c_trafficlight_freq = -1;
+    c_passed_distance = -1;
+    c_epv_state = -1;
+    c_epv_key = -1;
+
+    p_speed = -1;
+    p_speed_limit = -1;
+    p_stop_flag = -1;
+    p_movement_direction = -1;
+    p_trafficlight_light = -1;
+    p_trafficlight_freq = -1;
+    p_passed_distance = -1;
+    p_epv_state = -1;
+    p_epv_key = -1;
+
+    c_lat = -1; c_lon = -1;
+    c_ipd_hours = -1; c_ipd_mins = -1; c_ipd_secs = -1;
+    c_ipd_year = -1; c_ipd_month = -1; c_ipd_day = -1;
+
+    p_lat = -1; p_lon = -1;
+    p_ipd_hours = -1; p_ipd_mins = -1; p_ipd_secs = -1;
+    p_ipd_year = -1; p_ipd_month = -1; p_ipd_day = -1;
+
+    timer_disp_state = NULL;
 }
 
 int iodrv::start(char* can_iface_name, gps_data_source gps_datasource)
