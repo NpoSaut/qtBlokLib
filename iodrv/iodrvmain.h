@@ -1,3 +1,5 @@
+#if defined WITH_CAN || defined WITH_SERIAL
+
 #ifndef IODRVMAIN_H
 #define IODRVMAIN_H
 
@@ -24,6 +26,7 @@
 #include <string.h>
 
 #include <unistd.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -32,3 +35,5 @@
 
 
 #endif // IODRVMAIN_H
+
+#endif

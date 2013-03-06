@@ -1,3 +1,5 @@
+#if defined WITH_CAN || defined WITH_SERIAL
+
 #include "iodrv.h"
 #include <QDate>
 
@@ -397,3 +399,5 @@ void iodrv::slot_fkey_up()
     can_frame frame = can_encoder::encode_sys_key(is_released);
     write_canmsg_async(&frame);
 }
+
+#endif

@@ -1,3 +1,5 @@
+#if defined WITH_CAN || defined WITH_SERIAL
+
 #ifndef IODRV_H
 #define IODRV_H
 
@@ -119,3 +121,5 @@ private:
 };
 
 #endif // IODRV_H
+
+#endif
