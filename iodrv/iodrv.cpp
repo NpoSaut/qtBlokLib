@@ -279,7 +279,7 @@ int iodrv::decode_mm_lat_lon(struct can_frame* frame)
             }
             p_lat = c_lat;
             p_lon = c_lon;
-            //printf("Coord: lat = %f, lon = %f\n", c_lat, c_lon); fflush(stdout);
+//            printf("Coord: lat = %f, lon = %f\n", c_lat, c_lon); fflush(stdout);
             break;
     }
 }
