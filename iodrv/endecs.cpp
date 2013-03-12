@@ -1,3 +1,5 @@
+#if defined WITH_CAN || defined WITH_SERIAL
+
 #include "endecs.h"
 
 
@@ -295,3 +297,4 @@ void nmea::decode_rmc(QString message, struct gps_data* gd)
     gd->year = dty;
 }
 
+#endif

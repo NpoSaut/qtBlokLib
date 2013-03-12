@@ -1,3 +1,5 @@
+#if defined WITH_CAN || defined WITH_SERIAL
+
 #ifndef ENDECS_H
 #define ENDECS_H
 
@@ -60,3 +62,5 @@ public:
 
 
 #endif // CANENDEC_H
+
+#endif
