@@ -106,7 +106,8 @@ void iodrv::write_canmsg_async(can_frame* frame)
     // Операция будет атомарной на одном сокете, пока не израсходован его внутренний буфер, который как минимум 512 байт.
     // Учитывая размер can_frame и плотность их отправки, его исчерпание маловероятно.
 
-    QtConcurrent::run(write_can_frame, write_socket, frame);
+//    QtConcurrent::run(write_can_frame, write_socket, frame);
+    write_can_frame(write_socket, frame);
 }
 
 void iodrv::read_canmsgs_loop()
