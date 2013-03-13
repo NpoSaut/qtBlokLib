@@ -90,16 +90,19 @@ can_frame can_encoder::encode_sys_key(key_state k_state)
 // 0 - A != B
 // 1 - success
 
-// SAUT_INFO_A
+// IPD_STATE_A
 int can_decoder::decode_speed(struct can_frame* frame, double* speed)
 {
-    if ((*frame).can_id != 0x233) return -1;
+    if ((*frame).can_id != 0x0C4) return -1;
 
+    (*speed) =(double)(   ( ((int)( (*frame).data[1] & 0b000000001 )) << 8 ) + (int)((*frame).data[2])   );
+
+    /* SAUT_INFO_A
     double s1 = (double)((*frame).data[0]);
     double s2 = ( (double)( (*frame).data[1] >> 1 ) ) / 128;
     double s3 = (double)( ((*frame).data[1] & 0b00000001 ) == 0 ? 0 : 256 );
+    (*speed) = s1 + s2 + s3;*/
 
-    (*speed) = s1 + s2 + s3;
     return 1;
 }
 
@@ -113,22 +116,70 @@ int can_decoder::decode_speed_limit(struct can_frame* frame, int* speed_limit)
     return 1;
 }
 
-// SAUT_INFO_A
-int can_decoder::decode_stop_flag(struct can_frame* frame, int* stop_flag)
+// MCO_STATE_A
+int can_decoder::decode_target_speed(struct can_frame* frame, int* target_speed)
 {
-    if ((*frame).can_id != 0x233) return -1;
+    if ((*frame).can_id != 0x050) return -1;
 
-    (*stop_flag) = (int) (( (*frame).data[7] >> 2 ) & 0b00000001 );
+    (*target_speed) = ( ((int)( (*frame).data[3] & 0b01000000 )) << 8 ) + (int)((*frame).data[2]);
 
     return 1;
 }
+
+// IPD_STATE_A
+int can_decoder::decode_acceleration(struct can_frame* frame, double* acceleration)
+{
+    if ((*frame).can_id != 0x0C4) return -1;
+
+    (*acceleration) = (double)( (*frame).data[7] ) / 128;
+
+    return 1;
+}
+
+
+// MCO_STATE_A
+int can_decoder::decode_epv_state(struct can_frame* frame, int* epv_state)
+{
+    if ((*frame).can_id != 0x050) return -1;
+
+    (*epv_state) = (int) ( ( (*frame).data[5] >> 5 ) & 0b00000001 );
+
+    return 1;
+}
+
+// MCO_STATE_A
+int can_decoder::decode_epv_key(struct can_frame* frame, int* epv_key)
+{
+    if ((*frame).can_id != 0x050) return -1;
+
+    (*epv_key) = (int) ( ( (*frame).data[0] >> 6 ) & 0b00000001 );
+
+    return 1;
+}
+
+
 
 // IPD_STATE_A
 int can_decoder::decode_movement_direction(struct can_frame* frame, int* movement_direction)
 {
     if ((*frame).can_id != 0x0C4) return -1;
 
-    (*movement_direction) = (int) (( (*frame).data[1] >> 7 ) & 0b00000001 );
+    int stop_flag = (int) (( (*frame).data[1] >> 2 ) & 0b00000001 );
+    int direction = (int) (( (*frame).data[1] >> 7 ) & 0b00000001 );
+
+    // return -1 = назад, 0 = стоим, +1 = вперёд
+    if (stop_flag == 0) // Стоим
+    {
+        (*movement_direction) = 0;
+    }
+    else if (direction == 0) // Едем вперёд
+    {
+        (*movement_direction) = 1;
+    }
+    else if (direction == 1) // Едем назад
+    {
+        (*movement_direction) = -1;
+    }
 
     return 1;
 }
@@ -173,26 +224,6 @@ int can_decoder::decode_passed_distance(struct can_frame* frame, int* passed_dis
     return 1;
 }
 
-// MCO_STATE_A
-int can_decoder::decode_epv_state(struct can_frame* frame, int* epv_state)
-{
-    if ((*frame).can_id != 0x050) return -1;
-
-    (*epv_state) = (int) ( ( (*frame).data[5] >> 5 ) & 0b00000001 );
-
-    return 1;
-}
-
-// MCO_STATE_A
-int can_decoder::decode_epv_key(struct can_frame* frame, int* epv_key)
-{
-    if ((*frame).can_id != 0x050) return -1;
-
-    (*epv_key) = (int) ( ( (*frame).data[0] >> 6 ) & 0b00000001 );
-
-    return 1;
-}
-
 
 // MM_ALT_LONG
 int can_decoder::decode_mm_lat_lon(struct can_frame* frame, double* lat, double* lon)
@@ -224,6 +255,39 @@ int can_decoder::decode_ipd_date(struct can_frame* frame, int* ipd_year, int* ip
 
     return 1;
 }
+
+// MCO_LIMITS_A
+int can_decoder::decode_driving_mode(struct can_frame* frame, int* driving_mode)
+{
+    if ((*frame).can_id != 0x052) return -1;
+
+    (*driving_mode) = (int) (( (*frame).data[7] ) & 0b00000011 );
+
+    return 1;
+}
+
+// MCO_STATE_A
+int can_decoder::decode_vigilance(struct can_frame* frame, int* vigilance)
+{
+    if ((*frame).can_id != 0x050) return -1;
+
+    (*vigilance) = (int) (( (*frame).data[5] >> 4 ) & 0b00000001 );
+
+    return 1;
+}
+
+// AMR_STATE_I
+int can_decoder::decode_reg_tape_avl(struct can_frame* frame, int* reg_tape_avl)
+{
+    if ((*frame).can_id != 0x66F) return -1;
+
+    (*reg_tape_avl) = (int) (( (*frame).data[0] ) & 0b00000001 );
+
+    return 1;
+}
+
+
+
 
 
 void nmea::decode_nmea_message(QString message, struct gps_data* gd)

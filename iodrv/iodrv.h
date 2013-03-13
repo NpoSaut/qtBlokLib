@@ -30,15 +30,26 @@ public:
 
 signals:
     // Сигналы вызываются немедленно или у них есть внутренняя очередь, так что они могут передать изменённое значение?
+    //Скорость и ограничения
     void signal_speed(double speed);
     void signal_speed_limit(int speed_limit);
-    void signal_stop_flag(int stop_flag);
-    void signal_movement_direction(int movement_direction);
-    void signal_trafficlight_light(int trafficlight_light);
-    void signal_trafficlight_freq(int trafficlight_freq);
-    void signal_passed_distance(int passed_distance);
+    void signal_target_speed(int target_speed);
+    void signal_acceleration(double acceleration);
+    //Состояние системы
     void signal_epv_state(int epv_state);
     void signal_epv_key(int epv_key);
+    //Одометр
+    void signal_passed_distance(int passed_distance);
+    //Светофоры
+    void signal_trafficlight_light(int trafficlight_light);
+    void signal_trafficlight_freq(int trafficlight_freq);
+    //Движение
+    // TODO: С какого я буду отдавать здесь QString?!
+    void signal_driving_mode(QString driving_mode);
+    void signal_vigilance(int vigilance);
+    void signal_movement_direction(int movement_direction);
+    void signal_reg_tape_avl(int reg_tape_avl);
+
 
     void signal_lat(double lat);
     void signal_lon(double lon);
@@ -68,7 +79,9 @@ private:
     // По-хорошему, эти переменные и работающие с ними функции должны быть объявлены в нити, обрабатывающей read_can_message.
     double c_speed;
     int c_speed_limit;
-    int c_stop_flag;
+    int c_target_speed;
+    double c_acceleration;
+
     int c_movement_direction;
     int c_trafficlight_light;
     int c_trafficlight_freq;
@@ -76,9 +89,16 @@ private:
     int c_epv_state;
     int c_epv_key;
 
+    int c_driving_mode;
+    int c_vigilance;
+    int c_reg_tape_avl;
+
+
     double p_speed;
     int p_speed_limit;
-    int p_stop_flag;
+    int p_target_speed;
+    double p_acceleration;
+
     int p_movement_direction;
     int p_trafficlight_light;
     int p_trafficlight_freq;
@@ -86,10 +106,16 @@ private:
     int p_epv_state;
     int p_epv_key;
 
+    int p_driving_mode;
+    int p_vigilance;
+    int p_reg_tape_avl;
+
 
     int decode_speed(struct can_frame* frame);
     int decode_speed_limit(struct can_frame* frame);
-    int decode_stop_flag(struct can_frame* frame);
+    int decode_target_speed(struct can_frame* frame);
+    int decode_acceleration(struct can_frame* frame);
+
     int decode_movement_direction(struct can_frame* frame);
     int decode_trafficlight_light(struct can_frame* frame);
     int decode_trafficlight_freq(struct can_frame* frame);
@@ -98,6 +124,10 @@ private:
     int decode_epv_key(struct can_frame* frame);
     int decode_mm_lat_lon(struct can_frame* frame);
     int decode_ipd_datetime(struct can_frame* frame);
+    int decode_driving_mode(struct can_frame* frame);
+    int decode_vigilance(struct can_frame* frame);
+    int decode_reg_tape_avl(struct can_frame* frame);
+
 
     int process_can_messages(struct can_frame* frame);
 

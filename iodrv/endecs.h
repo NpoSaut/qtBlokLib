@@ -25,7 +25,9 @@ class can_decoder
 public:
     static int decode_speed(struct can_frame* frame, double* speed);
     static int decode_speed_limit(struct can_frame* frame, int* speed_limit);
-    static int decode_stop_flag(struct can_frame* frame, int* stop_flag);
+    static int decode_target_speed(struct can_frame* frame, int* target_speed);
+    static int decode_acceleration(struct can_frame* frame, double* acceleration);
+
     static int decode_movement_direction(struct can_frame* frame, int* movement_direction);
     static int decode_trafficlight_light(struct can_frame* frame, int* trafficlight_light);
     static int decode_trafficlight_freq(struct can_frame* frame, int* trafficlight_freq);
@@ -34,6 +36,11 @@ public:
     static int decode_epv_key(struct can_frame* frame, int* epv_key);
     static int decode_mm_lat_lon(struct can_frame* frame, double* lat, double* lon);
     static int decode_ipd_date(struct can_frame* frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds);
+
+    static int decode_driving_mode(struct can_frame* frame, int* driving_mode);
+    static int decode_vigilance(struct can_frame* frame, int* vigilance);
+    static int decode_reg_tape_avl(struct can_frame* frame, int* reg_tape_avl);
+
 };
 
 

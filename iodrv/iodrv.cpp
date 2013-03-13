@@ -11,23 +11,29 @@ iodrv::iodrv()
 
     c_speed = -1;
     c_speed_limit = -1;
-    c_stop_flag = -1;
+    c_target_speed = -1;
+    c_acceleration = -1;
     c_movement_direction = -1;
     c_trafficlight_light = -1;
     c_trafficlight_freq = -1;
     c_passed_distance = -1;
     c_epv_state = -1;
     c_epv_key = -1;
+    c_driving_mode = -1;
+    c_vigilance = -1;
 
     p_speed = -1;
     p_speed_limit = -1;
-    p_stop_flag = -1;
+    p_target_speed = -1;
+    p_acceleration = -1;
     p_movement_direction = -1;
     p_trafficlight_light = -1;
     p_trafficlight_freq = -1;
     p_passed_distance = -1;
     p_epv_state = -1;
     p_epv_key = -1;
+    p_driving_mode = -1;
+    p_vigilance = -1;
 
     c_lat = -1; c_lon = -1;
     c_ipd_hours = -1; c_ipd_mins = -1; c_ipd_secs = -1;
@@ -125,13 +131,19 @@ int iodrv::process_can_messages(struct can_frame *frame)
 {
     decode_speed(frame);
     decode_speed_limit(frame);
-    decode_stop_flag(frame);
-    decode_movement_direction(frame);
+    decode_target_speed(frame);
+    decode_acceleration(frame);
+
     decode_trafficlight_light(frame);
     decode_trafficlight_freq(frame);
     decode_passed_distance(frame);
     decode_epv_state(frame);
     decode_epv_key(frame);
+
+    decode_driving_mode(frame);
+    decode_vigilance(frame);
+    decode_movement_direction(frame);
+    decode_reg_tape_avl(frame);
 
     if(gps_source == can)
     {
@@ -139,6 +151,9 @@ int iodrv::process_can_messages(struct can_frame *frame)
         decode_ipd_datetime(frame);
     }
 }
+
+
+// Скорость и ограничения
 
 int iodrv::decode_speed(struct can_frame* frame)
 {
@@ -169,29 +184,47 @@ int iodrv::decode_speed_limit(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_stop_flag(struct can_frame* frame)
+int iodrv::decode_target_speed(struct can_frame* frame)
 {
-    switch (can_decoder::decode_stop_flag(frame, &c_stop_flag))
+    switch (can_decoder::decode_target_speed(frame, &c_target_speed))
     {
         case 1:
-            if ((p_stop_flag == -1) || (p_stop_flag != -1 && p_stop_flag != c_stop_flag))
+            if ((c_target_speed == -1) || (c_target_speed != -1 && p_target_speed != c_target_speed))
             {
-                emit signal_stop_flag(c_stop_flag);
+                emit signal_target_speed(c_target_speed);
             }
-            p_stop_flag = c_stop_flag;
+            p_target_speed = c_target_speed;
             break;
     }
 }
+
+int iodrv::decode_acceleration(struct can_frame* frame)
+{
+    switch (can_decoder::decode_acceleration(frame, &c_acceleration))
+    {
+        case 1:
+            if ((c_acceleration == -1) || (c_acceleration != -1 && p_acceleration != c_acceleration))
+            {
+                emit signal_acceleration(c_acceleration);
+            }
+            p_acceleration = c_acceleration;
+            break;
+    }
+}
+
+
+
 
 int iodrv::decode_movement_direction(struct can_frame* frame)
 {
     switch (can_decoder::decode_movement_direction(frame, &c_movement_direction))
     {
         case 1:
-            if ((p_movement_direction == -1) || (p_movement_direction != -1 && p_movement_direction != c_movement_direction))
+            /*if ((p_movement_direction == -1) || (p_movement_direction != -1 && p_movement_direction != c_movement_direction))
             {
                 emit signal_movement_direction(c_movement_direction);
-            }
+            }*/
+            emit signal_movement_direction(c_movement_direction);
             p_movement_direction = c_movement_direction;
             break;
     }
@@ -202,10 +235,11 @@ int iodrv::decode_trafficlight_light(struct can_frame* frame)
     switch (can_decoder::decode_trafficlight_light(frame, &c_trafficlight_light))
     {
         case 1:
-            if ((p_trafficlight_light == -1) || (p_trafficlight_light != -1 && p_trafficlight_light != c_trafficlight_light))
+            /*if ((p_trafficlight_light == -1) || (p_trafficlight_light != -1 && p_trafficlight_light != c_trafficlight_light))
             {
                 emit signal_trafficlight_light(c_trafficlight_light);
-            }
+            }*/
+            emit signal_trafficlight_light(c_trafficlight_light);
             p_trafficlight_light = c_trafficlight_light;
             break;
     }
@@ -312,6 +346,64 @@ int iodrv::decode_ipd_datetime(struct can_frame* frame)
     }
 }
 
+int iodrv::decode_driving_mode(struct can_frame* frame)
+{
+    switch (can_decoder::decode_driving_mode(frame, &c_driving_mode))
+    {
+        case 1:
+            if ((p_driving_mode == -1) || (p_driving_mode != -1 && p_driving_mode != c_driving_mode))
+            {
+                QString str;
+                switch (c_driving_mode)
+                {
+                    case 0:
+                        str = "П";
+                        break;
+                    case 1:
+                        str = "М";
+                        break;
+                    case 2:
+                        str = "Р";
+                        break;
+                    case 3:
+                        str = "Д";
+                        break;
+                }
+
+                emit signal_driving_mode(str);
+            }
+            p_driving_mode = c_driving_mode;
+            break;
+    }
+}
+
+int iodrv::decode_vigilance(struct can_frame* frame)
+{
+    switch (can_decoder::decode_vigilance(frame, &c_vigilance))
+    {
+        case 1:
+            if ((p_vigilance == -1) || (p_vigilance != -1 && p_vigilance != c_vigilance))
+            {
+                emit signal_vigilance(c_vigilance);
+            }
+            p_vigilance = c_vigilance;
+            break;
+    }
+}
+
+int iodrv::decode_reg_tape_avl(struct can_frame* frame)
+{
+    switch (can_decoder::decode_reg_tape_avl(frame, &c_reg_tape_avl))
+    {
+        case 1:
+            if ((p_reg_tape_avl == -1) || (p_reg_tape_avl != -1 && p_reg_tape_avl != c_reg_tape_avl))
+            {
+                emit signal_reg_tape_avl(c_reg_tape_avl);
+            }
+            p_reg_tape_avl = c_reg_tape_avl;
+            break;
+    }
+}
 
 int iodrv::init_serial_port()
 {
@@ -362,10 +454,11 @@ void iodrv::slot_serial_ready_read()
 
         if (gd.is_reliable)
         {
-            QString time = QString("%1:%2:%3").arg(gd.hours, 2, '0').arg(gd.minutes, 2, '0').arg(gd.seconds, 2, '0');
+            QString time = QString("%1:%2:%3").arg(gd.hours, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
             emit signal_time(time);
 
-            QString date = QString("%1/%2/%3").arg(gd.day, 2, '0').arg(gd.month, 2, '0').arg(gd.year, 2, '0');
+            QString monthString[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+            QString date = QString("%1 %2 %3").arg(gd.day, 2, 10, QChar('0')).arg(monthString[gd.month-1]).arg(gd.year, 2, 10, QChar('0'));
             emit signal_date(date);
 
             emit signal_lat(gd.lat);
