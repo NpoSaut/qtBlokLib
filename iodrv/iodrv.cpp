@@ -2,12 +2,36 @@
 
 #include "iodrv.h"
 #include <QDate>
+#include <QtCore/qmath.h>
+
+// Distance between coordinates in kilometers
+const double PI  =3.141592653589793238462;
+static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2d, double lon2d)
+{
+    // Sphere Earth
+
+    double lat1r = lat1d * PI / 180;
+    double lon1r = lon1d * PI / 180;
+    double lat2r = lat2d * PI / 180;
+    double lon2r = lon2d * PI / 180;
+
+    double deltalon = lon1r - lon2r;
+
+    double num = qSqrt(qPow(qCos(lat2r) * qSin(deltalon), 2) + qPow(qCos(lat1r) * qSin(lat2r) - qSin(lat1r) * qCos(lat2r) * qCos(deltalon), 2));
+    double denum = qSin(lat1r) * qSin(lat2r) + qCos(lat1r) * qCos(lat2r) * qCos(deltalon);
+    return qAtan(num / denum) * 6372.795;
+}
 
 iodrv::iodrv()
 {
     gps_source = gps;
-    read_socket = -1;
-    write_socket = -1;
+    read_socket_0 = -1;
+    write_socket_0 = -1;
+    write_socket_1 = -1;
+
+    total_passed_distance = 0;
+    pgd.lat = 0;
+
 
     c_speed = -1;
     c_speed_limit = -1;
@@ -22,6 +46,10 @@ iodrv::iodrv()
     c_driving_mode = -1;
     c_vigilance = -1;
 
+    c_pressure_tc = -1;
+    c_pressure_tm = -1;
+    c_ssps_mode = -1;
+
     p_speed = -1;
     p_speed_limit = -1;
     p_target_speed = -1;
@@ -35,6 +63,10 @@ iodrv::iodrv()
     p_driving_mode = -1;
     p_vigilance = -1;
 
+    p_pressure_tc = -1;
+    p_pressure_tm = -1;
+    p_ssps_mode = -1;
+
     c_lat = -1; c_lon = -1;
     c_ipd_hours = -1; c_ipd_mins = -1; c_ipd_secs = -1;
     c_ipd_year = -1; c_ipd_month = -1; c_ipd_day = -1;
@@ -46,12 +78,12 @@ iodrv::iodrv()
     timer_disp_state = NULL;
 }
 
-int iodrv::start(char* can_iface_name, gps_data_source gps_datasource)
+int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source gps_datasource)
 {
     gps_source = gps_datasource;
 
     // Инициализация сокетов
-    if (init_sktcan(can_iface_name) == 0)
+    if (init_sktcan(can_iface_name_0, can_iface_name_1) == 0)
     {
         //printf("Инициализация сокетов не удалась\n"); fflush(stdout);
         return 0;
@@ -75,36 +107,45 @@ int iodrv::start(char* can_iface_name, gps_data_source gps_datasource)
     return 1;
 }
 
-int iodrv::init_sktcan(char* can_iface_name)
+int iodrv::init_sktcan(char* can_iface_name_0, char *can_iface_name_1)
 {
     // По-хорошему все строки должны быть const char*.
     // http://stackoverflow.com/questions/7896645/c-deprecated-conversion-from-string-constant-to-char
-    char* iface_name = (char* )((can_iface_name == NULL) ? "can0" : can_iface_name);
+    char* iface_name_0 = (char* )((can_iface_name_0 == NULL) ? "can0" : can_iface_name_0);
+    char* iface_name_1 = (char* )((can_iface_name_1 == NULL) ? "can1" : can_iface_name_1);
 
 
     // Подготавливаем сокеты
 
-    printf("Инициализация сокета чтения\n"); fflush(stdout);
-    read_socket = getSocket(iface_name);
-    if(!read_socket)
+    printf("Инициализация сокета чтения can0\n"); fflush(stdout);
+    read_socket_0 = getSocket(iface_name_0);
+    if(!read_socket_0)
     {
         return 0;
     }
-    printf("Сокет чтения готов\n"); // TODO: Сообщение об общей готовности или ошибке должно быть в getSocket()
+    printf("Сокет чтения can0 готов\n"); // TODO: Сообщение об общей готовности или ошибке должно быть в getSocket()
     fflush(stdout);
 
-    printf("Инициализация сокета записи\n"); fflush(stdout);
-    write_socket = getSocket(iface_name);
-    if(!write_socket)
+    printf("Инициализация сокета записи can0\n"); fflush(stdout);
+    write_socket_0 = getSocket(iface_name_0);
+    if(!write_socket_0)
     {
         return 0;
     }
-    printf("Сокет записи готов\n"); fflush(stdout);
+    printf("Сокет записи can0 готов\n"); fflush(stdout);
+
+    printf("Инициализация сокета записи can1\n"); fflush(stdout);
+    write_socket_1 = getSocket(iface_name_1);
+    if(!write_socket_1)
+    {
+        return 0;
+    }
+    printf("Сокет записи can1 готов\n"); fflush(stdout);
 
     return 1;
 }
 
-void iodrv::write_canmsg_async(can_frame* frame)
+void iodrv::write_canmsg_async(int socket, can_frame* frame)
 {
     //TODO: Передавать по значению и лочить вызов?
     // Создавать новый сокет на отправку и закрывать его.
@@ -113,7 +154,7 @@ void iodrv::write_canmsg_async(can_frame* frame)
     // Учитывая размер can_frame и плотность их отправки, его исчерпание маловероятно.
 
 //    QtConcurrent::run(write_can_frame, write_socket, frame);
-    write_can_frame(write_socket, frame);
+    write_can_frame(socket, frame);
 }
 
 void iodrv::read_canmsgs_loop()
@@ -121,7 +162,7 @@ void iodrv::read_canmsgs_loop()
     struct can_frame read_frame;
     while(true)
     {
-        read_can_frame(read_socket, &read_frame);
+        read_can_frame(read_socket_0, &read_frame);
         process_can_messages(&read_frame);
     }
 }
@@ -145,6 +186,9 @@ int iodrv::process_can_messages(struct can_frame *frame)
     decode_movement_direction(frame);
     decode_reg_tape_avl(frame);
 
+    decode_pressure_tc_tm(frame);
+    decode_ssps_mode(frame);
+
     if(gps_source == can)
     {
         decode_mm_lat_lon(frame);
@@ -162,7 +206,10 @@ int iodrv::decode_speed(struct can_frame* frame)
         case 1:
             if ((p_speed == -1) || (p_speed != -1 && p_speed != c_speed))
             {
-                emit signal_speed(c_speed);
+                if (c_ssps_mode == 0)
+                {
+                    emit signal_speed(c_speed);
+                }
                 //printf("Speed: %f\n", c_speed); fflush(stdout);
             }
             p_speed = c_speed;
@@ -264,11 +311,20 @@ int iodrv::decode_passed_distance(struct can_frame* frame)
     switch (can_decoder::decode_passed_distance(frame, &c_passed_distance))
     {
         case 1:
-            if ((p_passed_distance == -1) || (p_passed_distance != -1 && p_passed_distance != c_passed_distance))
+            /*if ((p_passed_distance == -1) || (p_passed_distance != -1 && p_passed_distance != c_passed_distance))
             {
                 emit signal_passed_distance(c_passed_distance);
             }
+            p_passed_distance = c_passed_distance;*/
+
+            // Общий одометр
+            if (c_ssps_mode == 0 && p_passed_distance != -1 && c_passed_distance != -1)
+            {
+                total_passed_distance += (c_passed_distance - p_passed_distance);
+                emit signal_passed_distance(total_passed_distance);
+            }
             p_passed_distance = c_passed_distance;
+
             break;
     }
 }
@@ -405,6 +461,44 @@ int iodrv::decode_reg_tape_avl(struct can_frame* frame)
     }
 }
 
+int iodrv::decode_pressure_tc_tm(struct can_frame* frame)
+{
+    switch (can_decoder::decode_reg_tape_avl(frame, &c_reg_tape_avl))
+    {
+        case 1:
+            if ((p_pressure_tc == -1) || (p_pressure_tc != -1 && p_pressure_tc != c_pressure_tc))
+            {
+                emit signal_pressure_tc(QString::number(c_pressure_tc, 'f', 2));
+            }
+            p_pressure_tc = c_pressure_tc;
+
+            if ((p_pressure_tm == -1) || (p_pressure_tm != -1 && p_pressure_tm != c_pressure_tm))
+            {
+                emit signal_pressure_tm(QString::number(c_pressure_tm, 'f', 2));
+            }
+            p_pressure_tm = c_pressure_tm;
+
+            break;
+    }
+}
+
+int iodrv::decode_ssps_mode(struct can_frame* frame)
+{
+    switch (can_decoder::decode_ssps_mode(frame, &c_ssps_mode))
+    {
+        case 1:
+            if ((p_ssps_mode == -1) || (p_ssps_mode != -1 && p_ssps_mode != c_ssps_mode))
+            {
+                emit signal_ssps_mode(c_ssps_mode);
+            }
+            p_ssps_mode = c_ssps_mode;
+            break;
+    }
+}
+
+
+
+
 int iodrv::init_serial_port()
 {
 #ifdef WITH_SERIALPORT
@@ -443,17 +537,26 @@ void iodrv::slot_serial_ready_read()
         gps_data gd;    // TODO: Сделать глобальной?
         can_frame wframe_mmaltlon;
         can_frame wframe_ipddate;
+        can_frame wframe_mmdata;
 
         nmea::decode_nmea_message(QString(serial_port.readLine()), &gd);
 
         wframe_mmaltlon = can_encoder::encode_mm_alt_long(gd.lat, gd.lon, (bool)gd.is_reliable);
         wframe_ipddate = can_encoder::encode_ipd_date(gd.year, gd.month, gd.day, gd.hours, gd.minutes, gd.seconds);
+        wframe_mmdata = can_encoder::encode_mm_data(qCeil(gd.speed));
 
-        write_canmsg_async(&wframe_mmaltlon);
-        write_canmsg_async(&wframe_ipddate);
+        write_canmsg_async(write_socket_0, &wframe_mmaltlon);
+        write_canmsg_async(write_socket_1, &wframe_mmaltlon);
+        write_canmsg_async(write_socket_0, &wframe_ipddate);
+        write_canmsg_async(write_socket_1, &wframe_ipddate);
+        write_canmsg_async(write_socket_0, &wframe_mmdata);
+        write_canmsg_async(write_socket_1, &wframe_mmdata);
 
-        if (gd.is_reliable)
-        {
+
+        //if (gd.is_reliable)
+        //{
+        //}
+
             QString time = QString("%1:%2:%3").arg(gd.hours, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
             emit signal_time(time);
 
@@ -463,7 +566,19 @@ void iodrv::slot_serial_ready_read()
 
             emit signal_lat(gd.lat);
             emit signal_lon(gd.lon);
+
+        if (c_ssps_mode == 1)
+        {
+            emit signal_speed(gd.speed);
+
+            if (pgd.lat != 0)
+            {
+                total_passed_distance += DistanceBetweenCoordinates(gd.lat, gd.lon, pgd.lat, pgd.lon);
+                emit signal_passed_distance(total_passed_distance);
+            }
         }
+
+        pgd = gd;
     }
 #endif
 }
@@ -478,20 +593,53 @@ void iodrv::init_timers()
 
 void iodrv::slot_can_write_disp_state()
 {
-    can_frame frame = can_encoder::encode_disp_state_a();
-    write_canmsg_async(&frame);
+    can_frame frame_a = can_encoder::encode_disp_state_a();
+    write_canmsg_async(write_socket_0, &frame_a);
+
+    can_frame frame_b = can_encoder::encode_disp_state_b();
+    write_canmsg_async(write_socket_1, &frame_b);
 }
 
-void iodrv::slot_fkey_down()
+void iodrv::slot_f_key_down()
 {
-    can_frame frame = can_encoder::encode_sys_key(is_pressed);
-    write_canmsg_async(&frame);
+    can_frame frame = can_encoder::encode_sys_key(is_pressed, 0x1C);
+    write_canmsg_async(write_socket_0, &frame);
+    write_canmsg_async(write_socket_1, &frame);
 }
 
-void iodrv::slot_fkey_up()
+void iodrv::slot_f_key_up()
 {
-    can_frame frame = can_encoder::encode_sys_key(is_released);
-    write_canmsg_async(&frame);
+    can_frame frame = can_encoder::encode_sys_key(is_released, 0x1C);
+    write_canmsg_async(write_socket_0, &frame);
+    write_canmsg_async(write_socket_1, &frame);
+}
+
+void iodrv::slot_vk_key_down()
+{
+    can_frame frame = can_encoder::encode_sys_key(is_pressed, 0x14);
+    write_canmsg_async(write_socket_0, &frame);
+    write_canmsg_async(write_socket_1, &frame);
+}
+
+void iodrv::slot_vk_key_up()
+{
+    can_frame frame = can_encoder::encode_sys_key(is_released, 0x14);
+    write_canmsg_async(write_socket_0, &frame);
+    write_canmsg_async(write_socket_1, &frame);
+}
+
+void iodrv::slot_rmp_key_down()
+{
+    can_frame frame = can_encoder::encode_sys_key(is_pressed, 0x16);
+    write_canmsg_async(write_socket_0, &frame);
+    write_canmsg_async(write_socket_1, &frame);
+}
+
+void iodrv::slot_rmp_key_up()
+{
+    can_frame frame = can_encoder::encode_sys_key(is_released, 0x16);
+    write_canmsg_async(write_socket_0, &frame);
+    write_canmsg_async(write_socket_1, &frame);
 }
 
 #endif

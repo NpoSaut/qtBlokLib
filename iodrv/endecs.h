@@ -17,7 +17,9 @@ public:
     static can_frame encode_mm_alt_long(double lat, double lon, bool reliability);
     static can_frame encode_ipd_date(int year, int month, int day, int hours, int minutes, int seconds);
     static can_frame encode_disp_state_a();
-    static can_frame encode_sys_key(key_state k_state);
+    static can_frame encode_disp_state_b();
+    static can_frame encode_sys_key(key_state k_state, int key_code);
+    static can_frame encode_mm_data(int speed);
 };
 
 class can_decoder
@@ -41,6 +43,8 @@ public:
     static int decode_vigilance(struct can_frame* frame, int* vigilance);
     static int decode_reg_tape_avl(struct can_frame* frame, int* reg_tape_avl);
 
+    static int decode_pressure_tc_tm(struct can_frame* frame, double* pressure_tc, double* pressure_tm);
+    static int decode_ssps_mode(struct can_frame* frame, int* ssps_mode);
 };
 
 
@@ -58,6 +62,8 @@ struct gps_data
     int day;
     int month;
     int year;
+
+    double speed;
 };
 
 class nmea

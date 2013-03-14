@@ -26,7 +26,7 @@ public:
     iodrv();
 
 public:
-    int start(char* can_iface_name, gps_data_source gps_datasource = gps);
+    int start(char* can_iface_name_0, char* can_iface_name_1, gps_data_source gps_datasource = gps);
 
 signals:
     // Сигналы вызываются немедленно или у них есть внутренняя очередь, так что они могут передать изменённое значение?
@@ -50,6 +50,10 @@ signals:
     void signal_movement_direction(int movement_direction);
     void signal_reg_tape_avl(int reg_tape_avl);
 
+    void signal_pressure_tc(QString pressure_tc);
+    void signal_pressure_tm(QString pressure_tm);
+    void signal_ssps_mode(int ssps_mode);
+
 
     void signal_lat(double lat);
     void signal_lon(double lon);
@@ -57,8 +61,12 @@ signals:
     void signal_date(QString date);
 
 public slots:
-    void slot_fkey_down();
-    void slot_fkey_up();
+    void slot_f_key_down();
+    void slot_f_key_up();
+    void slot_vk_key_down();
+    void slot_vk_key_up();
+    void slot_rmp_key_down();
+    void slot_rmp_key_up();
 
 private slots:
     void slot_serial_ready_read();
@@ -66,14 +74,18 @@ private slots:
 
 private:
     gps_data_source gps_source;
-    int read_socket;
-    int write_socket;
+    int read_socket_0;
+    int write_socket_0;
+    int write_socket_1;
     //struct can_frame read_frame;
     //struct can_frame write_frame;
-    int init_sktcan(char* can_iface_name);
+    int init_sktcan(char* can_iface_name_0, char* can_iface_name_1);
     void read_canmsgs_loop();
     // TODO: Контролировать были ли сообщения отосланы и если нет, то что-нибудь делать.
-    void write_canmsg_async(can_frame* frame);
+    void write_canmsg_async(int socket, can_frame* frame);
+
+    double total_passed_distance;
+    gps_data pgd;
 
 
     // По-хорошему, эти переменные и работающие с ними функции должны быть объявлены в нити, обрабатывающей read_can_message.
@@ -93,6 +105,10 @@ private:
     int c_vigilance;
     int c_reg_tape_avl;
 
+    double c_pressure_tc;
+    double c_pressure_tm;
+    int c_ssps_mode;
+
 
     double p_speed;
     int p_speed_limit;
@@ -109,6 +125,10 @@ private:
     int p_driving_mode;
     int p_vigilance;
     int p_reg_tape_avl;
+
+    double p_pressure_tc;
+    double p_pressure_tm;
+    int p_ssps_mode;
 
 
     int decode_speed(struct can_frame* frame);
@@ -128,6 +148,8 @@ private:
     int decode_vigilance(struct can_frame* frame);
     int decode_reg_tape_avl(struct can_frame* frame);
 
+    int decode_pressure_tc_tm(struct can_frame* frame);
+    int decode_ssps_mode(struct can_frame* frame);
 
     int process_can_messages(struct can_frame* frame);
 
