@@ -409,24 +409,7 @@ int iodrv::decode_driving_mode(struct can_frame* frame)
         case 1:
             if ((p_driving_mode == -1) || (p_driving_mode != -1 && p_driving_mode != c_driving_mode))
             {
-                QString str;
-                switch (c_driving_mode)
-                {
-                    case 0:
-                        str = "П";
-                        break;
-                    case 1:
-                        str = "М";
-                        break;
-                    case 2:
-                        str = "Р";
-                        break;
-                    case 3:
-                        str = "Д";
-                        break;
-                }
-
-                emit signal_driving_mode(str);
+                emit signal_driving_mode(c_driving_mode);
             }
             p_driving_mode = c_driving_mode;
             break;
