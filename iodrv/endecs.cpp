@@ -316,10 +316,10 @@ int can_decoder::decode_reg_tape_avl(struct can_frame* frame, int* reg_tape_avl)
     return 1;
 }
 
-// VDS_DD_A
+// MVD_DD
 int can_decoder::decode_pressure_tc_tm(struct can_frame* frame, double* pressure_tc, double* pressure_tm)
 {
-    if ((*frame).can_id != 0x2E2) return -1;
+    if ((*frame).can_id != 0x2EA) return -1;
 
     (*pressure_tc) = ((double)((*frame).data[1]))/255;
     (*pressure_tm) = ((double)((*frame).data[2]))/255;
