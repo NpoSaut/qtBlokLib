@@ -148,7 +148,7 @@ int iodrv::init_sktcan(char* can_iface_name_0, char *can_iface_name_1)
     return 1;
 }
 
-void iodrv::write_canmsg_async(int socket, can_frame* frame)
+void iodrv::write_canmsg_async(int write_socket, can_frame* frame)
 {
     //TODO: Передавать по значению и лочить вызов?
     // Создавать новый сокет на отправку и закрывать его.
@@ -156,8 +156,7 @@ void iodrv::write_canmsg_async(int socket, can_frame* frame)
     // Операция будет атомарной на одном сокете, пока не израсходован его внутренний буфер, который как минимум 512 байт.
     // Учитывая размер can_frame и плотность их отправки, его исчерпание маловероятно.
 
-//    QtConcurrent::run(write_can_frame, write_socket, frame);
-    write_can_frame(socket, frame);
+    QtConcurrent::run(write_can_frame, write_socket, frame);
 }
 
 void iodrv::read_canmsgs_loop()
@@ -521,11 +520,12 @@ int iodrv::init_serial_port()
     if (spinfo.count() == 0)
     {
         fprintf(stderr, "Не найдено ни одного последовательного порта\n"); fflush(stderr);
-        return 0;
+        // Для обхода бага библиотеки QtSerialPort под arm обходим эту проверку
+        //return 0;
     }
 
     //serial_port.setPort(spinfo.at(0));
-    serial_port.setPort("/dev/ttyUSB0");
+    serial_port.setPort("/dev/ttySAC1");
     serial_port.setDataBits(SerialPort::Data8);
     serial_port.setRate(SerialPort::Rate115200);
     serial_port.setParity(SerialPort::NoParity);
@@ -537,7 +537,7 @@ int iodrv::init_serial_port()
     return 1;
 #else
     printf("Отключена компиляция SerialPort; используйте WITH_SERIALPORT.\n"); fflush(stdout);
-    return 0;
+    return 1;
 #endif
 }
 
@@ -572,8 +572,9 @@ void iodrv::slot_serial_ready_read()
             QString time = QString("%1:%2:%3").arg(gd.hours, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
             emit signal_time(time);
 
-            QString monthString[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
-            QString date = QString("%1 %2 %3").arg(gd.day, 2, 10, QChar('0')).arg(monthString[gd.month-1]).arg(gd.year, 2, 10, QChar('0'));
+            QString monthString[13] = {"n/a", "января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+            gd.month = ( gd.month >= 1 && gd.month <= 12 ) ? gd.month : 0;
+            QString date = QString("%1 %2 %3").arg(gd.day, 2, 10, QChar('0')).arg(monthString[gd.month]).arg(gd.year, 2, 10, QChar('0'));
             emit signal_date(date);
 
             emit signal_lat(gd.lat);
