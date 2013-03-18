@@ -22,8 +22,11 @@ static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2
     return qAtan(num / denum) * 6372.795;
 }
 
-iodrv::iodrv()
+iodrv::iodrv(SystemStateViewModel *systemState)
 {
+    //!!!!! TODO: ВРЕМЕННО
+    this->systemState = systemState;
+
     gps_source = gps;
     read_socket_0 = -1;
     write_socket_0 = -1;
@@ -297,9 +300,22 @@ int iodrv::decode_trafficlight_freq(struct can_frame* frame)
     switch (can_decoder::decode_trafficlight_freq(frame, &c_trafficlight_freq))
     {
         case 1:
-            if ((p_trafficlight_freq == -1) || (p_trafficlight_freq != -1 && p_trafficlight_freq != c_trafficlight_freq))
+            /*if ((p_trafficlight_freq == -1) || (p_trafficlight_freq != -1 && p_trafficlight_freq != c_trafficlight_freq))
             {
                 emit signal_trafficlight_freq(c_trafficlight_freq);
+            }
+            p_trafficlight_freq = c_trafficlight_freq;*/
+            if ( p_trafficlight_freq == -1 )
+            {
+                emit signal_trafficlight_freq(c_trafficlight_freq);
+            }
+            else if (target_trafficlight_freq == c_trafficlight_freq)
+            {
+                emit signal_trafficlight_freq(c_trafficlight_freq);
+            }
+            else
+            {
+                this->slot_f_key_down();
             }
             p_trafficlight_freq = c_trafficlight_freq;
             break;
@@ -407,9 +423,22 @@ int iodrv::decode_driving_mode(struct can_frame* frame)
     switch (can_decoder::decode_driving_mode(frame, &c_driving_mode))
     {
         case 1:
-            if ((p_driving_mode == -1) || (p_driving_mode != -1 && p_driving_mode != c_driving_mode))
+            /*if ((p_driving_mode == -1) || (p_driving_mode != -1 && p_driving_mode != c_driving_mode))
             {
                 emit signal_driving_mode(c_driving_mode);
+            }
+            p_driving_mode = c_driving_mode;*/
+            if ( p_driving_mode == -1 )
+            {
+                emit signal_driving_mode(c_driving_mode);
+            }
+            else if (target_driving_mode == c_driving_mode)
+            {
+                emit signal_driving_mode(c_driving_mode);
+            }
+            else
+            {
+                this->slot_rmp_key_down();
             }
             p_driving_mode = c_driving_mode;
             break;
@@ -588,6 +617,8 @@ void iodrv::slot_f_key_down()
     can_frame frame = can_encoder::encode_sys_key(is_pressed, 0x1C);
     write_canmsg_async(write_socket_0, &frame);
     write_canmsg_async(write_socket_1, &frame);
+
+    target_trafficlight_freq = systemState->getAlsnFreqTarget();
 }
 
 void iodrv::slot_f_key_up()
@@ -616,6 +647,8 @@ void iodrv::slot_rmp_key_down()
     can_frame frame = can_encoder::encode_sys_key(is_pressed, 0x16);
     write_canmsg_async(write_socket_0, &frame);
     write_canmsg_async(write_socket_1, &frame);
+
+    this->target_driving_mode = systemState->getDriveModeTarget();
 }
 
 void iodrv::slot_rmp_key_up()

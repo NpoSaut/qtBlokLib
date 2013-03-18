@@ -3,6 +3,9 @@
 #ifndef IODRV_H
 #define IODRV_H
 
+//!!!!! TODO: ВРЕМЕННО
+#include "systemstateviewmodel.h"
+
 
 #include "iodrvmain.h"
 #include "sktcan.h"
@@ -23,7 +26,9 @@ class iodrv : public QObject
     Q_OBJECT
 
 public:
-    iodrv();
+    //!!!!! TODO: ВРЕМЕННО
+    iodrv(SystemStateViewModel *systemState);
+
 
 public:
     int start(char* can_iface_name_0, char* can_iface_name_1, gps_data_source gps_datasource = gps);
@@ -44,8 +49,7 @@ signals:
     void signal_trafficlight_light(int trafficlight_light);
     void signal_trafficlight_freq(int trafficlight_freq);
     //Движение
-    // TODO: С какого я буду отдавать здесь QString?!
-    void signal_driving_mode(QString driving_mode);
+    void signal_driving_mode(int driving_mode);
     void signal_vigilance(int vigilance);
     void signal_movement_direction(int movement_direction);
     void signal_reg_tape_avl(int reg_tape_avl);
@@ -170,6 +174,13 @@ private:
 
     QTimer* timer_disp_state;
     void init_timers();
+
+    // Переменные отслеживания состояния, когда задаётся целевое значение, но до его «применения» могут приходить фактические значения.
+    int target_trafficlight_freq;
+    int target_driving_mode;
+
+    //!!!!! TODO: ВРЕМЕННО
+    SystemStateViewModel *systemState;
 };
 
 #endif // IODRV_H
