@@ -45,7 +45,7 @@ signals:
     void signal_trafficlight_freq(int trafficlight_freq);
     //Движение
     // TODO: С какого я буду отдавать здесь QString?!
-    void signal_driving_mode(QString driving_mode);
+    void signal_driving_mode(int driving_mode);
     void signal_vigilance(int vigilance);
     void signal_movement_direction(int movement_direction);
     void signal_reg_tape_avl(int reg_tape_avl);
