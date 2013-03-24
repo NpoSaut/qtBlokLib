@@ -339,12 +339,14 @@ int can_decoder::decode_ssps_mode(struct can_frame* frame, int* ssps_mode)
 
 
 
-void nmea::decode_nmea_message(QString message, struct gps_data* gd)
+bool nmea::decode_nmea_message(QString message, struct gps_data* gd)
 {
     if (message.mid(3,3) == "RMC")
     {
         decode_rmc(message, gd);
+        return true;
     }
+    else return false;
 }
 
 // $GPRMC,024607.000,V,5651.27857,N,06035.91777,E,0.0,0.0,241212,,,N*70
@@ -377,11 +379,7 @@ void nmea::decode_rmc(QString message, struct gps_data* gd)
     int dty = ("20" + fields.at(9).mid(4,2)).toInt();
 
     // Reliability
-    bool IsReliable = false;
-    if (fields.at(2) == "A")
-        IsReliable = true;
-    else if (fields.at(2) == "V")
-        IsReliable = false;
+    bool IsReliable = fields.at(2).toLower().contains("a");
 
     // Lattitude, degrees
     double latd = fields.at(3).mid(0,2).toDouble();
@@ -397,9 +395,10 @@ void nmea::decode_rmc(QString message, struct gps_data* gd)
     if (fields.at(6) == "W")
         lon = -lon;
 
-    // Velocity
-    QStringList v_list = fields.at(7).split("."); // И целая, и дробная части могут быть переменной длины.
-    double speed_kmh = ( v_list.at(0).toDouble() + v_list.at(1).toDouble() ) * 1.852;
+    // Velocityvoid
+    //QStringList v_list = fields.at(7).split("."); // И целая, и дробная части могут быть переменной длины.
+    //double speed_kmh = ( v_list.at(0).toDouble() + v_list.at(1).toDouble() ) * 1.852;
+    double speed_kmh = fields.at(7).toDouble() * 1.852;
 
     gd->lat = lat;
     gd->lon = lon;

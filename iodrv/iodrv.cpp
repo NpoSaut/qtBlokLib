@@ -5,7 +5,7 @@
 #include <QtCore/qmath.h>
 
 // Distance between coordinates in kilometers
-const double PI  =3.141592653589793238462;
+const double PI = 3.141592653589793238462;
 static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2d, double lon2d)
 {
     // Sphere Earth
@@ -19,7 +19,7 @@ static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2
 
     double num = qSqrt(qPow(qCos(lat2r) * qSin(deltalon), 2) + qPow(qCos(lat1r) * qSin(lat2r) - qSin(lat1r) * qCos(lat2r) * qCos(deltalon), 2));
     double denum = qSin(lat1r) * qSin(lat2r) + qCos(lat1r) * qCos(lat2r) * qCos(deltalon);
-    return qAtan(num / denum) * 6372.795;
+    return 1000 * qAtan(num / denum) * 6372.795;
 }
 
 iodrv::iodrv(SystemStateViewModel *systemState)
@@ -537,6 +537,7 @@ int iodrv::init_serial_port()
     return 1;
 #else
     printf("Отключена компиляция SerialPort; используйте WITH_SERIALPORT.\n"); fflush(stdout);
+
     return 1;
 #endif
 }
@@ -551,23 +552,30 @@ void iodrv::slot_serial_ready_read()
         can_frame wframe_ipddate;
         can_frame wframe_mmdata;
 
-        nmea::decode_nmea_message(QString(serial_port.readLine()), &gd);
+        QString nmeaMessage = QString(serial_port.readLine());
 
-        wframe_mmaltlon = can_encoder::encode_mm_alt_long(gd.lat, gd.lon, (bool)gd.is_reliable);
-        wframe_ipddate = can_encoder::encode_ipd_date(gd.year, gd.month, gd.day, gd.hours, gd.minutes, gd.seconds);
-        wframe_mmdata = can_encoder::encode_mm_data(qCeil(gd.speed));
+        if ( nmea::decode_nmea_message(nmeaMessage, &gd) )
+        {
+            wframe_mmaltlon = can_encoder::encode_mm_alt_long(gd.lat, gd.lon, (bool)gd.is_reliable);
+            wframe_ipddate = can_encoder::encode_ipd_date(gd.year, gd.month, gd.day, gd.hours, gd.minutes, gd.seconds);
+            wframe_mmdata = can_encoder::encode_mm_data(qCeil(gd.speed));
 
-        write_canmsg_async(write_socket_0, &wframe_mmaltlon);
-        write_canmsg_async(write_socket_1, &wframe_mmaltlon);
-        write_canmsg_async(write_socket_0, &wframe_ipddate);
-        write_canmsg_async(write_socket_1, &wframe_ipddate);
-        write_canmsg_async(write_socket_0, &wframe_mmdata);
-        write_canmsg_async(write_socket_1, &wframe_mmdata);
+            write_canmsg_async(write_socket_0, &wframe_mmaltlon);
+            write_canmsg_async(write_socket_1, &wframe_mmaltlon);
+            write_canmsg_async(write_socket_0, &wframe_ipddate);
+            write_canmsg_async(write_socket_1, &wframe_ipddate);
+            write_canmsg_async(write_socket_0, &wframe_mmdata);
+            write_canmsg_async(write_socket_1, &wframe_mmdata);
 
+            emit signal_speed(gd.is_reliable ? gd.speed : -1);
 
-        //if (gd.is_reliable)
-        //{
-        //}
+            QString time = QString("%1:%2:%3").arg(gd.hours, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
+            emit signal_time(time);
+
+            QString monthString[13] = {"n/a", "января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+            gd.month = ( gd.month >= 1 && gd.month <= 12 ) ? gd.month : 0;
+            QString date = QString("%1 %2 %3").arg(gd.day, 2, 10, QChar('0')).arg(monthString[gd.month]).arg(gd.year, 2, 10, QChar('0'));
+            emit signal_date(date);
 
             QString time = QString("%1:%2:%3").arg(gd.hours, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
             emit signal_time(time);
@@ -580,18 +588,18 @@ void iodrv::slot_serial_ready_read()
             emit signal_lat(gd.lat);
             emit signal_lon(gd.lon);
 
-        if (c_ssps_mode == 1)
-        {
-            emit signal_speed(gd.speed);
+            if (c_ssps_mode == 1)
+            {
+            }
 
             if (pgd.lat != 0)
             {
                 total_passed_distance += DistanceBetweenCoordinates(gd.lat, gd.lon, pgd.lat, pgd.lon);
                 emit signal_passed_distance(total_passed_distance);
             }
-        }
 
-        pgd = gd;
+            pgd = gd;
+        }
     }
 #endif
 }

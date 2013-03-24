@@ -69,7 +69,7 @@ struct gps_data
 class nmea
 {
 public:
-    static void decode_nmea_message(QString message, struct gps_data* gd);
+    static bool decode_nmea_message(QString message, struct gps_data* gd);
     static void decode_rmc(QString message, struct gps_data* gd);
 };
 
