@@ -109,6 +109,24 @@ can_frame can_encoder::encode_mm_data(int speed)
     return frame;
 }
 
+can_frame can_encoder::encode_ipd_state( double speed, int distance, bool reliable )
+{
+    can_frame frame;
+    frame.can_id = 0x0C4;
+    frame.can_dlc = 8;
+
+    distance = abs(distance);
+
+    frame.data[0] = reliable ? 0 : 1;
+    frame.data[1] = speed != 0 ? 4 : 0; // наличие движения
+    frame.data[2] = speed;
+    frame.data[3] = char(distance/256);
+    frame.data[4] = char(distance);
+    frame.data[5] = char(distance/256/256);
+    frame.data[6] = reliable ? 0 : 1;
+    frame.data[7] = 0;
+}
+
 
 
 

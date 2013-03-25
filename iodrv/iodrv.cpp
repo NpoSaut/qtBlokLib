@@ -4,6 +4,9 @@
 #include <QDate>
 #include <QtCore/qmath.h>
 
+#include <QFile>
+#include <QTextStream>
+
 // Distance between coordinates in kilometers
 const double PI = 3.141592653589793238462;
 static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2d, double lon2d)
@@ -23,6 +26,7 @@ static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2
 }
 
 iodrv::iodrv(SystemStateViewModel *systemState)
+    : distance_store_file("/media/milage.txt")
 {
     //!!!!! TODO: ВРЕМЕННО
     this->systemState = systemState;
@@ -32,9 +36,20 @@ iodrv::iodrv(SystemStateViewModel *systemState)
     write_socket_0 = -1;
     write_socket_1 = -1;
 
-    total_passed_distance = 0;
-    pgd.lat = 0;
+    if( distance_store_file.open(QIODevice::ReadWrite) )
+    {
+        QTextStream distance_store_stream (&distance_store_file);
+        stored_passed_distance = distance_store_stream.readLine().toInt();
+        distance_store_file.close();
+    }
+    else
+    {
+        qDebug() << "Error open milage.txt!" << endl;
+        stored_passed_distance = 0;
+    }
+    total_passed_distance = stored_passed_distance;
 
+    pgd.lat = 0;
 
     c_speed = -1;
     c_speed_limit = -1;
@@ -156,7 +171,8 @@ void iodrv::write_canmsg_async(int write_socket, can_frame* frame)
     // Операция будет атомарной на одном сокете, пока не израсходован его внутренний буфер, который как минимум 512 байт.
     // Учитывая размер can_frame и плотность их отправки, его исчерпание маловероятно.
 
-    QtConcurrent::run(write_can_frame, write_socket, frame);
+//    QtConcurrent::run(write_can_frame, write_socket, frame);
+    write_can_frame(write_socket, frame);
 }
 
 void iodrv::read_canmsgs_loop()
@@ -474,7 +490,7 @@ int iodrv::decode_reg_tape_avl(struct can_frame* frame)
 
 int iodrv::decode_pressure_tc_tm(struct can_frame* frame)
 {
-    switch (can_decoder::decode_reg_tape_avl(frame, &c_reg_tape_avl))
+    switch (can_decoder::decode_pressure_tc_tm(frame, &c_pressure_tc, &c_pressure_tm))
     {
         case 1:
             if ((p_pressure_tc == -1) || (p_pressure_tc != -1 && p_pressure_tc != c_pressure_tc))
@@ -551,31 +567,15 @@ void iodrv::slot_serial_ready_read()
         can_frame wframe_mmaltlon;
         can_frame wframe_ipddate;
         can_frame wframe_mmdata;
+        can_frame wframe_ipdstate;
 
         QString nmeaMessage = QString(serial_port.readLine());
 
         if ( nmea::decode_nmea_message(nmeaMessage, &gd) )
         {
-            wframe_mmaltlon = can_encoder::encode_mm_alt_long(gd.lat, gd.lon, (bool)gd.is_reliable);
-            wframe_ipddate = can_encoder::encode_ipd_date(gd.year, gd.month, gd.day, gd.hours, gd.minutes, gd.seconds);
-            wframe_mmdata = can_encoder::encode_mm_data(qCeil(gd.speed));
-
-            write_canmsg_async(write_socket_0, &wframe_mmaltlon);
-            write_canmsg_async(write_socket_1, &wframe_mmaltlon);
-            write_canmsg_async(write_socket_0, &wframe_ipddate);
-            write_canmsg_async(write_socket_1, &wframe_ipddate);
-            write_canmsg_async(write_socket_0, &wframe_mmdata);
-            write_canmsg_async(write_socket_1, &wframe_mmdata);
+            if (gd.speed < 2.5) gd.speed = 0;
 
             emit signal_speed(gd.is_reliable ? gd.speed : -1);
-
-            QString time = QString("%1:%2:%3").arg(gd.hours, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
-            emit signal_time(time);
-
-            QString monthString[13] = {"n/a", "января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
-            gd.month = ( gd.month >= 1 && gd.month <= 12 ) ? gd.month : 0;
-            QString date = QString("%1 %2 %3").arg(gd.day, 2, 10, QChar('0')).arg(monthString[gd.month]).arg(gd.year, 2, 10, QChar('0'));
-            emit signal_date(date);
 
             QString time = QString("%1:%2:%3").arg(gd.hours, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
             emit signal_time(time);
@@ -594,11 +594,48 @@ void iodrv::slot_serial_ready_read()
 
             if (pgd.lat != 0)
             {
-                total_passed_distance += DistanceBetweenCoordinates(gd.lat, gd.lon, pgd.lat, pgd.lon);
+                total_passed_distance += DistanceBetweenCoordinates(gd.lat, gd.lon, pgd.lat, pgd.lon) + 10;
+
+                if ( (total_passed_distance - stored_passed_distance) >= 100 )
+                {
+                    if( distance_store_file.open(QIODevice::ReadWrite) )
+                    {
+                        QTextStream distance_store_stream (&distance_store_file);
+                        distance_store_stream << int(total_passed_distance) << endl;
+                        distance_store_stream.flush();
+                        distance_store_file.close();
+                        stored_passed_distance = total_passed_distance;
+                    }
+                    else
+                    {
+                        qDebug() << "Error open milage.txt!" << endl;
+                    }
+                }
+
                 emit signal_passed_distance(total_passed_distance);
+
             }
 
             pgd = gd;
+
+            // Отправка в CAN
+
+            wframe_mmaltlon = can_encoder::encode_mm_alt_long(gd.lat, gd.lon, (bool)gd.is_reliable);
+            wframe_ipddate = can_encoder::encode_ipd_date(gd.year, gd.month, gd.day, gd.hours, gd.minutes, gd.seconds);
+            wframe_mmdata = can_encoder::encode_mm_data(qRound(gd.speed));
+
+
+            write_canmsg_async(write_socket_0, &wframe_mmaltlon);
+            write_canmsg_async(write_socket_1, &wframe_mmaltlon);
+            write_canmsg_async(write_socket_0, &wframe_ipddate);
+            write_canmsg_async(write_socket_1, &wframe_ipddate);
+            write_canmsg_async(write_socket_0, &wframe_mmdata);
+            write_canmsg_async(write_socket_1, &wframe_mmdata);
+
+            wframe_ipdstate = can_encoder::encode_ipd_state( qRound(gd.speed), total_passed_distance, gd.is_reliable );
+            write_canmsg_async(write_socket_0, &wframe_ipdstate);
+            wframe_ipddate.can_id = 0x0D4;
+            write_canmsg_async(write_socket_1, &wframe_ipdstate);
         }
     }
 #endif
