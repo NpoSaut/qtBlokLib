@@ -44,8 +44,8 @@ signals:
     void signal_target_speed(int target_speed);
     void signal_acceleration(double acceleration);
     //Состояние системы
-    void signal_epv_state(int epv_state);
-    void signal_epv_key(int epv_key);
+    void signal_epv_state(bool epv_state);
+    void signal_epv_key(bool epv_key);
     //Одометр
     void signal_passed_distance(int passed_distance);
     //Светофоры
@@ -53,9 +53,9 @@ signals:
     void signal_trafficlight_freq(int trafficlight_freq);
     //Движение
     void signal_driving_mode(int driving_mode);
-    void signal_vigilance(int vigilance);
+    void signal_vigilance(bool vigilance);
     void signal_movement_direction(int movement_direction);
-    void signal_reg_tape_avl(int reg_tape_avl);
+    void signal_reg_tape_avl(bool reg_tape_avl);
 
     void signal_pressure_tc(QString pressure_tc);
     void signal_pressure_tm(QString pressure_tm);
