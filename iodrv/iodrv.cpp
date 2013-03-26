@@ -315,24 +315,16 @@ int iodrv::decode_trafficlight_freq(struct can_frame* frame)
     switch (can_decoder::decode_trafficlight_freq(frame, &c_trafficlight_freq))
     {
         case 1:
-            /*if ((p_trafficlight_freq == -1) || (p_trafficlight_freq != -1 && p_trafficlight_freq != c_trafficlight_freq))
+            if ((p_trafficlight_freq == -1) || (p_trafficlight_freq != -1 && p_trafficlight_freq != c_trafficlight_freq))
             {
                 emit signal_trafficlight_freq(c_trafficlight_freq);
             }
-            p_trafficlight_freq = c_trafficlight_freq;*/
-            if ( p_trafficlight_freq == -1 )
-            {
-                emit signal_trafficlight_freq(c_trafficlight_freq);
-            }
-            else if (target_trafficlight_freq == c_trafficlight_freq)
-            {
-                emit signal_trafficlight_freq(c_trafficlight_freq);
-            }
-            else
+            if (target_trafficlight_freq != c_trafficlight_freq)
             {
                 this->slot_f_key_down();
             }
             p_trafficlight_freq = c_trafficlight_freq;
+
             break;
     }
 }
@@ -438,24 +430,16 @@ int iodrv::decode_driving_mode(struct can_frame* frame)
     switch (can_decoder::decode_driving_mode(frame, &c_driving_mode))
     {
         case 1:
-            /*if ((p_driving_mode == -1) || (p_driving_mode != -1 && p_driving_mode != c_driving_mode))
+            if ((p_driving_mode == -1) || (p_driving_mode != -1 && p_driving_mode != c_driving_mode))
             {
                 emit signal_driving_mode(c_driving_mode);
             }
-            p_driving_mode = c_driving_mode;*/
-            if ( p_driving_mode == -1 )
-            {
-                emit signal_driving_mode(c_driving_mode);
-            }
-            else if (target_driving_mode == c_driving_mode)
-            {
-                emit signal_driving_mode(c_driving_mode);
-            }
-            else
+            if (target_driving_mode != c_driving_mode)
             {
                 this->slot_rmp_key_down();
             }
             p_driving_mode = c_driving_mode;
+
             break;
     }
 }
