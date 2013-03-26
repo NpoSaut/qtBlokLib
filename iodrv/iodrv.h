@@ -59,7 +59,7 @@ signals:
 
     void signal_pressure_tc(QString pressure_tc);
     void signal_pressure_tm(QString pressure_tm);
-    void signal_ssps_mode(int ssps_mode);
+    void signal_ssps_mode(bool ssps_mode);
 
 
     void signal_lat(double lat);
@@ -95,6 +95,11 @@ private:
     double total_passed_distance;
     double stored_passed_distance;
     gps_data pgd;
+
+    can_frame wframe_mmaltlon;
+    can_frame wframe_ipddate;
+    can_frame wframe_mmdata;
+    can_frame wframe_ipdstate;
 
 
     // По-хорошему, эти переменные и работающие с ними функции должны быть объявлены в нити, обрабатывающей read_can_message.

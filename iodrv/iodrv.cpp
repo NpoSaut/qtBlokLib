@@ -66,7 +66,7 @@ iodrv::iodrv(SystemStateViewModel *systemState)
 
     c_pressure_tc = -1;
     c_pressure_tm = -1;
-    c_ssps_mode = -1;
+    c_ssps_mode = 1;
 
     p_speed = -1;
     p_speed_limit = -1;
@@ -165,14 +165,15 @@ int iodrv::init_sktcan(char* can_iface_name_0, char *can_iface_name_1)
 
 void iodrv::write_canmsg_async(int write_socket, can_frame* frame)
 {
-    //TODO: Передавать по значению и лочить вызов?
+    // TODO: Передавать по значению и лочить вызов?
     // Создавать новый сокет на отправку и закрывать его.
 
     // Операция будет атомарной на одном сокете, пока не израсходован его внутренний буфер, который как минимум 512 байт.
     // Учитывая размер can_frame и плотность их отправки, его исчерпание маловероятно.
 
-//    QtConcurrent::run(write_can_frame, write_socket, frame);
-    write_can_frame(write_socket, frame);
+    //qDebug() << "cocure";
+    //QtConcurrent::run(write_can_frame, write_socket, *frame);
+    write_can_frame(write_socket, *frame);
 }
 
 void iodrv::read_canmsgs_loop()
@@ -205,7 +206,7 @@ int iodrv::process_can_messages(struct can_frame *frame)
     decode_reg_tape_avl(frame);
 
     decode_pressure_tc_tm(frame);
-    decode_ssps_mode(frame);
+//    decode_ssps_mode(frame);
 
     if(gps_source == can)
     {
@@ -322,16 +323,18 @@ int iodrv::decode_trafficlight_freq(struct can_frame* frame)
             p_trafficlight_freq = c_trafficlight_freq;*/
             if ( p_trafficlight_freq == -1 )
             {
-                emit signal_trafficlight_freq(c_trafficlight_freq);
+                //emit signal_trafficlight_freq(c_trafficlight_freq);
             }
             else if (target_trafficlight_freq == c_trafficlight_freq)
             {
-                emit signal_trafficlight_freq(c_trafficlight_freq);
+                //emit signal_trafficlight_freq(c_trafficlight_freq);
             }
             else
             {
                 this->slot_f_key_down();
             }
+
+            emit signal_trafficlight_freq(c_trafficlight_freq);
             p_trafficlight_freq = c_trafficlight_freq;
             break;
     }
@@ -564,19 +567,12 @@ void iodrv::slot_serial_ready_read()
     if (serial_port.canReadLine())
     {
         gps_data gd;    // TODO: Сделать глобальной?
-        can_frame wframe_mmaltlon;
-        can_frame wframe_ipddate;
-        can_frame wframe_mmdata;
-        can_frame wframe_ipdstate;
+
 
         QString nmeaMessage = QString(serial_port.readLine());
 
         if ( nmea::decode_nmea_message(nmeaMessage, &gd) )
         {
-            if (gd.speed < 2.5) gd.speed = 0;
-
-            emit signal_speed(gd.is_reliable ? gd.speed : -1);
-
             QString time = QString("%1:%2:%3").arg(gd.hours, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
             emit signal_time(time);
 
@@ -590,33 +586,47 @@ void iodrv::slot_serial_ready_read()
 
             if (c_ssps_mode == 1)
             {
-            }
+                static double speed_old = 0;
 
-            if (pgd.lat != 0)
-            {
-                total_passed_distance += DistanceBetweenCoordinates(gd.lat, gd.lon, pgd.lat, pgd.lon) + 10;
+                if (gd.speed < 1.2)
+                    gd.speed = 0;
 
-                if ( (total_passed_distance - stored_passed_distance) >= 100 )
+                if (speed_old != -1000 && abs(speed_old - gd.speed) > 5)
                 {
-                    if( distance_store_file.open(QIODevice::ReadWrite) )
+                    gd.speed = speed_old;
+                    speed_old = -1000;
+                }
+                else
+                    speed_old = gd.speed;
+
+                emit signal_speed(gd.is_reliable ? gd.speed : -1);
+
+                if (pgd.lat != 0)
+                {
+                    total_passed_distance += DistanceBetweenCoordinates(gd.lat, gd.lon, pgd.lat, pgd.lon);
+
+                    if ( (total_passed_distance - stored_passed_distance) >= 100 )
                     {
-                        QTextStream distance_store_stream (&distance_store_file);
-                        distance_store_stream << int(total_passed_distance) << endl;
-                        distance_store_stream.flush();
-                        distance_store_file.close();
-                        stored_passed_distance = total_passed_distance;
+                        if( distance_store_file.open(QIODevice::ReadWrite) )
+                        {
+                            QTextStream distance_store_stream (&distance_store_file);
+                            distance_store_stream << int(total_passed_distance) << endl;
+                            distance_store_stream.flush();
+                            distance_store_file.close();
+                            stored_passed_distance = total_passed_distance;
+                        }
+                        else
+                        {
+                            qDebug() << "Error open milage.txt!" << endl;
+                        }
                     }
-                    else
-                    {
-                        qDebug() << "Error open milage.txt!" << endl;
-                    }
+
+                    emit signal_passed_distance(total_passed_distance);
+
                 }
 
-                emit signal_passed_distance(total_passed_distance);
-
+                pgd = gd;
             }
-
-            pgd = gd;
 
             // Отправка в CAN
 
@@ -632,10 +642,13 @@ void iodrv::slot_serial_ready_read()
             write_canmsg_async(write_socket_0, &wframe_mmdata);
             write_canmsg_async(write_socket_1, &wframe_mmdata);
 
-            wframe_ipdstate = can_encoder::encode_ipd_state( qRound(gd.speed), total_passed_distance, gd.is_reliable );
-            write_canmsg_async(write_socket_0, &wframe_ipdstate);
-            wframe_ipddate.can_id = 0x0D4;
-            write_canmsg_async(write_socket_1, &wframe_ipdstate);
+            if ( c_ssps_mode == 1 )
+            {
+                wframe_ipdstate = can_encoder::encode_ipd_state( qRound(gd.speed), total_passed_distance, gd.is_reliable );
+                write_canmsg_async(write_socket_0, &wframe_ipdstate);
+                wframe_ipddate.can_id = 0x0D4;
+                write_canmsg_async(write_socket_1, &wframe_ipdstate);
+            }
         }
     }
 #endif
