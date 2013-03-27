@@ -39,7 +39,8 @@ public:
 signals:
     // Сигналы вызываются немедленно или у них есть внутренняя очередь, так что они могут передать изменённое значение?
     //Скорость и ограничения
-    void signal_speed(double speed);
+    void signal_speed_earth(double speed);
+    void signal_speed_sky(double speed);
     void signal_speed_limit(int speed_limit);
     void signal_target_speed(int target_speed);
     void signal_acceleration(double acceleration);
@@ -191,6 +192,30 @@ private:
 
     //!!!!! TODO: ВРЕМЕННО
     SystemStateViewModel *systemState;
+};
+
+class SpeedAgregator: public QObject
+{
+    Q_OBJECT
+public:
+    SpeedAgregator();
+
+    static const double minSpeedSkyAccount = 8;
+    static const double maxAllowDeltaSpeed = 4;
+
+public slots:
+    void getSpeedFromSky (double speed);
+    void getSpeedFromEarth (double speed);
+
+signals:
+    void speedChanged (double speed);
+    void speedIsValidChanged (bool isValid);
+
+private:
+    double currentSpeed;
+    bool currentSpeedIsValid;
+
+    void setSpeedIsValid (bool isValid);
 };
 
 #endif // IODRV_H
