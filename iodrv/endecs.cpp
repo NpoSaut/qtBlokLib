@@ -255,7 +255,7 @@ int can_decoder::decode_trafficlight_freq(struct can_frame* frame, int* trafficl
     else if (freq_code == 1)
         (*trafficlight_freq) = 75;
     else if (freq_code == 2)
-        (*trafficlight_freq) = 50;
+        (*trafficlight_freq) = 0;
     else if (freq_code == 3)
         (*trafficlight_freq) = 25;
 

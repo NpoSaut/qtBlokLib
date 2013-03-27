@@ -189,30 +189,30 @@ void iodrv::read_canmsgs_loop()
 
 int iodrv::process_can_messages(struct can_frame *frame)
 {
-    decode_speed(frame);
+//    decode_speed(frame);
     decode_speed_limit(frame);
     decode_target_speed(frame);
-    decode_acceleration(frame);
+//    decode_acceleration(frame);
 
     decode_trafficlight_light(frame);
     decode_trafficlight_freq(frame);
-    decode_passed_distance(frame);
+//    decode_passed_distance(frame);
     decode_epv_state(frame);
     decode_epv_key(frame);
 
     decode_driving_mode(frame);
     decode_vigilance(frame);
-    decode_movement_direction(frame);
+//    decode_movement_direction(frame);
     decode_reg_tape_avl(frame);
 
     decode_pressure_tc_tm(frame);
 //    decode_ssps_mode(frame);
 
-    if(gps_source == can)
-    {
-        decode_mm_lat_lon(frame);
-        decode_ipd_datetime(frame);
-    }
+//    if(gps_source == can)
+//    {
+//        decode_mm_lat_lon(frame);
+//        decode_ipd_datetime(frame);
+//    }
 }
 
 
@@ -323,6 +323,7 @@ int iodrv::decode_trafficlight_freq(struct can_frame* frame)
             if (target_trafficlight_freq != c_trafficlight_freq)
             {
                 this->slot_f_key_down();
+                this->slot_f_key_up();
             }
             p_trafficlight_freq = c_trafficlight_freq;
 
