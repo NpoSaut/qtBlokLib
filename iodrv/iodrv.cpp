@@ -342,7 +342,7 @@ int iodrv::decode_passed_distance(struct can_frame* frame)
             // Общий одометр
             if (c_ssps_mode == 0 && p_passed_distance != -1 && c_passed_distance != -1)
             {
-                total_passed_distance += (c_passed_distance - p_passed_distance);
+                total_passed_distance += abs(c_passed_distance - p_passed_distance);
                 emit signal_passed_distance(total_passed_distance);
             }
             p_passed_distance = c_passed_distance;
