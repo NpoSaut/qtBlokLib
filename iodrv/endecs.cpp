@@ -91,7 +91,7 @@ can_frame can_encoder::encode_sys_key(key_state k_state, int key_code)
     return frame;
 }
 
-can_frame can_encoder::encode_mm_data(int speed)
+can_frame can_encoder::encode_mm_data(int speed, int milage)
 {
     can_frame frame;
     frame.can_id = 0x211;
@@ -100,9 +100,9 @@ can_frame can_encoder::encode_mm_data(int speed)
     frame.data[0] = 0;
     frame.data[1] = speed & 0b11111111;
     frame.data[2] = 0;
-    frame.data[3] = 0;
-    frame.data[4] = 0;
-    frame.data[5] = 0;
+    frame.data[3] = char(milage/256/256);
+    frame.data[4] = char(milage/256);
+    frame.data[5] = char(milage);
     frame.data[6] = 0;
     frame.data[7] = 0;
 

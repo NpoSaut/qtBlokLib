@@ -340,10 +340,27 @@ int iodrv::decode_passed_distance(struct can_frame* frame)
             p_passed_distance = c_passed_distance;*/
 
             // Общий одометр
-            if (c_ssps_mode == 0 && p_passed_distance != -1 && c_passed_distance != -1)
+            if ( c_ssps_mode == 0 &&
+                    p_passed_distance != -1 && c_passed_distance != -1)
             {
                 total_passed_distance += abs(c_passed_distance - p_passed_distance);
                 emit signal_passed_distance(total_passed_distance);
+
+                if ( (total_passed_distance - stored_passed_distance) >= 100 )
+                {
+                    if( distance_store_file.open(QIODevice::ReadWrite) )
+                    {
+                        QTextStream distance_store_stream (&distance_store_file);
+                        distance_store_stream << int(total_passed_distance) << endl;
+                        distance_store_stream.flush();
+                        distance_store_file.close();
+                        stored_passed_distance = total_passed_distance;
+                    }
+                    else
+                    {
+                        qDebug() << "Error open milage.txt!" << endl;
+                    }
+                }
             }
             p_passed_distance = c_passed_distance;
 
@@ -582,7 +599,8 @@ void iodrv::slot_serial_ready_read()
 
             emit signal_speed_sky(gd.is_reliable ? gd.speed : -1);
 
-            if (pgd.lat != 0)
+            if ( c_ssps_mode == 1 &&
+                    pgd.lat != 0 )
             {
                 total_passed_distance += DistanceBetweenCoordinates(gd.lat, gd.lon, pgd.lat, pgd.lon);
 
@@ -611,7 +629,7 @@ void iodrv::slot_serial_ready_read()
 
             wframe_mmaltlon = can_encoder::encode_mm_alt_long(gd.lat, gd.lon, (bool)gd.is_reliable);
             wframe_ipddate = can_encoder::encode_ipd_date(gd.year, gd.month, gd.day, gd.hours, gd.minutes, gd.seconds);
-            wframe_mmdata = can_encoder::encode_mm_data(qRound(gd.speed));
+            wframe_mmdata = can_encoder::encode_mm_data(qRound(gd.speed), total_passed_distance);
 
             write_canmsg_async(write_socket_0, &wframe_mmaltlon);
             write_canmsg_async(write_socket_1, &wframe_mmaltlon);

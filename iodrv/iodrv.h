@@ -102,7 +102,6 @@ private:
     can_frame wframe_mmdata;
     can_frame wframe_ipdstate;
 
-
     // По-хорошему, эти переменные и работающие с ними функции должны быть объявлены в нити, обрабатывающей read_can_message.
     double c_speed;
     int c_speed_limit;
