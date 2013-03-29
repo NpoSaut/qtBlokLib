@@ -435,7 +435,10 @@ int iodrv::decode_driving_mode(struct can_frame* frame)
             }
             if (target_driving_mode != c_driving_mode)
             {
-                this->slot_rmp_key_down();
+                // Временно отключил подстраивание под заказной РМП
+                // т.к. возникли проблемы с различием наборов заказных
+                // и реальных режимов движения
+                //this->slot_rmp_key_down();
             }
             p_driving_mode = c_driving_mode;
 
