@@ -707,30 +707,20 @@ void iodrv::slot_rmp_key_up()
 
 
 SpeedAgregator::SpeedAgregator()
-        : currentSpeed(0), currentSpeedIsValid(false)
+    : currentSpeedFromEarth(0), currentSpeedFromSky(0), currentSpeedIsValid(false), onRails(false)
     {}
 
 
 void SpeedAgregator::getSpeedFromSky (double speed)
 {
-    if ( speed > 0 ) // достоверность
-    {
-        setSpeedIsValid( !(
-                        speed > minSpeedSkyAccount &&
-                        abs(speed - currentSpeed) > maxAllowDeltaSpeed
-                            )
-                );
-    }
-    qDebug() << "Speed | " << speed << " | " << currentSpeed;
+    if ( currentSpeedFromSky != speed )
+        getNewSpeed( speed, currentSpeedFromEarth );
 }
 
 void SpeedAgregator::getSpeedFromEarth (double speed)
 {
-    if (speed != currentSpeed)
-    {
-        currentSpeed = speed;
-        emit speedChanged(speed);
-    }
+    if ( currentSpeedFromEarth != speed )
+        getNewSpeed( currentSpeedFromSky, speed );
 }
 
 void SpeedAgregator::setSpeedIsValid (bool isValid)
@@ -739,6 +729,38 @@ void SpeedAgregator::setSpeedIsValid (bool isValid)
     {
         currentSpeedIsValid = isValid;
         emit speedIsValidChanged(isValid);
+    }
+}
+
+void SpeedAgregator::getIsOnRoad(bool isOnRoad)
+{
+    onRails = !isOnRoad;
+    getNewSpeed( currentSpeedFromSky, currentSpeedFromEarth );
+}
+
+void SpeedAgregator::getNewSpeed(double speedFromSky, double speedFromEarth)
+{
+    currentSpeedFromEarth = speedFromEarth;
+//    if (speedFromSky >= 0) // достоверность
+        currentSpeedFromSky = speedFromSky;
+
+    qDebug() << "Speed | " << currentSpeedFromSky << " | " << currentSpeedFromEarth;
+
+    if ( onRails )
+    {
+        qDebug() << "on rails: " << currentSpeedFromEarth;
+        setSpeedIsValid( !(
+                        currentSpeedFromSky > minSpeedSkyAccount &&
+                        abs(currentSpeedFromSky - currentSpeedFromEarth) > maxAllowDeltaSpeed
+                            )
+                );
+        emit speedChanged(currentSpeedFromEarth);
+    }
+    else
+    {
+        qDebug() << "no on rails: " << currentSpeedFromSky;
+        setSpeedIsValid( currentSpeedFromSky >= 0 );
+        emit speedChanged(currentSpeedFromSky);
     }
 }
 

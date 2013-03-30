@@ -205,15 +205,19 @@ public:
 public slots:
     void getSpeedFromSky (double speed);
     void getSpeedFromEarth (double speed);
+    void getIsOnRoad (bool isOnRoad);
 
 signals:
     void speedChanged (double speed);
     void speedIsValidChanged (bool isValid);
 
 private:
-    double currentSpeed;
+    double currentSpeedFromSky;
+    double currentSpeedFromEarth;
     bool currentSpeedIsValid;
+    bool onRails;
 
+    void getNewSpeed (double speedFromSky, double speedFromEarth);
     void setSpeedIsValid (bool isValid);
 };
 
