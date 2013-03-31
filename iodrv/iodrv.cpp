@@ -308,6 +308,7 @@ int iodrv::decode_trafficlight_light(struct can_frame* frame)
     }
 }
 
+int trafficlight_freq_incorrect_count = 0;
 int iodrv::decode_trafficlight_freq(struct can_frame* frame)
 {
     switch (can_decoder::decode_trafficlight_freq(frame, &c_trafficlight_freq))
@@ -316,11 +317,17 @@ int iodrv::decode_trafficlight_freq(struct can_frame* frame)
             if ((p_trafficlight_freq == -1) || (p_trafficlight_freq != -1 && p_trafficlight_freq != c_trafficlight_freq))
             {
                 emit signal_trafficlight_freq(c_trafficlight_freq);
+                if (systemState->getAlsnFreqTarget() == -1) systemState->setAlsnFreqTarget(c_trafficlight_freq);
             }
-            if (target_trafficlight_freq != c_trafficlight_freq)
+            if (systemState->getAlsnFreqTarget() != -1 && systemState->getAlsnFreqTarget() != c_trafficlight_freq)
             {
-                this->slot_f_key_down();
-                this->slot_f_key_up();
+                if (trafficlight_freq_incorrect_count >= 1)
+                {
+                  this->slot_f_key_down();
+//                this->slot_f_key_up(); // Если делать, то с задержкой
+                  trafficlight_freq_incorrect_count = 0;
+                }
+                else trafficlight_freq_incorrect_count ++;
             }
             p_trafficlight_freq = c_trafficlight_freq;
 
@@ -572,7 +579,10 @@ void iodrv::slot_serial_ready_read()
 
         if ( nmea::decode_nmea_message(nmeaMessage, &gd) )
         {
-            QString time = QString("%1:%2:%3").arg(gd.hours, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
+            int h = gd.hours - 3;
+            if (h < 0) h += 24;
+            if (h > 24) h -= 24;
+            QString time = QString("%1:%2:%3").arg(h, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
             emit signal_time(time);
 
             QString monthString[13] = {"n/a", "января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
@@ -665,7 +675,7 @@ void iodrv::slot_f_key_down()
     write_canmsg_async(write_socket_0, &frame);
     write_canmsg_async(write_socket_1, &frame);
 
-    target_trafficlight_freq = systemState->getAlsnFreqTarget();
+    //target_trafficlight_freq = systemState->getAlsnFreqTarget();
 }
 
 void iodrv::slot_f_key_up()
@@ -744,7 +754,7 @@ void SpeedAgregator::getNewSpeed(double speedFromSky, double speedFromEarth)
 //    if (speedFromSky >= 0) // достоверность
         currentSpeedFromSky = speedFromSky;
 
-    qDebug() << "Speed | " << currentSpeedFromSky << " | " << currentSpeedFromEarth;
+//    qDebug() << "Speed | " << currentSpeedFromSky << " | " << currentSpeedFromEarth;
 
     if ( onRails )
     {
