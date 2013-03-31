@@ -309,7 +309,10 @@ int can_decoder::decode_driving_mode(struct can_frame* frame, int* driving_mode)
 {
     if ((*frame).can_id != 0x052) return -1;
 
-    (*driving_mode) = (int) (( (*frame).data[7] ) & 0b00000011 );
+    if ( (int) (( (*frame).data[1] ) & 0b01000000 ) )
+        (*driving_mode) = 4;
+    else
+        (*driving_mode) = (int) (( (*frame).data[7] ) & 0b00000011 );
 
     return 1;
 }
@@ -348,9 +351,9 @@ int can_decoder::decode_pressure_tc_tm(struct can_frame* frame, double* pressure
 // VDS_STATE_A
 int can_decoder::decode_ssps_mode(struct can_frame* frame, int* ssps_mode)
 {
-    if ((*frame).can_id != 0x2E0) return -1;
+    if ((*frame).can_id != 0x052) return -1;
 
-    (*ssps_mode) = (int) (( (*frame).data[1] ) & 0b00000001 );
+    (*ssps_mode) = (int) (( (*frame).data[1] ) & 0b01000000 );
 
     return 1;
 }
