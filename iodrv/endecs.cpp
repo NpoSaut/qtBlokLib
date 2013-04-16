@@ -141,15 +141,19 @@ can_frame can_encoder::encode_ipd_state( double speed, int distance, bool reliab
 // IPD_STATE_A
 int can_decoder::decode_speed(struct can_frame* frame, double* speed)
 {
-    if ((*frame).can_id != 0x0C4) return -1;
+    /*if ((*frame).can_id != 0x0C4) return -1;
 
-    (*speed) =(double)(   ( ((int)( (*frame).data[1] & 0b000000001 )) << 8 ) + (int)((*frame).data[2])   );
+    (*speed) =(double)(   ( ((int)( (*frame).data[1] & 0b000000001 )) << 8 ) + (int)((*frame).data[2])   );*/
 
-    /* SAUT_INFO_A
-    double s1 = (double)((*frame).data[0]);
+    // SAUT_INFO_A
+    /*double s1 = (double)((*frame).data[0]);
     double s2 = ( (double)( (*frame).data[1] >> 1 ) ) / 128;
     double s3 = (double)( ((*frame).data[1] & 0b00000001 ) == 0 ? 0 : 256 );
     (*speed) = s1 + s2 + s3;*/
+
+    int i0 = ((int)((*frame).data[0]) << 8) + ((int)((*frame).data[1]));
+    int i1 =( ((int)((*frame).data[1] & 0b00000001 )) << 15 ) + (i0 >> 1);
+    (*speed) = ((double)i0)/128;
 
     return 1;
 }
