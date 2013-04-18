@@ -12,8 +12,8 @@
 #include <QList>
 
 #ifdef WITH_SERIALPORT
-#include <QtAddOnSerialPort/serialport.h>
-#include <QtAddOnSerialPort/serialportinfo.h>
+#include <QtSerialPort/qserialport.h>
+#include <QtSerialPort/qserialportinfo.h>
 #endif
 
 #include <sys/types.h>

@@ -542,7 +542,7 @@ int iodrv::init_serial_port()
     // В каком место разместить соединение сигнала и слота?
     connect(&serial_port, SIGNAL(readyRead()), this, SLOT(slot_serial_ready_read()));
 
-    QList<SerialPortInfo> spinfo = SerialPortInfo::availablePorts();
+    QList<QSerialPortInfo> spinfo = QSerialPortInfo::availablePorts();
     if (spinfo.count() == 0)
     {
         fprintf(stderr, "Не найдено ни одного последовательного порта\n"); fflush(stderr);
@@ -551,12 +551,12 @@ int iodrv::init_serial_port()
     }
 
     //serial_port.setPort(spinfo.at(0));
-    serial_port.setPort("/dev/ttySAC1");
-    serial_port.setDataBits(SerialPort::Data8);
-    serial_port.setRate(SerialPort::Rate115200);
-    serial_port.setParity(SerialPort::NoParity);
-    serial_port.setStopBits(SerialPort::OneStop);
-    serial_port.setFlowControl(SerialPort::NoFlowControl);
+    serial_port.setPortName("/dev/ttySAC1");
+    serial_port.setDataBits(QSerialPort::Data8);
+    serial_port.setBaudRate(QSerialPort::Baud115200);
+    serial_port.setParity(QSerialPort::NoParity);
+    serial_port.setStopBits(QSerialPort::OneStop);
+    serial_port.setFlowControl(QSerialPort::NoFlowControl);
 
     serial_port.open(QIODevice::ReadOnly);
 

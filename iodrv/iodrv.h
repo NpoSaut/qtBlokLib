@@ -15,7 +15,7 @@
 #include <QTextStream>
 
 #ifdef WITH_SERIALPORT
-QT_USE_NAMESPACE_SERIALPORT
+QT_USE_NAMESPACE
 #endif
 
 enum gps_data_source
@@ -168,7 +168,7 @@ private:
     int process_can_messages(struct can_frame* frame);
 
 #ifdef WITH_SERIALPORT
-    SerialPort serial_port;
+    QSerialPort serial_port;
 #endif
     int init_serial_port();
 
