@@ -355,9 +355,19 @@ int can_decoder::decode_pressure_tc_tm(struct can_frame* frame, double* pressure
 // VDS_STATE_A
 int can_decoder::decode_ssps_mode(struct can_frame* frame, int* ssps_mode)
 {
+    if ((*frame).can_id != 0x2E0) return -1;
+
+    (*ssps_mode) = (int) (( (*frame).data[1] ) & 0b00000001 );
+
+    return 1;
+}
+
+// MCO_STATE_A
+int can_decoder::decode_is_on_road(struct can_frame* frame, int* is_on_road)
+{
     if ((*frame).can_id != 0x052) return -1;
 
-    (*ssps_mode) = (int) (( (*frame).data[1] ) & 0b01000000 );
+    (*is_on_road) = (int) (( (*frame).data[1] ) & 0b01000000 );
 
     return 1;
 }

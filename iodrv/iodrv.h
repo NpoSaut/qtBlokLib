@@ -37,7 +37,8 @@ public:
     int start(char* can_iface_name_0, char* can_iface_name_1, gps_data_source gps_datasource = gps);
 
 signals:
-    // Сигналы вызываются немедленно или у них есть внутренняя очередь, так что они могут передать изменённое значение?
+    // Сигналы вызываются немедленно или у них есть внутренняя очередь, так что они могут передать изменённое значение
+
     //Скорость и ограничения
     void signal_speed_earth(double speed);
     void signal_speed_sky(double speed);
@@ -60,8 +61,9 @@ signals:
 
     void signal_pressure_tc(QString pressure_tc);
     void signal_pressure_tm(QString pressure_tm);
-    void signal_ssps_mode(bool ssps_mode);
-
+    void signal_is_on_road(bool is_on_road);
+    void signal_ssps_mode(int ssps_mode);
+    void signal_iron_wheels(bool iron_wheels);
 
     void signal_lat(double lat);
     void signal_lon(double lon);
@@ -121,7 +123,7 @@ private:
 
     double c_pressure_tc;
     double c_pressure_tm;
-    int c_ssps_mode;
+    int c_is_on_road;
 
 
     double p_speed;
@@ -142,7 +144,9 @@ private:
 
     double p_pressure_tc;
     double p_pressure_tm;
-    int p_ssps_mode;
+    int p_is_on_road;
+
+    int c_ssps_mode; int p_ssps_mode;
 
 
     int decode_speed(struct can_frame* frame);
@@ -163,7 +167,10 @@ private:
     int decode_reg_tape_avl(struct can_frame* frame);
 
     int decode_pressure_tc_tm(struct can_frame* frame);
+
     int decode_ssps_mode(struct can_frame* frame);
+
+    int decode_is_on_road(struct can_frame* frame);
 
     int process_can_messages(struct can_frame* frame);
 
@@ -219,6 +226,55 @@ private:
 
     void getNewSpeed (double speedFromSky, double speedFromEarth);
     void setSpeedIsValid (bool isValid);
+};
+
+
+
+
+/*class rmp_revolver : public QObject
+{
+    //Q_OBJECT
+
+public:
+    //void request_driving_mode(int requesting_driving_mode, int current_ssps_mode);
+
+
+//private:
+};*/
+
+class rmp_key_handler : public QObject
+{
+    Q_OBJECT
+
+public:
+    rmp_key_handler();
+
+private:
+    int get_next_driving_mode(int actual_driving_mode, int actual_ssps_mode);
+
+    int previous_ssps_mode;
+    int actual_ssps_mode;
+    int previous_driving_mode;
+    int actual_driving_mode;
+    int target_driving_mode;
+    void request_next_driving_mode();
+    void request_driving_mode(int driving_mode);
+
+public slots:
+    // Interface
+    void rmp_key_pressed();
+    // IO
+    void ssps_mode_received(int actual_ssps_mode);
+    void driving_mode_received(int driving_mode);
+
+signals:
+    // Interface
+    void target_driving_mode_changed(int driving_mode);
+    void actual_driving_mode_changed(int driving_mode);
+    // Interface, IO
+    // void driving_mode_request_failed();
+    // IO
+    void rmp_key_pressed_send();
 };
 
 #endif // IODRV_H
