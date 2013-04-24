@@ -63,6 +63,7 @@ signals:
     void signal_pressure_tm(QString pressure_tm);
     void signal_is_on_road(bool is_on_road);
     void signal_ssps_mode(int ssps_mode);
+    void signal_traction(bool in_traction);
     void signal_iron_wheels(bool iron_wheels);
 
     void signal_lat(double lat);
@@ -147,6 +148,7 @@ private:
     int p_is_on_road;
 
     int c_ssps_mode; int p_ssps_mode;
+    int c_in_traction; int p_in_traction;
 
 
     int decode_speed(struct can_frame* frame);
@@ -169,6 +171,7 @@ private:
     int decode_pressure_tc_tm(struct can_frame* frame);
 
     int decode_ssps_mode(struct can_frame* frame);
+    int decode_traction(struct can_frame* frame);
 
     int decode_is_on_road(struct can_frame* frame);
 
