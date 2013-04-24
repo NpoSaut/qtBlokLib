@@ -46,7 +46,7 @@ signals:
     void signal_target_speed(int target_speed);
     void signal_acceleration(double acceleration);
     //Состояние системы
-    void signal_epv_state(bool epv_state);
+    void signal_epv_released(bool epv_state);
     void signal_epv_key(bool epv_key);
     //Одометр
     void signal_passed_distance(int passed_distance);

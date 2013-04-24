@@ -381,12 +381,12 @@ int iodrv::decode_passed_distance(struct can_frame* frame)
 
 int iodrv::decode_epv_state(struct can_frame* frame)
 {
-    switch (can_decoder::decode_epv_state(frame, &c_epv_state))
+    switch (can_decoder::decode_epv_released(frame, &c_epv_state))
     {
         case 1:
             if ((p_epv_state == -1) || (p_epv_state != -1 && p_epv_state != c_epv_state))
             {
-                emit signal_epv_state(c_epv_state);
+                emit signal_epv_released(c_epv_state);
             }
             p_epv_state = c_epv_state;
             break;

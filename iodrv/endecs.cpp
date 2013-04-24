@@ -190,11 +190,11 @@ int can_decoder::decode_acceleration(struct can_frame* frame, double* accelerati
 
 
 // MCO_STATE_A
-int can_decoder::decode_epv_state(struct can_frame* frame, int* epv_state)
+int can_decoder::decode_epv_released(struct can_frame* frame, int* epv_state)
 {
     if ((*frame).can_id != 0x050) return -1;
 
-    (*epv_state) = (int) ( ( (*frame).data[5] >> 5 ) & 0b00000001 );
+    (*epv_state) = (int) ( ! ( ( (*frame).data[5] >> 5 ) & 0b00000001 ));
 
     return 1;
 }
@@ -370,6 +370,7 @@ int can_decoder::decode_traction(struct can_frame* frame, int* in_traction)
 {
     if ((*frame).can_id != 0x050) return -1;
 
+    // Инвертирую для удобства.
     (*in_traction) = (int) ( ! (( (*frame).data[0] >> 5 ) & 0b00000001 ) );
 
     return 1;
