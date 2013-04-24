@@ -216,21 +216,24 @@ int can_decoder::decode_movement_direction(struct can_frame* frame, int* movemen
 {
     if ((*frame).can_id != 0x0C4) return -1;
 
-//    int stop_flag = (int) (( (*frame).data[1] >> 2 ) & 0b00000001 );
+    int stop_flag = (int) (( (*frame).data[1] >> 2 ) & 0b00000001 );
     int direction = (int) (( (*frame).data[1] >> 7 ) & 0b00000001 );
 
     // return -1 = назад, 0 = стоим, +1 = вперёд
-//    if (stop_flag == 0) // Стоим
-//    {
-//        (*movement_direction) = 0;
-//    }
-    if (direction == 1) // Едем вперёд
+    if (stop_flag == 0) // Стоим
     {
-        (*movement_direction) = 1;
+        (*movement_direction) = 0;
     }
-    else if (direction == 0) // Едем назад
+    else // Едем
     {
-        (*movement_direction) = -1;
+        if (direction == 0) // Едем вперёд
+        {
+            (*movement_direction) = 1;
+        }
+        else if (direction == 1) // Едем назад
+        {
+            (*movement_direction) = -1;
+        }
     }
 
     return 1;
