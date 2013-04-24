@@ -366,6 +366,16 @@ int can_decoder::decode_ssps_mode(struct can_frame* frame, int* ssps_mode)
 }
 
 // MCO_STATE_A
+int can_decoder::decode_traction(struct can_frame* frame, int* in_traction)
+{
+    if ((*frame).can_id != 0x050) return -1;
+
+    (*in_traction) = (int) ( ! (( (*frame).data[0] >> 5 ) & 0b00000001 ) );
+
+    return 1;
+}
+
+// MCO_LIMITS_A
 int can_decoder::decode_is_on_road(struct can_frame* frame, int* is_on_road)
 {
     if ((*frame).can_id != 0x052) return -1;

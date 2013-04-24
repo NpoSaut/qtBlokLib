@@ -209,6 +209,7 @@ int iodrv::process_can_messages(struct can_frame *frame)
 
     decode_pressure_tc_tm(frame);
     decode_ssps_mode(frame);
+    decode_traction(frame);
     decode_is_on_road(frame);
 
 //    if(gps_source == can)
@@ -534,6 +535,21 @@ int iodrv::decode_ssps_mode(struct can_frame* frame)
                 emit signal_iron_wheels((bool)c_ssps_mode);
             }
             p_ssps_mode = c_ssps_mode;
+            break;
+    }
+}
+
+
+int iodrv::decode_traction(struct can_frame* frame)
+{
+    switch (can_decoder::decode_traction(frame, &c_in_traction))
+    {
+        case 1:
+            if ((p_in_traction == -1) || (p_in_traction != -1 && p_in_traction != c_in_traction))
+            {
+                emit signal_traction((bool)c_in_traction);
+            }
+            p_in_traction = c_in_traction;
             break;
     }
 }
