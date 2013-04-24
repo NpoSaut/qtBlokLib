@@ -250,7 +250,7 @@ public:
     rmp_key_handler();
 
 private:
-    int get_next_driving_mode(int actual_driving_mode, int actual_ssps_mode);
+    int get_next_driving_mode(int driving_mode, int ssps_mode);
 
     int previous_ssps_mode;
     int actual_ssps_mode;

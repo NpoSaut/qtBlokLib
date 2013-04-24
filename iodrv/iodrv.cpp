@@ -208,6 +208,7 @@ int iodrv::process_can_messages(struct can_frame *frame)
     decode_reg_tape_avl(frame);
 
     decode_pressure_tc_tm(frame);
+    decode_ssps_mode(frame);
     decode_is_on_road(frame);
 
 //    if(gps_source == can)
@@ -458,14 +459,15 @@ int iodrv::decode_driving_mode(struct can_frame* frame)
             if ((p_driving_mode == -1) || (p_driving_mode != -1 && p_driving_mode != c_driving_mode))
             {
                 emit signal_driving_mode(c_driving_mode);
+                //printf("driving_mode %d\n", c_driving_mode); fflush(stdout);
             }
-            if (target_driving_mode != c_driving_mode)
-            {
-                // Временно отключил подстраивание под заказной РМП
-                // т.к. возникли проблемы с различием наборов заказных
-                // и реальных режимов движения
-                //this->slot_rmp_key_down();
-            }
+//            if (target_driving_mode != c_driving_mode)
+//            {
+//                // Временно отключил подстраивание под заказной РМП
+//                // т.к. возникли проблемы с различием наборов заказных
+//                // и реальных режимов движения
+//                //this->slot_rmp_key_down();
+//            }
             p_driving_mode = c_driving_mode;
 
             break;
@@ -795,18 +797,18 @@ void SpeedAgregator::getNewSpeed(double speedFromSky, double speedFromEarth)
 
 rmp_key_handler::rmp_key_handler()
 {
-    previous_ssps_mode = 0;
-    actual_ssps_mode = 0;
+    previous_ssps_mode = 1;
+    actual_ssps_mode = 1;
     previous_driving_mode = 0;
     actual_driving_mode = 0;
     target_driving_mode = 0;
 }
 
-int rmp_key_handler::get_next_driving_mode(int actual_driving_mode, int actual_ssps_mode)
+int rmp_key_handler::get_next_driving_mode(int driving_mode, int ssps_mode)
 {
     int next_driving_mode = 0;
 
-    switch(actual_driving_mode)
+    switch(driving_mode)
     {
         case 0:
             next_driving_mode = 1;
@@ -818,12 +820,12 @@ int rmp_key_handler::get_next_driving_mode(int actual_driving_mode, int actual_s
             next_driving_mode = 3;
             break;
         case 3:
-            if (actual_ssps_mode == 0)
+            if (ssps_mode == 0)
             {
                 next_driving_mode = 4;
             }
             else
-            if (actual_ssps_mode == 1)
+            if (ssps_mode == 1)
             {
                 next_driving_mode = 0;
             }
@@ -846,7 +848,7 @@ void rmp_key_handler::request_driving_mode(int driving_mode)
 
 void rmp_key_handler::request_next_driving_mode()
 {
-    target_driving_mode = get_next_driving_mode(actual_driving_mode, actual_ssps_mode);
+    target_driving_mode = get_next_driving_mode(target_driving_mode, actual_ssps_mode);
     emit target_driving_mode_changed(target_driving_mode);
     emit rmp_key_pressed_send();
 }
@@ -869,6 +871,7 @@ void rmp_key_handler::driving_mode_received(int driving_mode)
 
 void rmp_key_handler::rmp_key_pressed()
 {
+    //printf("rmp pressed before\n"); fflush(stdout);
     request_next_driving_mode();
 }
 
