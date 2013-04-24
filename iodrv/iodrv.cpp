@@ -859,14 +859,14 @@ void rmp_key_handler::request_driving_mode(int driving_mode)
     // Проверять, возможно ли запросить такой режим относительно положения катков? В каком месте?
     target_driving_mode = driving_mode;
     emit target_driving_mode_changed(target_driving_mode);
-    emit rmp_key_pressed_send();
+    //emit rmp_key_pressed_send();
 }
 
 void rmp_key_handler::request_next_driving_mode()
 {
     target_driving_mode = get_next_driving_mode(target_driving_mode, actual_ssps_mode);
     emit target_driving_mode_changed(target_driving_mode);
-    emit rmp_key_pressed_send();
+    //emit rmp_key_pressed_send();
 }
 
 void rmp_key_handler::driving_mode_received(int driving_mode)
