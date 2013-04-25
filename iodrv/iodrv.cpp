@@ -795,11 +795,7 @@ void SpeedAgregator::getNewSpeed(double speedFromSky, double speedFromEarth)
     if ( onRails )
     {
 //        qDebug() << "on rails: " << currentSpeedFromEarth;
-        setSpeedIsValid( !(
-                        currentSpeedFromSky > minSpeedSkyAccount &&
-                        abs(currentSpeedFromSky - currentSpeedFromEarth) > maxAllowDeltaSpeed
-                            )
-                );
+        setSpeedIsValid( true );
         emit speedChanged(currentSpeedFromEarth);
     }
     else
