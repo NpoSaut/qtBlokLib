@@ -274,7 +274,13 @@ int can_decoder::decode_passed_distance(struct can_frame* frame, int* passed_dis
 {
     if ((*frame).can_id != 0x0C4) return -1;
 
-    (*passed_distance) = (((int) (*frame).data[5]) << 16) + (((int) (*frame).data[3]) << 8) + ((int) (*frame).data[4]);
+    int pd = (((int) (*frame).data[5]) << 16) + (((int) (*frame).data[3]) << 8) + ((int) (*frame).data[4]);
+    int complement = 0;
+    if ( ((pd >> 23) & 1) == 1 )
+    {
+        complement ^= (0xFF << 24);
+    }
+    (*passed_distance) = complement + pd;
 
     return 1;
 }

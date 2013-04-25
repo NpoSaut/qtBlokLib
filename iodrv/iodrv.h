@@ -264,6 +264,8 @@ private:
     void request_next_driving_mode();
     void request_driving_mode(int driving_mode);
 
+    bool start;
+
 public slots:
     // Interface
     void rmp_key_pressed();

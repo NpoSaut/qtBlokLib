@@ -821,6 +821,8 @@ rmp_key_handler::rmp_key_handler()
     target_driving_mode = 0;
 
     req_count = 0;
+
+    start = true;
 }
 
 int rmp_key_handler::get_next_driving_mode(int driving_mode, int ssps_mode)
@@ -906,11 +908,21 @@ void rmp_key_handler::ssps_mode_received(int ssps_mode)
     previous_ssps_mode = actual_ssps_mode;
     actual_ssps_mode = ssps_mode;
 
-    if (actual_ssps_mode != previous_ssps_mode)
+    if ( (actual_ssps_mode != previous_ssps_mode) || start)
     {
         if (actual_ssps_mode == 1 && actual_driving_mode == 4)
         {
             request_driving_mode(0);
+        }
+
+        if (actual_ssps_mode == 0)
+        {
+            request_driving_mode(4);
+        }
+
+        if (start)
+        {
+            start = false;
         }
     }
 }
