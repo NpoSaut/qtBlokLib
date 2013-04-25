@@ -753,7 +753,7 @@ void iodrv::slot_rmp_key_up()
 
 
 SpeedAgregator::SpeedAgregator()
-    : currentSpeedFromEarth(0), currentSpeedFromSky(0), currentSpeedIsValid(false), onRails(false)
+    : currentSpeedFromEarth(-1), currentSpeedFromSky(-1), currentSpeedIsValid(false), onRails(true)
     {}
 
 
@@ -794,7 +794,7 @@ void SpeedAgregator::getNewSpeed(double speedFromSky, double speedFromEarth)
 
     if ( onRails )
     {
-        qDebug() << "on rails: " << currentSpeedFromEarth;
+//        qDebug() << "on rails: " << currentSpeedFromEarth;
         setSpeedIsValid( !(
                         currentSpeedFromSky > minSpeedSkyAccount &&
                         abs(currentSpeedFromSky - currentSpeedFromEarth) > maxAllowDeltaSpeed
@@ -804,7 +804,7 @@ void SpeedAgregator::getNewSpeed(double speedFromSky, double speedFromEarth)
     }
     else
     {
-        qDebug() << "no on rails: " << currentSpeedFromSky;
+//        qDebug() << "no on rails: " << currentSpeedFromSky;
         setSpeedIsValid( currentSpeedFromSky >= 0 );
         emit speedChanged(currentSpeedFromSky);
     }
