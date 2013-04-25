@@ -282,7 +282,7 @@ int can_decoder::decode_passed_distance(struct can_frame* frame, int* passed_dis
         int byte4: 8;
     };
 
-    IntByBytes dist = {frame->data[4], frame->data[3], frame->data[2], (frame->data[2] & (1 << 7)) ? 0xFF : 0};
+    IntByBytes dist = {frame->data[4], frame->data[3], frame->data[5], (frame->data[5] & (1 << 7)) ? 0xFF : 0};
     (*passed_distance) = *((int *) &dist);
 
     return 1;
