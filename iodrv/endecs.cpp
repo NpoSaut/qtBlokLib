@@ -152,8 +152,8 @@ int can_decoder::decode_speed(struct can_frame* frame, double* speed)
     (*speed) = s1 + s2 + s3;*/
 
     int i0 = ((int)((*frame).data[0]) << 8) + ((int)((*frame).data[1]));
-    int i1 =( ((int)((*frame).data[1] & 0b00000001 )) << 15 ) + (i0 >> 1);
-    (*speed) = ((double)i0)/128;
+    int i1 = ((i0 & 0b00000001) << 15) + (i0 >> 1);
+    (*speed) = ((double)i1)/128;
 
     return 1;
 }
