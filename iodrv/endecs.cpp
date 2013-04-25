@@ -189,12 +189,12 @@ int can_decoder::decode_acceleration(struct can_frame* frame, double* accelerati
 }
 
 
-// MCO_STATE_A
+// MCO_LIMITS_A
 int can_decoder::decode_epv_released(struct can_frame* frame, int* epv_state)
 {
-    if ((*frame).can_id != 0x050) return -1;
+    if ((*frame).can_id != 0x052) return -1;
 
-    (*epv_state) = (int) ( ! ( ( (*frame).data[5] >> 5 ) & 0b00000001 ));
+    (*epv_state) = (int) ( ! ( ( (*frame).data[7] >> 7 ) & 0b00000001 ));
 
     return 1;
 }
