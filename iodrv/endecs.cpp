@@ -168,6 +168,16 @@ int can_decoder::decode_speed_limit(struct can_frame* frame, int* speed_limit)
     return 1;
 }
 
+// MCO_MODE 0
+int can_decoder::decode_autolock_type(struct can_frame* frame, int* autolock_type)
+{
+    if ((*frame).can_id != 0x040) return -1;
+
+    (*autolock_type) = (int)(((*frame).data[1] & 0x0c) >> 2)
+
+    return 1;
+}
+
 // MCO_STATE_A
 int can_decoder::decode_target_speed(struct can_frame* frame, int* target_speed)
 {

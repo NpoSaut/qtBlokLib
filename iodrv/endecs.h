@@ -50,6 +50,8 @@ public:
     static int decode_traction(struct can_frame* frame, int* in_traction);
 
     static int decode_is_on_road(struct can_frame* frame, int* is_on_road);
+
+    static int decode_autolock_type(struct can_frame* frame, int* autolock_type);
 };
 
 

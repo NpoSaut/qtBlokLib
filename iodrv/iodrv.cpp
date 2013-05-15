@@ -68,6 +68,8 @@ iodrv::iodrv(SystemStateViewModel *systemState)
     c_pressure_tm = -1;
     c_is_on_road = 1;
 
+    c_autolock_type = -1;
+
     p_speed = -1;
     p_speed_limit = -1;
     p_target_speed = -1;
@@ -84,6 +86,8 @@ iodrv::iodrv(SystemStateViewModel *systemState)
     p_pressure_tc = -1;
     p_pressure_tm = -1;
     p_is_on_road = -1;
+
+    p_autolock_type = -1;
 
     c_ssps_mode = -1; p_ssps_mode = -1;
 
@@ -207,6 +211,8 @@ int iodrv::process_can_messages(struct can_frame *frame)
     decode_movement_direction(frame);
     decode_reg_tape_avl(frame);
 
+    decode_autolock_type(frame);
+
     decode_pressure_tc_tm(frame);
     decode_ssps_mode(frame);
     decode_traction(frame);
@@ -247,6 +253,20 @@ int iodrv::decode_speed_limit(struct can_frame* frame)
                 emit signal_speed_limit(c_speed_limit);
             }
             p_speed_limit = c_speed_limit;
+            break;
+    }
+}
+
+int iodrv::decode_autolock_type(struct can_frame* frame)
+{
+    switch (can_decoder::decode_autolock_type(frame, &c_autolock_type))
+    {
+        case 1:
+            if ((p_autolock_type == -1) || (p_autolock_type != -1 && p_autolock_type != c_autolock_type))
+            {
+                emit signal_autolock_type(c_autolock_type);
+            }
+            p_autolock_type = c_autolock_type;
             break;
     }
 }

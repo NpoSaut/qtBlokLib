@@ -59,6 +59,8 @@ signals:
     void signal_movement_direction(int movement_direction);
     void signal_reg_tape_avl(bool reg_tape_avl);
 
+    void signal_autolock_type(int autolock_type);
+
     void signal_pressure_tc(QString pressure_tc);
     void signal_pressure_tm(QString pressure_tm);
     void signal_is_on_road(bool is_on_road);
@@ -122,6 +124,8 @@ private:
     int c_vigilance;
     int c_reg_tape_avl;
 
+    int c_autolock_type;
+
     double c_pressure_tc;
     double c_pressure_tm;
     int c_is_on_road;
@@ -142,6 +146,8 @@ private:
     int p_driving_mode;
     int p_vigilance;
     int p_reg_tape_avl;
+
+    int p_autolock_type;
 
     double p_pressure_tc;
     double p_pressure_tm;
@@ -174,6 +180,8 @@ private:
     int decode_traction(struct can_frame* frame);
 
     int decode_is_on_road(struct can_frame* frame);
+
+    int decode_autolock_type(struct can_frame* frame);
 
     int process_can_messages(struct can_frame* frame);
 
