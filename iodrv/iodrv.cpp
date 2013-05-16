@@ -266,9 +266,22 @@ int iodrv::decode_autolock_type(struct can_frame* frame)
             {
                 emit signal_autolock_type(c_autolock_type);
             }
+
+            if (c_autolock_type_target == p_autolock_type_target && c_autolock_type_target != c_autolock_type)
+            {
+                this->set_autolock_type(c_autolock_type_target);
+            }
+
+            p_autolock_type_target = c_autolock_type_target;
             p_autolock_type = c_autolock_type;
             break;
     }
+}
+
+int iodrv::set_autolock_type(int autolock_type)
+{
+    can_frame frame = can_encoder::encode_autolock_set_message (autolock_type);
+    write_canmsg_async (write_socket_0, &frame);
 }
 
 int iodrv::decode_target_speed(struct can_frame* frame)
@@ -769,6 +782,11 @@ void iodrv::slot_rmp_key_up()
     can_frame frame = can_encoder::encode_sys_key(is_released, 0x16);
     write_canmsg_async(write_socket_0, &frame);
     write_canmsg_async(write_socket_1, &frame);
+}
+
+void iodrv::slot_autolock_type_target_changed (int autolock_type)
+{
+    c_autolock_type_target = autolock_type;
 }
 
 

@@ -127,6 +127,31 @@ can_frame can_encoder::encode_ipd_state( double speed, int distance, bool reliab
     frame.data[7] = 0;
 }
 
+can_frame can_encoder::encode_autolock_set_message(int autolock_type)
+{
+    can_frame frame = {0x468,
+                       7,
+                       {3, 0, 0, 0, 0, 0, 0, 0} };
+
+    switch (autolock_type) {
+    case 0: // АБ
+        frame.data[1] = 0x20;
+        break;
+    case 1: // ПАБ
+        frame.data[1] = 0x29;
+        frame.data[2] = 40;
+        break;
+    case 2:
+        frame.data[1] = 0x1F;
+        frame.data[2] = 40;
+        break;
+    default:
+        break;
+    }
+
+    return frame;
+}
+
 
 
 
@@ -173,7 +198,7 @@ int can_decoder::decode_autolock_type(struct can_frame* frame, int* autolock_typ
 {
     if ((*frame).can_id != 0x040) return -1;
 
-    (*autolock_type) = (int)(((*frame).data[1] & 0x0c) >> 2)
+    (*autolock_type) = (int)(((*frame).data[0] & 0xb1100) >> 2);
 
     return 1;
 }

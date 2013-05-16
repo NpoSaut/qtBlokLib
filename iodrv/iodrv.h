@@ -80,6 +80,7 @@ public slots:
     void slot_vk_key_up();
     void slot_rmp_key_down();
     void slot_rmp_key_up();
+    void slot_autolock_type_target_changed(int autolock_type);
 
 private slots:
     void slot_serial_ready_read();
@@ -125,6 +126,7 @@ private:
     int c_reg_tape_avl;
 
     int c_autolock_type;
+    int c_autolock_type_target;
 
     double c_pressure_tc;
     double c_pressure_tm;
@@ -148,6 +150,7 @@ private:
     int p_reg_tape_avl;
 
     int p_autolock_type;
+    int p_autolock_type_target;
 
     double p_pressure_tc;
     double p_pressure_tm;
@@ -182,8 +185,10 @@ private:
     int decode_is_on_road(struct can_frame* frame);
 
     int decode_autolock_type(struct can_frame* frame);
+    int set_autolock_type(int autolock_type);
 
     int process_can_messages(struct can_frame* frame);
+
 
 #ifdef WITH_SERIALPORT
     QSerialPort serial_port;
