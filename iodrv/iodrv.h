@@ -80,7 +80,7 @@ public slots:
     void slot_vk_key_up();
     void slot_rmp_key_down();
     void slot_rmp_key_up();
-    void slot_autolock_type_target_changed(int autolock_type);
+    void slot_autolock_type_target_changed();
 
 private slots:
     void slot_serial_ready_read();

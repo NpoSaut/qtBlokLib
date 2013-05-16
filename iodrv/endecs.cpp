@@ -198,7 +198,7 @@ int can_decoder::decode_autolock_type(struct can_frame* frame, int* autolock_typ
 {
     if ((*frame).can_id != 0x040) return -1;
 
-    (*autolock_type) = (int)(((*frame).data[0] & 0xb1100) >> 2);
+    (*autolock_type) = (int)(((*frame).data[0] & 0b1100) >> 2);
 
     return 1;
 }
