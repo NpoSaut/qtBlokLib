@@ -263,31 +263,25 @@ int iodrv::decode_autolock_type(struct can_frame* frame)
 {
     switch (can_decoder::decode_autolock_type(frame, &c_autolock_type))
     {
-        case 1:
-            if ((p_autolock_type == -1) || (p_autolock_type != -1 && p_autolock_type != c_autolock_type))
+    case 1:
+        if ((p_autolock_type == -1) || (p_autolock_type != -1 && p_autolock_type != c_autolock_type))
+        {
+            emit signal_autolock_type(c_autolock_type);
+            if (c_autolock_type_target == -1)
             {
-                emit signal_autolock_type(c_autolock_type);
+                c_autolock_type_target = c_autolock_type;
+                systemState->setAutolockTypeTarget (c_autolock_type);
             }
+        }
 
-            if (c_autolock_type_target == p_autolock_type_target && c_autolock_type_target != c_autolock_type)
-            {
+        if (c_autolock_type_target == p_autolock_type_target && c_autolock_type_target != c_autolock_type)
+        {
+            this->set_autolock_type(c_autolock_type_target);
+        }
 
-                systemState->setWarningText ("!! " + QString::number(c_autolock_type, 'f', 2) + " " +
-                                              QString::number(p_autolock_type_target, 'f', 2) + " " +
-                                             QString::number(c_autolock_type_target, 'f', 2) + " !!" );
-                this->set_autolock_type(c_autolock_type_target);
-            }
-            else
-            {
-
-                systemState->setWarningText ( QString::number(c_autolock_type, 'f', 2) + " " +
-                                              QString::number(p_autolock_type_target, 'f', 2) + " " +
-                                              QString::number(c_autolock_type_target, 'f', 2) );
-            }
-
-            p_autolock_type_target = c_autolock_type_target;
-            p_autolock_type = c_autolock_type;
-            break;
+        p_autolock_type_target = c_autolock_type_target;
+        p_autolock_type = c_autolock_type;
+        break;
     }
 }
 
