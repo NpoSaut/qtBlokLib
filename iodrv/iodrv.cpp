@@ -1,11 +1,12 @@
 #if defined WITH_CAN || defined WITH_SERIAL
 
-#include "iodrv.h"
 #include <QDate>
 #include <QtCore/qmath.h>
 
 #include <QFile>
 #include <QTextStream>
+
+#include "iodrv.h"
 
 // Distance between coordinates in kilometers
 const double PI = 3.141592653589793238462;
@@ -109,7 +110,7 @@ int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source
     gps_source = gps_datasource;
 
     // Инициализация сокетов
-    if (init_sktcan(can_iface_name_0, can_iface_name_1) == 0)
+    if (init_sktcan("vcan0", "vcan0") == 0)
     {
         //printf("Инициализация сокетов не удалась\n"); fflush(stdout);
         return 0;
@@ -796,6 +797,16 @@ void iodrv::slot_autolock_type_target_changed ()
     c_autolock_type_target = systemState->getAutolockTypeTarget ();
 }
 
+void iodrv::slot_write_can0_message(can_frame frame)
+{
+    write_canmsg_async (write_socket_0, &frame);
+}
+
+void iodrv::slot_write_can1_message(can_frame frame)
+{
+    write_canmsg_async (write_socket_1, &frame);
+}
+
 
 SpeedAgregator::SpeedAgregator()
     : currentSpeedFromEarth(-1), currentSpeedFromSky(-1), currentSpeedIsValid(false), onRails(true)
@@ -971,3 +982,4 @@ void rmp_key_handler::ssps_mode_received(int ssps_mode)
 
 
 #endif
+
