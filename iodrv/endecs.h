@@ -36,6 +36,7 @@ public:
     static int decode_trafficlight_light(struct can_frame* frame, int* trafficlight_light);
     static int decode_trafficlight_freq(struct can_frame* frame, int* trafficlight_freq);
     static int decode_passed_distance(struct can_frame* frame, int* passed_distance);
+    static int decode_orig_passed_distance(struct can_frame* frame, int* x);
     static int decode_epv_released(struct can_frame* frame, int* epv_state);
     static int decode_epv_key(struct can_frame* frame, int* epv_key);
     static int decode_mm_lat_lon(struct can_frame* frame, double* lat, double* lon);

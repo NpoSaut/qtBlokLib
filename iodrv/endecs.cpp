@@ -323,6 +323,24 @@ int can_decoder::decode_passed_distance(struct can_frame* frame, int* passed_dis
     return 1;
 }
 
+// MY_DEBUG_A
+int can_decoder::decode_orig_passed_distance(struct can_frame* frame, int* x)
+{
+    if ((*frame).can_id != 0x4CC) return -1; // 9983
+
+    struct IntByBytes
+    {
+        int byte1: 8;
+        int byte2: 8;
+        int byte3: 8;
+        int byte4: 8;
+    };
+
+    IntByBytes dist = {frame->data[0], frame->data[1], frame->data[2], (frame->data[2] & (1 << 7)) ? 0xFF : 0};
+    (*x) = *((int *) &dist);
+
+    return 1;
+}
 
 // MM_ALT_LONG
 int can_decoder::decode_mm_lat_lon(struct can_frame* frame, double* lat, double* lon)
