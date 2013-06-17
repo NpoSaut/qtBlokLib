@@ -222,8 +222,8 @@ class SpeedAgregator: public QObject
 public:
     SpeedAgregator();
 
-    static const double minSpeedSkyAccount = 8;
-    static const double maxAllowDeltaSpeed = 4;
+    static constexpr double minSpeedSkyAccount = 8;
+    static constexpr double maxAllowDeltaSpeed = 4;
 
 public slots:
     void getSpeedFromSky (double speed);
