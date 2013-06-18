@@ -2,8 +2,10 @@
 #define COOKIES_H
 
 #include <QObject>
+#include <QElapsedTimer>
+#include <QTimer>
 
-#include "iodrv/canframe.h"
+#include "iodrv/can.h"
 
 // Класс - локальная версия некоторого значения, хранимого в МПХ под индексом index
 //   Обеспечивает проверку всех входящих сообщений, при обнаружении новго значения
@@ -13,26 +15,44 @@ class Cookie : public QObject
 {
     Q_OBJECT
 public:
-    explicit Cookie(QObject *parent = 0);
-    Cookie (int index);
+    explicit Cookie (int index);
 
     // Возвращает локальную копию значения, хранимого в МПХ
-    int getValue() const;
+    //   При необходимости обновляет локальное значение по данным МПХ,
+    //   на это время функция блокируется (но не дольше, чем на 100 мсек)
+    int getValue();
+
+    // Посылает запрос данных в МПХ
+    //   При получении ответа будет испущен сигнал onChange или onValidChange за время не превыщающее таймаут
+    //   Функция не блокирующая
+    //   С forceUpdate один из двух сигналов придёт даже в случае, если значение не изменилось
+    void requestValue(bool forceUpdate = true);
+
+    // Возвращает признак достоверности данных
+    bool isValid() const;
+
+    static constexpr int answerTimeout = 110;
 
 signals:
     // Сиглнал испускается при получении из CAN
     // значения, отличающего от хранимой локальной копии
     void onChange(int newValue);
 
+    // Сигнал испускается при изменениии достоверности данных
+    void onValidChange(bool valid);
+
 public slots:
     // Устанавливает значение
     // Вызов приводит к попытке записи в МПХ по CAN (локальное сразу значение не изменяется)
     // При получении подтверждения о записи измениятся локальное значение и выдаётся сигнал onChange()
-    void setVaule(int value);
+    //    void setVaule(int value);
 
 private slots:
     // В этот слот должны направляться все приходящие сообщения SYS_DATA
     void loadData(const CanFrame &frame);
+
+    // Вызывается по истечению таймаута на ожидания ответа на запрос
+    void answerTimeoutHandler();
 
 private:
     // Если переданно сообщение SYS_DATA с индексом равным нашему,
@@ -40,8 +60,15 @@ private:
     // в противном случае возвращает false
     bool loadDataWithControl(const CanFrame& frame);
 
+    void applyNewValue (int newValue);
+    void applyNewValidity (bool newValid);
+
     int index;
     int value;
+    bool valid;
+    bool forceUpdate;
+    QElapsedTimer lastUpdateTimer;
+    QTimer answerWaitTimer;
 };
 
 class Cookies : public QObject

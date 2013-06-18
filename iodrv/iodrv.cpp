@@ -31,7 +31,7 @@ iodrv::iodrv(SystemStateViewModel *systemState)
     //!!!!! TODO: ВРЕМЕННО
     this->systemState = systemState;
 
-    gps_source = gps;
+    gps_source = gps_data_source_gps;
     read_socket_0 = -1;
     write_socket_0 = -1;
     write_socket_1 = -1;
@@ -119,7 +119,7 @@ int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source
 
     // Инициализация и начало асинхронного чтения с последовательного порта.
     // Если не выбрано другое.
-    if (gps_source == gps)
+    if (gps_source == gps_data_source_gps)
     {
         if (init_serial_port() == 0)
         {
@@ -190,6 +190,7 @@ void iodrv::read_canmsgs_loop()
     while(true)
     {
         read_can_frame(read_socket_0, &read_frame);
+        emit signal_new_message (&read_frame);
         process_can_messages(&read_frame);
     }
 }
@@ -220,7 +221,7 @@ int iodrv::process_can_messages(struct can_frame *frame)
     decode_traction(frame);
     decode_is_on_road(frame);
 
-//    if(gps_source == can)
+//    if(gps_source == gps_data_source_can)
 //    {
 //        decode_mm_lat_lon(frame);
 //        decode_ipd_datetime(frame);
@@ -734,6 +735,11 @@ void iodrv::init_timers()
     timer_disp_state = new QTimer(this);
     connect(timer_disp_state, SIGNAL(timeout()), this, SLOT(slot_can_write_disp_state()));
     timer_disp_state->start(500);
+}
+
+void iodrv::slot_send_message(struct can_frame* frame)
+{
+    write_canmsg_async (write_socket_0, frame);
 }
 
 void iodrv::slot_can_write_disp_state()
