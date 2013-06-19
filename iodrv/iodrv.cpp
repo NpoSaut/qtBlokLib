@@ -737,9 +737,9 @@ void iodrv::init_timers()
     timer_disp_state->start(500);
 }
 
-void iodrv::slot_send_message(struct can_frame* frame)
+void iodrv::slot_send_message(const struct can_frame* frame)
 {
-    write_canmsg_async (write_socket_0, frame);
+    write_canmsg_async ( write_socket_0, const_cast<can_frame *> (frame) );
 }
 
 void iodrv::slot_can_write_disp_state()

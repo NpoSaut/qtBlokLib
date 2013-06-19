@@ -26,7 +26,7 @@ int Cookie::getValue()
 
 void Cookie::requestValue(bool forceUpdate)
 {
-    CanFrame frame( 0x0E01, std::vector<unsigned char> (1,index) );
+    CanFrame frame( 0x0E01, std::vector<unsigned char> (1,index) ); // SYS_DATA_QUERY id: 0x070
     canDev.transmitMessage (frame);
 
     this->forceUpdate = forceUpdate;
@@ -50,7 +50,7 @@ void Cookie::answerTimeoutHandler()
 
 bool Cookie::loadDataWithControl(const CanFrame &frame)
 {
-    if ( frame.getId () == 0x6265 /*|| frame.getId () == 0x6285*/ ) // SYS_DATA
+    if ( frame.getId () == 0x6265 /*|| frame.getId () == 0x6285*/ ) // SYS_DATA id: 0x313
     {
         auto byte = frame.getData ();
         int id = byte[0] & 0x7F;
@@ -105,4 +105,21 @@ void Cookie::applyNewValidity(bool newValid)
         valid = newValid;
         emit onValidChange (valid);
     }
+}
+
+
+void Cookie::setVaule(int value)
+{
+    std::vector<unsigned char> data(5);
+    data[0] = index;
+
+    Complex<uint32_t> valueByte = value;
+    data[1] = valueByte[3];
+    data[2] = valueByte[2];
+    data[3] = valueByte[1];
+    data[4] = valueByte[0];
+
+    CanFrame frame( 0x6205, data ); // INPUT_DATA id: 0x310
+    canDev.transmitMessage (frame);
+    answerWaitTimer.start ();
 }
