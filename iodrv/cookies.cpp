@@ -123,3 +123,61 @@ void Cookie::setVaule(int value)
     canDev.transmitMessage (frame);
     answerWaitTimer.start ();
 }
+
+// --------- Cookies ---------
+
+Cookies::Cookies(QObject *parent)
+    : QObject(parent),
+      trackNumbetNotSaved (1),
+      driverNumber (2),
+      trainNumber (3),
+      categoryTrain (4),
+      lengthInWheels (5),
+      lengthInWagons (6),
+      locomotiveNumber (7),
+      weighth (8),
+      startOrdinate (9),
+      timeshift (10),
+      locomotiveKind (11),
+      speedLimitWhite (12),
+      speedLimitRedYellow (13),
+      dozorLength (14),
+      diameter1 (15),
+      diameter2 (16),
+      dpsDentos (17),
+      configuration (18),
+      speedLimitGreen (19),
+      ordinateIncreaseDirection (20),
+      milage (21),
+      klubVersion (22),
+      trackNumberInMph (23),
+      vpdPrivate (24),
+      bilBrightnes (25),
+      sns1CabinPosition (26),
+      sns2CabinPosition (27),
+      // --- Запись по MCO_DATA ---
+      outOfConfUfir (28),
+      outOfConfTskbm (29),
+      outOfConfSaut (30),
+      outOfConfBil (31),
+      outOfConfIpd (32),
+      outOfConfBvu (33),
+      outOfConfMm (34),
+      outOfConfEc (35),
+      // --- Запись по BKSI_DATA ---
+      errorCasset (36),
+      errorDps1 (37),
+      errorDps2 (38),
+      errorSns (39),
+      errorEpk (40),
+      errorKon (41),
+      errorEpv (42),
+      errorEpt (43),
+      errorPkm1Tv (44),
+      errorPkm1Ov (45),
+      errorPkm2Tv (46),
+      errorPkm2Ov (47)
+{
+}
+
+Cookies cookies;

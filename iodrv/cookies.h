@@ -76,11 +76,63 @@ class Cookies : public QObject
     Q_OBJECT
 public:
     explicit Cookies(QObject *parent = 0);
-    
+
+    Cookie trackNumbetNotSaved;
+    Cookie driverNumber;
+    Cookie trainNumber;
+    Cookie categoryTrain;
+    Cookie lengthInWheels;
+    Cookie lengthInWagons;
+    Cookie locomotiveNumber;
+    Cookie weighth;
+    Cookie startOrdinate;
+    Cookie timeshift;
+    Cookie locomotiveKind;
+    Cookie speedLimitWhite;
+    Cookie speedLimitRedYellow;
+    Cookie dozorLength;
+    Cookie diameter1;
+    Cookie diameter2;
+    Cookie dpsDentos;
+    Cookie configuration;
+    Cookie speedLimitGreen;
+    Cookie ordinateIncreaseDirection;
+    Cookie milage;
+    Cookie klubVersion;
+    Cookie trackNumberInMph;
+    Cookie vpdPrivate;
+    Cookie bilBrightnes;
+    Cookie sns1CabinPosition;
+    Cookie sns2CabinPosition;
+    // --- Запись по MCO_DATA ---
+    Cookie outOfConfUfir;
+    Cookie outOfConfTskbm;
+    Cookie outOfConfSaut;
+    Cookie outOfConfBil;
+    Cookie outOfConfIpd;
+    Cookie outOfConfBvu;
+    Cookie outOfConfMm;
+    Cookie outOfConfEc;
+    // --- Запсь по BKSI_DATA ---
+    Cookie errorCasset;
+    Cookie errorDps1;
+    Cookie errorDps2;
+    Cookie errorSns;
+    Cookie errorEpk;
+    Cookie errorKon;
+    Cookie errorEpv;
+    Cookie errorEpt;
+    Cookie errorPkm1Tv;
+    Cookie errorPkm1Ov;
+    Cookie errorPkm2Tv;
+    Cookie errorPkm2Ov;
+
 signals:
     
 public slots:
     
 };
+
+extern Cookies cookies;
 
 #endif // COOKIES_H
