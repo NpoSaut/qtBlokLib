@@ -271,7 +271,7 @@ int iodrv::decode_autolock_type(struct can_frame* frame)
             if (c_autolock_type_target == -1)
             {
                 c_autolock_type_target = c_autolock_type;
-                systemState->setAutolockTypeTarget (c_autolock_type);
+                emit signal_autolock_type_target(c_autolock_type);
             }
         }
 
@@ -797,9 +797,9 @@ void iodrv::slot_rmp_key_up()
     write_canmsg_async(write_socket_1, &frame);
 }
 
-void iodrv::slot_autolock_type_target_changed ()
+void iodrv::slot_autolock_type_target_changed (int value)
 {
-    c_autolock_type_target = systemState->getAutolockTypeTarget ();
+    c_autolock_type_target = value;
 }
 
 
