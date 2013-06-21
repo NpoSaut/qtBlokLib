@@ -60,6 +60,7 @@ signals:
     void signal_reg_tape_avl(bool reg_tape_avl);
 
     void signal_autolock_type(int autolock_type);
+    void signal_autolock_type_target(int autolock_type);
 
     void signal_pressure_tc(QString pressure_tc);
     void signal_pressure_tm(QString pressure_tm);
@@ -80,7 +81,7 @@ public slots:
     void slot_vk_key_up();
     void slot_rmp_key_down();
     void slot_rmp_key_up();
-    void slot_autolock_type_target_changed();
+    void slot_autolock_type_target_changed(int value);
 
 private slots:
     void slot_serial_ready_read();
