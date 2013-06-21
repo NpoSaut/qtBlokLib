@@ -78,13 +78,13 @@ public:
     explicit Cookies(QObject *parent = 0);
 
     Cookie trackNumbetNotSaved;
-    Cookie driverNumber;
+    Cookie machinistNumber;
     Cookie trainNumber;
     Cookie categoryTrain;
     Cookie lengthInWheels;
     Cookie lengthInWagons;
     Cookie locomotiveNumber;
-    Cookie weighth;
+    Cookie mass;
     Cookie startOrdinate;
     Cookie timeshift;
     Cookie locomotiveKind;
