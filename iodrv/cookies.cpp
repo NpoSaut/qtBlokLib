@@ -1,3 +1,6 @@
+// Временно: чтобы под виндоус у Жени компилировалось
+#if defined WITH_CAN
+
 #include "lowlevel.h"
 #include "cookies.h"
 
@@ -50,6 +53,7 @@ void Cookie::answerTimeoutHandler()
 
 bool Cookie::loadDataWithControl(const CanFrame &frame)
 {
+#if defined WITH_CAN
     if ( frame.getId () == 0x6265 /*|| frame.getId () == 0x6285*/ ) // SYS_DATA id: 0x313
     {
         auto byte = frame.getData ();
@@ -84,6 +88,7 @@ bool Cookie::loadDataWithControl(const CanFrame &frame)
             return true;
         }
     }
+#endif // WITH_CAN
 return false;
 }
 
@@ -181,3 +186,5 @@ Cookies::Cookies(QObject *parent)
 }
 
 Cookies cookies;
+
+#endif // WITH_CAN

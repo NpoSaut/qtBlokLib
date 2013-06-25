@@ -1,6 +1,9 @@
 #ifndef COOKIES_H
 #define COOKIES_H
 
+// Временно: чтобы под виндоус у Жени компилировалось
+#if defined WITH_CAN
+
 #include <QObject>
 #include <QElapsedTimer>
 #include <QTimer>
@@ -31,7 +34,7 @@ public:
     // Возвращает признак достоверности данных
     bool isValid() const;
 
-    static constexpr int answerTimeout = 110;
+    static const int answerTimeout = 110;
 
 signals:
     // Сиглнал испускается при получении из CAN
@@ -134,5 +137,7 @@ public slots:
 };
 
 extern Cookies cookies;
+
+#endif // WITH_CAN
 
 #endif // COOKIES_H
