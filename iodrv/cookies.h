@@ -1,6 +1,9 @@
 #ifndef COOKIES_H
 #define COOKIES_H
 
+// Временно: чтобы под виндоус у Жени компилировалось
+#if defined WITH_CAN
+
 #include <QObject>
 #include <QElapsedTimer>
 #include <QTimer>
@@ -134,5 +137,7 @@ public slots:
 };
 
 extern Cookies cookies;
+
+#endif // WITH_CAN
 
 #endif // COOKIES_H

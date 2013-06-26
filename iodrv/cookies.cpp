@@ -1,3 +1,6 @@
+// Временно: чтобы под виндоус у Жени компилировалось
+#if defined WITH_CAN
+
 #include "lowlevel.h"
 #include "cookies.h"
 
@@ -181,3 +184,5 @@ Cookies::Cookies(QObject *parent)
 }
 
 Cookies cookies;
+
+#endif // WITH_CAN
