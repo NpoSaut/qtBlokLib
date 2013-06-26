@@ -6,12 +6,14 @@
 #include <QFile>
 #include <QTextStream>
 
+//!!!!! TODO: ВРЕМЕННО
+#include "systemstateviewmodel.h"
+
 #include "iodrvmain.h"
 #include "sktcan.h"
 #include "endecs.h"
+#include "canframe.h"
 
-//!!!!! TODO: ВРЕМЕННО
-#include "systemstateviewmodel.h"
 
 #ifdef WITH_SERIALPORT
 QT_USE_NAMESPACE
@@ -19,8 +21,8 @@ QT_USE_NAMESPACE
 
 enum gps_data_source
 {
-    gps,
-    can
+    gps_data_source_gps,
+    gps_data_source_can
 };
 
 class iodrv : public QObject
@@ -33,10 +35,13 @@ public:
 
 
 public:
-    int start(char* can_iface_name_0, char* can_iface_name_1, gps_data_source gps_datasource = gps);
+    int start(char* can_iface_name_0, char* can_iface_name_1, gps_data_source gps_datasource = gps_data_source_gps);
 
 signals:
     // Сигналы вызываются немедленно или у них есть внутренняя очередь, так что они могут передать изменённое значение
+
+    // Все сообщения
+    void signal_new_message(CanFrame frame);
 
     //Скорость и ограничения
     void signal_speed_earth(double speed);
@@ -60,6 +65,7 @@ signals:
     void signal_reg_tape_avl(bool reg_tape_avl);
 
     void signal_autolock_type(int autolock_type);
+    void signal_autolock_type_target(int autolock_type);
 
     void signal_pressure_tc(QString pressure_tc);
     void signal_pressure_tm(QString pressure_tm);
@@ -75,13 +81,15 @@ signals:
     void signal_date(QString date);
 
 public slots:
+    void slot_send_message(CanFrame frame);
+
     void slot_f_key_down();
     void slot_f_key_up();
     void slot_vk_key_down();
     void slot_vk_key_up();
     void slot_rmp_key_down();
     void slot_rmp_key_up();
-    void slot_autolock_type_target_changed();
+    void slot_autolock_type_target_changed(int value);
     void slot_write_can0_message(can_frame frame);
     void slot_write_can1_message(can_frame frame);
 
@@ -136,7 +144,6 @@ private:
     double c_pressure_tm;
     int c_is_on_road;
 
-
     double p_speed;
     int p_speed_limit;
     int p_target_speed;
@@ -162,7 +169,6 @@ private:
 
     int c_ssps_mode; int p_ssps_mode;
     int c_in_traction; int p_in_traction;
-
 
     int decode_speed(struct can_frame* frame);
     int decode_speed_limit(struct can_frame* frame);

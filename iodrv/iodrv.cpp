@@ -32,7 +32,7 @@ iodrv::iodrv(SystemStateViewModel *systemState)
     //!!!!! TODO: ВРЕМЕННО
     this->systemState = systemState;
 
-    gps_source = gps;
+    gps_source = gps_data_source_gps;
     read_socket_0 = -1;
     write_socket_0 = -1;
     write_socket_1 = -1;
@@ -120,7 +120,7 @@ int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source
 
     // Инициализация и начало асинхронного чтения с последовательного порта.
     // Если не выбрано другое.
-    if (gps_source == gps)
+    if (gps_source == gps_data_source_gps)
     {
         if (init_serial_port() == 0)
         {
@@ -193,8 +193,11 @@ void iodrv::read_canmsgs_loop()
     struct can_frame read_frame;
     while(true)
     {
-        read_can_frame(read_socket_0, &read_frame);
-        process_can_messages(&read_frame);
+        if ( read_can_frame(read_socket_0, &read_frame) )
+        {
+            emit signal_new_message(CanFrame(read_frame));
+            process_can_messages(&read_frame);
+        }
     }
 }
 
@@ -225,7 +228,7 @@ int iodrv::process_can_messages(struct can_frame *frame)
     decode_traction(frame);
     decode_is_on_road(frame);
 
-//    if(gps_source == can)
+//    if(gps_source == gps_data_source_can)
 //    {
         decode_mm_lat_lon(frame);
 //        decode_ipd_datetime(frame);
@@ -275,7 +278,7 @@ int iodrv::decode_autolock_type(struct can_frame* frame)
             if (c_autolock_type_target == -1)
             {
                 c_autolock_type_target = c_autolock_type;
-                systemState->setAutolockTypeTarget (c_autolock_type);
+                emit signal_autolock_type_target(c_autolock_type);
             }
         }
 
@@ -751,6 +754,12 @@ void iodrv::init_timers()
     timer_disp_state->start(500);
 }
 
+void iodrv::slot_send_message(CanFrame frame)
+{
+    can_frame linux_frame = frame;
+    write_canmsg_async ( write_socket_0, const_cast<can_frame *> (&linux_frame) );
+}
+
 void iodrv::slot_can_write_disp_state()
 {
     can_frame frame_a = can_encoder::encode_disp_state_a();
@@ -806,9 +815,9 @@ void iodrv::slot_rmp_key_up()
     write_canmsg_async(write_socket_1, &frame);
 }
 
-void iodrv::slot_autolock_type_target_changed ()
+void iodrv::slot_autolock_type_target_changed (int value)
 {
-    c_autolock_type_target = systemState->getAutolockTypeTarget ();
+    c_autolock_type_target = value;
 }
 
 void iodrv::slot_write_can0_message(can_frame frame)
