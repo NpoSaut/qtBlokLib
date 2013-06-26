@@ -53,8 +53,7 @@ void Cookie::answerTimeoutHandler()
 
 bool Cookie::loadDataWithControl(const CanFrame &frame)
 {
-#if defined WITH_CAN
-    if ( frame.getId () == 0x6265 /*|| frame.getId () == 0x6285*/ ) // SYS_DATA id: 0x313
+    if ( frame.getDescriptor () == 0x6265 /*|| frame.getId () == 0x6285*/ ) // SYS_DATA id: 0x313
     {
         auto byte = frame.getData ();
         int id = byte[0] & 0x7F;
@@ -88,7 +87,6 @@ bool Cookie::loadDataWithControl(const CanFrame &frame)
             return true;
         }
     }
-#endif // WITH_CAN
 return false;
 }
 

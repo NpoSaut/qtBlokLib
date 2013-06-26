@@ -189,9 +189,11 @@ void iodrv::read_canmsgs_loop()
     struct can_frame read_frame;
     while(true)
     {
-        read_can_frame(read_socket_0, &read_frame);
-        emit signal_new_message (&read_frame);
-        process_can_messages(&read_frame);
+        if ( read_can_frame(read_socket_0, &read_frame) )
+        {
+            emit signal_new_message(CanFrame(read_frame));
+            process_can_messages(&read_frame);
+        }
     }
 }
 
@@ -737,9 +739,10 @@ void iodrv::init_timers()
     timer_disp_state->start(500);
 }
 
-void iodrv::slot_send_message(const struct can_frame* frame)
+void iodrv::slot_send_message(CanFrame frame)
 {
-    write_canmsg_async ( write_socket_0, const_cast<can_frame *> (frame) );
+    can_frame linux_frame = frame;
+    write_canmsg_async ( write_socket_0, const_cast<can_frame *> (&linux_frame) );
 }
 
 void iodrv::slot_can_write_disp_state()

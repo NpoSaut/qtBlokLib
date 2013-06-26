@@ -41,7 +41,7 @@ signals:
     // Сигналы вызываются немедленно или у них есть внутренняя очередь, так что они могут передать изменённое значение
 
     // Все сообщения
-    void signal_new_message(const struct can_frame* frame);
+    void signal_new_message(CanFrame frame);
 
     //Скорость и ограничения
     void signal_speed_earth(double speed);
@@ -79,7 +79,7 @@ signals:
     void signal_date(QString date);
 
 public slots:
-    void slot_send_message(const can_frame *frame);
+    void slot_send_message(CanFrame frame);
 
     void slot_f_key_down();
     void slot_f_key_up();
