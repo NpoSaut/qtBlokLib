@@ -31,7 +31,7 @@ public:
     // Возвращает признак достоверности данных
     bool isValid() const;
 
-    static constexpr int answerTimeout = 110;
+    static constexpr int answerTimeout = 200;
 
 signals:
     // Сиглнал испускается при получении из CAN

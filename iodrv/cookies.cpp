@@ -50,7 +50,7 @@ void Cookie::answerTimeoutHandler()
 
 bool Cookie::loadDataWithControl(const CanFrame &frame)
 {
-    if ( frame.getId () == 0x6265 /*|| frame.getId () == 0x6285*/ ) // SYS_DATA id: 0x313
+    if ( frame.getDescriptor () == 0x6265 /*|| frame.getId () == 0x6285*/ ) // SYS_DATA id: 0x313
     {
         auto byte = frame.getData ();
         int id = byte[0] & 0x7F;
