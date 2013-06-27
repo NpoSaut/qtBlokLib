@@ -90,8 +90,6 @@ public slots:
     void slot_rmp_key_down();
     void slot_rmp_key_up();
     void slot_autolock_type_target_changed(int value);
-    void slot_write_can0_message(can_frame frame);
-    void slot_write_can1_message(can_frame frame);
 
 private slots:
     void slot_serial_ready_read();

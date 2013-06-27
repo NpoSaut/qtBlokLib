@@ -110,7 +110,7 @@ int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source
     gps_source = gps_datasource;
 
     // Инициализация сокетов
-    if (init_sktcan("can0", "can0") == 0)
+    if (init_sktcan("vcan0", "vcan1") == 0)
     {
         //printf("Инициализация сокетов не удалась\n"); fflush(stdout);
         return 0;
@@ -182,10 +182,7 @@ void iodrv::write_canmsg_async(int write_socket, can_frame* frame)
 
     //qDebug() << "cocure";
     //QtConcurrent::run(write_can_frame, write_socket, *frame);
-    if ( frame->can_id == 0x422 )
-    {
-        write_can_frame(write_socket, *frame);
-    }
+    write_can_frame(write_socket, *frame);
 }
 
 void iodrv::read_canmsgs_loop()
@@ -819,17 +816,6 @@ void iodrv::slot_autolock_type_target_changed (int value)
 {
     c_autolock_type_target = value;
 }
-
-void iodrv::slot_write_can0_message(can_frame frame)
-{
-    write_canmsg_async (write_socket_0, &frame);
-}
-
-void iodrv::slot_write_can1_message(can_frame frame)
-{
-    write_canmsg_async (write_socket_1, &frame);
-}
-
 
 SpeedAgregator::SpeedAgregator()
     : currentSpeedFromEarth(-1), currentSpeedFromSky(-1), currentSpeedIsValid(false), onRails(true)
