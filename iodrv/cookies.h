@@ -66,10 +66,15 @@ private:
     void applyNewValue (int newValue);
     void applyNewValidity (bool newValid);
 
+    // Посылает в CAN команду на запись значения
+    void writeValueRequestSend ();
+
     int index;
     int value;
     bool valid;
     bool forceUpdate;
+    bool writeActive;
+    int writeValue;
     QElapsedTimer lastUpdateTimer;
     QTimer answerWaitTimer;
 };
