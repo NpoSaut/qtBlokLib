@@ -44,8 +44,8 @@ ModulesActivity ModulesActivity::loadFromMcoState(const QByteArray &mcoStateMess
     ma.tskbm            = mcoStateMessage[6] & (1 << 6);
     ma.breaksBrain      = mcoStateMessage[6] & (1 << 7);
 
-    ma.electronicMap    = mcoStateMessage[7] & (1 << 5);
-    ma.navigation       = mcoStateMessage[7] & (1 << 7);
+    ma.electronicMap    = mcoStateMessage[7] & (1 << 7);
+    ma.navigation       = mcoStateMessage[7] & (1 << 5);
 
     ma.collected = true;
 
