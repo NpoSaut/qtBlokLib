@@ -1,6 +1,7 @@
 #if defined WITH_CAN || defined WITH_SERIAL
 
 #include "endecs.h"
+#include "lowlevel.h"
 
 
 can_frame can_encoder::encode_mm_alt_long(double lat, double lon, bool reliability)
@@ -326,7 +327,7 @@ int can_decoder::decode_passed_distance(struct can_frame* frame, int* passed_dis
 // MY_DEBUG_A
 int can_decoder::decode_orig_passed_distance(struct can_frame* frame, int* x)
 {
-    if ((*frame).can_id != 0x4CC) return -1; // 9983
+    if ((*frame).can_id != 0x0C4) return -1; // 0x1888
 
     struct IntByBytes
     {
@@ -336,8 +337,7 @@ int can_decoder::decode_orig_passed_distance(struct can_frame* frame, int* x)
         int byte4: 8;
     };
 
-    IntByBytes dist = {frame->data[0], frame->data[1], frame->data[2], (frame->data[2] & (1 << 7)) ? 0xFF : 0};
-    (*x) = *((int *) &dist);
+    (*x) = Complex<int32_t> ({frame->data[4], frame->data[3], frame->data[5], (frame->data[5] & (1 << 7)) ? 0xFF : 0});
 
     return 1;
 }
@@ -510,6 +510,8 @@ void nmea::decode_rmc(QString message, struct gps_data* gd)
     //QStringList v_list = fields.at(7).split("."); // И целая, и дробная части могут быть переменной длины.
     //double speed_kmh = ( v_list.at(0).toDouble() + v_list.at(1).toDouble() ) * 1.852;
     double speed_kmh = fields.at(7).toDouble() * 1.852;
+
+    qDebug() << "_________YURI________ " << lat << " _____ " << lon;
 
     gd->lat = lat;
     gd->lon = lon;

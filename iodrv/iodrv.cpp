@@ -110,7 +110,7 @@ int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source
     gps_source = gps_datasource;
 
     // Инициализация сокетов
-    if (init_sktcan("vcan0", "vcan1") == 0)
+    if (init_sktcan("can0", "can1") == 0)
     {
         //printf("Инициализация сокетов не удалась\n"); fflush(stdout);
         return 0;
@@ -473,7 +473,7 @@ int iodrv::decode_mm_lat_lon(struct can_frame* frame)
                 emit signal_lat(c_lat);
                 emit signal_lon(c_lon);
             }
-            emit signal_lat_lon (c_lat, c_lon);
+//            emit signal_lat_lon (c_lat, c_lon);
             p_lat = c_lat;
             p_lon = c_lon;
 
@@ -683,7 +683,7 @@ void iodrv::slot_serial_ready_read()
 
             emit signal_lat(gd.lat);
             emit signal_lon(gd.lon);
-
+            emit signal_lat_lon (gd.lat, gd.lon);
 
             static double speed_old = 0;
 
