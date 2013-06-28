@@ -511,8 +511,6 @@ void nmea::decode_rmc(QString message, struct gps_data* gd)
     //double speed_kmh = ( v_list.at(0).toDouble() + v_list.at(1).toDouble() ) * 1.852;
     double speed_kmh = fields.at(7).toDouble() * 1.852;
 
-    qDebug() << "_________YURI________ " << lat << " _____ " << lon;
-
     gd->lat = lat;
     gd->lon = lon;
     gd->is_reliable = IsReliable;
