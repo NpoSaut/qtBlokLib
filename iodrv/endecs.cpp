@@ -1,7 +1,10 @@
 #if defined WITH_CAN || defined WITH_SERIAL
 
+#include <QByteArray>
+
 #include "endecs.h"
 #include "lowlevel.h"
+
 
 
 can_frame can_encoder::encode_mm_alt_long(double lat, double lon, bool reliability)
@@ -241,6 +244,17 @@ int can_decoder::decode_epv_key(struct can_frame* frame, int* epv_key)
     if ((*frame).can_id != 0x050) return -1;
 
     (*epv_key) = (int) ( ( (*frame).data[0] >> 6 ) & 0b00000001 );
+
+    return 1;
+}
+
+// MCO_STATE_A
+int can_decoder::decode_modules_activity(can_frame *frame, ModulesActivity *modulesActivity)
+{
+    if ((*frame).can_id != 0x050) return -1;
+
+    (*modulesActivity) = ModulesActivity::loadFromMcoState (
+                QByteArray(reinterpret_cast<const char *> (frame->data), frame->can_dlc) );
 
     return 1;
 }
@@ -525,3 +539,4 @@ void nmea::decode_rmc(QString message, struct gps_data* gd)
 }
 
 #endif
+
