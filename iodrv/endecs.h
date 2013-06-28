@@ -3,7 +3,10 @@
 #ifndef ENDECS_H
 #define ENDECS_H
 
+#include <QString>
+
 #include "iodrvmain.h"
+#include "modulesactivity.h"
 
 enum key_state
 {
@@ -38,6 +41,7 @@ public:
     static int decode_passed_distance(struct can_frame* frame, int* passed_distance);
     static int decode_epv_released(struct can_frame* frame, int* epv_state);
     static int decode_epv_key(struct can_frame* frame, int* epv_key);
+    static int decode_modules_activity(struct can_frame* frame, ModulesActivity* modulesActivity);
     static int decode_mm_lat_lon(struct can_frame* frame, double* lat, double* lon);
     static int decode_ipd_date(struct can_frame* frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds);
 

@@ -5,7 +5,6 @@
 #include <QtCore/qmath.h>
 
 #include <QFile>
-#include <QTextStream>
 
 // Distance between coordinates in kilometers
 const double PI = 3.141592653589793238462;
@@ -26,7 +25,8 @@ static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2
 }
 
 iodrv::iodrv(SystemStateViewModel *systemState)
-    : distance_store_file("/media/milage.txt")
+    : distance_store_file("/media/milage.txt"),
+      c_modulesActivity(), p_modulesActivity()
 {
     //!!!!! TODO: ВРЕМЕННО
     this->systemState = systemState;
@@ -210,6 +210,7 @@ int iodrv::process_can_messages(struct can_frame *frame)
     decode_passed_distance(frame);
     decode_epv_state(frame);
     decode_epv_key(frame);
+    decode_modules_activity(frame);
 
     decode_driving_mode(frame);
     decode_vigilance(frame);
@@ -446,6 +447,20 @@ int iodrv::decode_epv_key(struct can_frame* frame)
                 emit signal_epv_key(c_epv_key);
             }
             p_epv_key = c_epv_key;
+            break;
+    }
+}
+
+int iodrv::decode_modules_activity(can_frame *frame)
+{
+    switch (can_decoder::decode_modules_activity (frame, &c_modulesActivity))
+    {
+        case 1:
+        if ((p_modulesActivity.isCollected() == false) || (p_modulesActivity.isCollected() == true && p_modulesActivity != c_modulesActivity))
+            {
+                emit signal_modules_activity (c_modulesActivity.toString ());
+            }
+            p_modulesActivity = c_modulesActivity;
             break;
     }
 }
