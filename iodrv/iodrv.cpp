@@ -677,7 +677,7 @@ int iodrv::init_serial_port()
 void iodrv::slot_serial_ready_read()
 {
 #ifdef WITH_SERIALPORT
-    if (serial_port.canReadLine())
+    while (serial_port.canReadLine())
     {
         gps_data gd;    // TODO: Сделать глобальной?
 
