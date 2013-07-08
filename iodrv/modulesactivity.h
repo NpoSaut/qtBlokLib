@@ -9,7 +9,7 @@ class ModulesActivity
 public:
     ModulesActivity ()
         : ipd (false), monitor(false), mpAls(false), electronicMap(false), navigation (false),
-          breaksBrain (false), radio (false), tskbm (false), controlSystem (false),
+          breaksBrain (false), radio (false), tskbm (false), controlSystem (false), outputModule (false),
           collected (false)
     {}
 
@@ -25,6 +25,7 @@ public:
     bool radio;
     bool tskbm;
     bool controlSystem;
+    bool outputModule;
 
     bool isCollected () const { return collected; }
     QString toString () const;
