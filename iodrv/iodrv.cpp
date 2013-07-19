@@ -116,7 +116,7 @@ int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source
         return 0;
     }
     // Петля чтения сокета
-    QtConcurrent::run(this, &iodrv::read_canmsgs_loop);
+    //QtConcurrent::run(this, &iodrv::read_canmsgs_loop);
 
     // Инициализация и начало асинхронного чтения с последовательного порта.
     // Если не выбрано другое.
