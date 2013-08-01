@@ -145,7 +145,7 @@ int iodrv::init_sktcan(char* can_iface_name_0, char *can_iface_name_1)
     // Подготавливаем сокеты
 
     printf("Инициализация сокета чтения %s\n", iface_name_0); fflush(stdout);
-    read_socket_0 = getSocket(iface_name_0);
+    read_socket_0 = CanInternals::getSocket(iface_name_0);
     if(!read_socket_0)
     {
         return 0;
@@ -154,7 +154,7 @@ int iodrv::init_sktcan(char* can_iface_name_0, char *can_iface_name_1)
     fflush(stdout);
 
     printf("Инициализация сокета записи %s\n", iface_name_0); fflush(stdout);
-    write_socket_0 = getSocket(iface_name_0);
+    write_socket_0 = CanInternals::getSocket(iface_name_0);
     if(!write_socket_0)
     {
         return 0;
@@ -162,7 +162,7 @@ int iodrv::init_sktcan(char* can_iface_name_0, char *can_iface_name_1)
     printf("Сокет записи %s готов\n", iface_name_0); fflush(stdout);
 
     printf("Инициализация сокета записи %s\n", iface_name_1); fflush(stdout);
-    write_socket_1 = getSocket(iface_name_1);
+    write_socket_1 = CanInternals::getSocket(iface_name_1);
     if(!write_socket_1)
     {
         return 0;
@@ -182,7 +182,7 @@ void iodrv::write_canmsg_async(int write_socket, can_frame* frame)
 
     //qDebug() << "cocure";
     //QtConcurrent::run(write_can_frame, write_socket, *frame);
-    write_can_frame(write_socket, *frame);
+    CanInternals::write_can_frame(write_socket, *frame);
 }
 
 void iodrv::read_canmsgs_loop()
@@ -190,7 +190,7 @@ void iodrv::read_canmsgs_loop()
     struct can_frame read_frame;
     while(true)
     {
-        if ( read_can_frame(read_socket_0, &read_frame) )
+        if ( CanInternals::read_can_frame(read_socket_0, &read_frame) )
         {
             emit signal_new_message(CanFrame(read_frame));
             process_can_messages(&read_frame);
