@@ -7,7 +7,7 @@
 Cookie::Cookie(int index)
     : QObject(), answerWaitTimer(), index (index), valid (false), forceUpdate (false), writeActive (false)
 {
-    QObject::connect (&canDev, SIGNAL(receiveNewMessage(CanFrame)), this, SLOT(loadData(CanFrame)));
+    QObject::connect (&can, SIGNAL(newMessageReceived(CanFrame)), this, SLOT(loadData(CanFrame)));
 
     answerWaitTimer.setSingleShot (true);
     answerWaitTimer.setInterval (answerTimeout);
@@ -30,7 +30,7 @@ int Cookie::getValue()
 void Cookie::requestValue(bool forceUpdate)
 {
     CanFrame frame( 0x0E01, std::vector<unsigned char> (1,index) ); // SYS_DATA_QUERY id: 0x070
-    canDev.transmitMessage (frame);
+    can.transmitMessage (frame);
 
     this->forceUpdate = forceUpdate;
     answerWaitTimer.start ();
@@ -75,7 +75,7 @@ bool Cookie::loadDataWithControl(const CanFrame &frame)
                     {
                         // Повторяем запрос
                         CanFrame frame( 0x0E01, std::vector<unsigned char> (1,index) );
-                        canDev.transmitMessage (frame);
+                        can.transmitMessage (frame);
                     }
 
                     if ( !answerWaitTimer.isActive () ) // Не перезапускать таймер, если уже запущен
@@ -134,7 +134,7 @@ void Cookie::writeValueRequestSend()
     data[4] = valueByte[0];
 
     CanFrame frame( 0x6205, data ); // INPUT_DATA id: 0x310
-    canDev.transmitMessage (frame);
+    can.transmitMessage (frame);
 }
 
 void Cookie::setVaule(int value)

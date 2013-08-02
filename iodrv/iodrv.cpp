@@ -5,6 +5,7 @@
 
 #include <QFile>
 
+#include "can.h"
 #include "iodrv.h"
 
 // Distance between coordinates in kilometers
@@ -115,8 +116,8 @@ int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source
         //printf("Инициализация сокетов не удалась\n"); fflush(stdout);
         return 0;
     }
-    // Петля чтения сокета
-    QtConcurrent::run(this, &iodrv::read_canmsgs_loop);
+
+    QObject::connect (&can, SIGNAL(newMessageReceived(CanFrame)), this, SLOT(process_can_messages(CanFrame)));
 
     // Инициализация и начало асинхронного чтения с последовательного порта.
     // Если не выбрано другое.
@@ -136,38 +137,31 @@ int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source
 
 int iodrv::init_sktcan(char* can_iface_name_0, char *can_iface_name_1)
 {
-    // По-хорошему все строки должны быть const char*.
-    // http://stackoverflow.com/questions/7896645/c-deprecated-conversion-from-string-constant-to-char
-    char* iface_name_0 = (char* )((can_iface_name_0 == NULL) ? "can0" : can_iface_name_0);
-    char* iface_name_1 = (char* )((can_iface_name_1 == NULL) ? "can1" : can_iface_name_1);
 
+//    printf("Инициализация сокета чтения %s\n", iface_name_0); fflush(stdout);
+//    read_socket_0 = CanInternals::getSocket(iface_name_0);
+//    if(!read_socket_0)
+//    {
+//        return 0;
+//    }
+//    printf("Сокет чтения %s готов\n", iface_name_0); // TODO: Сообщение об общей готовности или ошибке должно быть в getSocket()
+//    fflush(stdout);
 
-    // Подготавливаем сокеты
+//    printf("Инициализация сокета записи %s\n", iface_name_0); fflush(stdout);
+//    write_socket_0 = CanInternals::getSocket(iface_name_0);
+//    if(!write_socket_0)
+//    {
+//        return 0;
+//    }
+//    printf("Сокет записи %s готов\n", iface_name_0); fflush(stdout);
 
-    printf("Инициализация сокета чтения %s\n", iface_name_0); fflush(stdout);
-    read_socket_0 = CanInternals::getSocket(iface_name_0);
-    if(!read_socket_0)
-    {
-        return 0;
-    }
-    printf("Сокет чтения %s готов\n", iface_name_0); // TODO: Сообщение об общей готовности или ошибке должно быть в getSocket()
-    fflush(stdout);
-
-    printf("Инициализация сокета записи %s\n", iface_name_0); fflush(stdout);
-    write_socket_0 = CanInternals::getSocket(iface_name_0);
-    if(!write_socket_0)
-    {
-        return 0;
-    }
-    printf("Сокет записи %s готов\n", iface_name_0); fflush(stdout);
-
-    printf("Инициализация сокета записи %s\n", iface_name_1); fflush(stdout);
-    write_socket_1 = CanInternals::getSocket(iface_name_1);
-    if(!write_socket_1)
-    {
-        return 0;
-    }
-    printf("Сокет записи %s готов\n", iface_name_1); fflush(stdout);
+//    printf("Инициализация сокета записи %s\n", iface_name_1); fflush(stdout);
+//    write_socket_1 = CanInternals::getSocket(iface_name_1);
+//    if(!write_socket_1)
+//    {
+//        return 0;
+//    }
+//    printf("Сокет записи %s готов\n", iface_name_1); fflush(stdout);
 
     return 1;
 }
@@ -182,54 +176,43 @@ void iodrv::write_canmsg_async(int write_socket, can_frame* frame)
 
     //qDebug() << "cocure";
     //QtConcurrent::run(write_can_frame, write_socket, *frame);
-    CanInternals::write_can_frame(write_socket, *frame);
+
+    can.transmitMessage (frame);
+    //CanInternals::write_can_frame(write_socket, *frame);
 }
 
-void iodrv::read_canmsgs_loop()
+void iodrv::process_can_messages(CanFrame frame)
 {
-    struct can_frame read_frame;
-    while(true)
-    {
-        if ( CanInternals::read_can_frame(read_socket_0, &read_frame) )
-        {
-            emit signal_new_message(CanFrame(read_frame));
-            process_can_messages(&read_frame);
-        }
-    }
-}
+    can_frame linuxFrame = frame;
+    decode_speed(&linuxFrame);
+    decode_speed_limit(&linuxFrame);
+    decode_target_speed(&linuxFrame);
+    decode_acceleration(&linuxFrame);
 
+    decode_trafficlight_light(&linuxFrame);
+    decode_trafficlight_freq(&linuxFrame);
+    decode_passed_distance(&linuxFrame);
+    decode_orig_passed_distance (&linuxFrame);
+    decode_epv_state(&linuxFrame);
+    decode_epv_key(&linuxFrame);
+    decode_modules_activity(&linuxFrame);
 
-int iodrv::process_can_messages(struct can_frame *frame)
-{
-    decode_speed(frame);
-    decode_speed_limit(frame);
-    decode_target_speed(frame);
-    decode_acceleration(frame);
+    decode_driving_mode(&linuxFrame);
+    decode_vigilance(&linuxFrame);
+    decode_movement_direction(&linuxFrame);
+    decode_reg_tape_avl(&linuxFrame);
 
-    decode_trafficlight_light(frame);
-    decode_trafficlight_freq(frame);
-    decode_passed_distance(frame);
-    decode_orig_passed_distance (frame);
-    decode_epv_state(frame);
-    decode_epv_key(frame);
-    decode_modules_activity(frame);
+    decode_autolock_type(&linuxFrame);
 
-    decode_driving_mode(frame);
-    decode_vigilance(frame);
-    decode_movement_direction(frame);
-    decode_reg_tape_avl(frame);
-
-    decode_autolock_type(frame);
-
-    decode_pressure_tc_tm(frame);
-    decode_ssps_mode(frame);
-    decode_traction(frame);
-    decode_is_on_road(frame);
+    decode_pressure_tc_tm(&linuxFrame);
+    decode_ssps_mode(&linuxFrame);
+    decode_traction(&linuxFrame);
+    decode_is_on_road(&linuxFrame);
 
 //    if(gps_source == gps_data_source_can)
 //    {
-        decode_mm_lat_lon(frame);
-//        decode_ipd_datetime(frame);
+        decode_mm_lat_lon(&linuxFrame);
+//        decode_ipd_datetime(&linuxFrame);
 //    }
 }
 

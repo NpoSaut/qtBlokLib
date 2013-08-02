@@ -94,6 +94,7 @@ public slots:
     void slot_autolock_type_target_changed(int value);
 
 private slots:
+    void process_can_messages(CanFrame frame);
     void slot_serial_ready_read();
     void slot_can_write_disp_state();
 
@@ -105,7 +106,7 @@ private:
     //struct can_frame read_frame;
     //struct can_frame write_frame;
     int init_sktcan(char* can_iface_name_0, char* can_iface_name_1);
-    void read_canmsgs_loop();
+
     // TODO: Контролировать были ли сообщения отосланы и если нет, то что-нибудь делать.
     void write_canmsg_async(int socket, can_frame* frame);
 
@@ -200,8 +201,6 @@ private:
 
     int decode_autolock_type(struct can_frame* frame);
     int set_autolock_type(int autolock_type);
-
-    int process_can_messages(struct can_frame* frame);
 
 
 #ifdef WITH_SERIALPORT
