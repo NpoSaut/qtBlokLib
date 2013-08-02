@@ -7,7 +7,7 @@
 Cookie::Cookie(int index)
     : QObject(), answerWaitTimer(), index (index), valid (false), forceUpdate (false), writeActive (false)
 {
-    QObject::connect (&can, SIGNAL(newMessageReceived(CanFrame)), this, SLOT(loadData(CanFrame)));
+    QObject::connect (&can, SIGNAL(messageReceived(CanFrame)), this, SLOT(loadData(CanFrame)));
 
     answerWaitTimer.setSingleShot (true);
     answerWaitTimer.setInterval (answerTimeout);

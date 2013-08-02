@@ -117,7 +117,7 @@ int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source
         return 0;
     }
 
-    QObject::connect (&can, SIGNAL(newMessageReceived(CanFrame)), this, SLOT(process_can_messages(CanFrame)));
+    QObject::connect (&can, SIGNAL(messageReceived(CanFrame)), this, SLOT(process_can_messages(CanFrame)));
 
     // Инициализация и начало асинхронного чтения с последовательного порта.
     // Если не выбрано другое.
