@@ -13,8 +13,8 @@ can_frame can_encoder::encode_mm_alt_long(double lat, double lon, bool reliabili
     frame.can_id = 0x213;
     frame.can_dlc = 8;
 
-    int flat = (int) ( lat * (double)10e8 * 3.14159265359 / (double)180 );
-    int flon = ((int) ( lon * (double)10e8 * 3.14159265359 / (double)180 )) >> 1;
+    int flat = (int) ( lat * (double)1e8 * 3.14159265359 / (double)180 );
+    int flon = ((int) ( lon * (double)1e8 * 3.14159265359 / (double)180 ));
     int flonr = reliability ? ( flon | (1 << 31) ) : ( flon & (~(1 << 31)) );
 
     frame.data[0] = flat & 0xFF;
@@ -362,10 +362,10 @@ int can_decoder::decode_mm_lat_lon(struct can_frame* frame, double* lat, double*
     if ((*frame).can_id != 0x213) return -1;
 
     int lat_i =((int) (*frame).data[0]) + (((int) (*frame).data[1]) << 8) + (((int) (*frame).data[2]) << 16) + (((int) (*frame).data[3]) << 24);
-    *lat = (double)lat_i * 10e-9 * 180 / 3.14159265359;
+    *lat = (double)lat_i * 1e-8 * 180 / 3.14159265359;
 
     int lon_i =((int) (*frame).data[4]) + (((int) (*frame).data[5]) << 8) + (((int) (*frame).data[6]) << 16) + (((int) ((*frame).data[7]) & 0b01111111 ) << 24);
-    *lon = (double)lon_i * 10e-9 * 180 / 3.14159265359;
+    *lon = (double)lon_i * 1e-8 * 180 / 3.14159265359;
 
     return 1;
 }

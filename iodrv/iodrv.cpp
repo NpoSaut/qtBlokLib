@@ -209,11 +209,8 @@ void iodrv::process_can_messages(CanFrame frame)
     decode_traction(&linuxFrame);
     decode_is_on_road(&linuxFrame);
 
-//    if(gps_source == gps_data_source_can)
-//    {
-        decode_mm_lat_lon(&linuxFrame);
-//        decode_ipd_datetime(&linuxFrame);
-//    }
+//        decode_mm_lat_lon(&linuxFrame);
+
 }
 
 
