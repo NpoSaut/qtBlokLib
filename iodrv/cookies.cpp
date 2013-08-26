@@ -1,7 +1,7 @@
 // Временно: чтобы под виндоус у Жени компилировалось
 #if defined WITH_CAN
 
-#include "lowlevel.h"
+#include "cDoodahLib/lowlevel.h"
 #include "cookies.h"
 
 Cookie::Cookie(int index)

@@ -3,7 +3,7 @@
 #include <QByteArray>
 
 #include "endecs.h"
-#include "lowlevel.h"
+#include "cDoodahLib/lowlevel.h"
 
 
 
