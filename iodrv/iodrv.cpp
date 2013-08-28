@@ -6,6 +6,7 @@
 #include <QFile>
 
 #include "qtCanLib/can.h"
+#include "qtCanLib/socketcan/sktcan.h"
 #include "iodrv.h"
 
 // Distance between coordinates in kilometers
@@ -177,13 +178,13 @@ void iodrv::write_canmsg_async(int write_socket, can_frame* frame)
     //qDebug() << "cocure";
     //QtConcurrent::run(write_can_frame, write_socket, *frame);
 
-    can.transmitMessage (frame);
+    can.transmitMessage (CanInternals::convert (frame));
     //CanInternals::write_can_frame(write_socket, *frame);
 }
 
 void iodrv::process_can_messages(CanFrame frame)
 {
-    can_frame linuxFrame = frame;
+    can_frame linuxFrame = CanInternals::convert (frame);
     decode_speed(&linuxFrame);
     decode_speed_limit(&linuxFrame);
     decode_target_speed(&linuxFrame);
@@ -748,7 +749,7 @@ void iodrv::init_timers()
 
 void iodrv::slot_send_message(CanFrame frame)
 {
-    can_frame linux_frame = frame;
+    can_frame linux_frame = CanInternals::convert (frame);
     write_canmsg_async ( write_socket_0, const_cast<can_frame *> (&linux_frame) );
 }
 
