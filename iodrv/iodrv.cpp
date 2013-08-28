@@ -5,7 +5,7 @@
 
 #include <QFile>
 
-#include "can.h"
+#include "qtCanLib/can.h"
 #include "iodrv.h"
 
 // Distance between coordinates in kilometers

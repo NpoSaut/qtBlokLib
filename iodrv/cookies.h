@@ -8,7 +8,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 
-#include "iodrv/can.h"
+#include "qtCanLib/can.h"
 
 // Класс - локальная версия некоторого значения, хранимого в МПХ под индексом index
 //   Обеспечивает проверку всех входящих сообщений, при обнаружении новго значения

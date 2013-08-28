@@ -10,9 +10,9 @@
 #include "systemstateviewmodel.h"
 
 #include "iodrvmain.h"
-#include "sktcan.h"
+//#include "sktcan.h"
+#include "qtCanLib/canframe.h"
 #include "endecs.h"
-#include "canframe.h"
 #include "modulesactivity.h"
 
 

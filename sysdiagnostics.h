@@ -2,7 +2,7 @@
 #define SYSDIAGNOSTICS_H
 
 #include <QObject>
-#include <iodrv/can.h>
+#include <qtCanLib/can.h>
 
 // Отправляет диагностическую информацию (номер версии, ...)
 class SysDiagnostics : public QObject
