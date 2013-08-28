@@ -5,6 +5,7 @@
 
 #include <QString>
 
+#include <qtCanLib/canframe.h>
 #include "iodrvmain.h"
 #include "modulesactivity.h"
 
@@ -17,47 +18,47 @@ enum key_state
 class can_encoder
 {
 public:
-    static can_frame encode_mm_alt_long(double lat, double lon, bool reliability);
-    static can_frame encode_ipd_date(int year, int month, int day, int hours, int minutes, int seconds);
-    static can_frame encode_disp_state_a();
-    static can_frame encode_disp_state_b();
-    static can_frame encode_sys_key(key_state k_state, int key_code);
-    static can_frame encode_mm_data(int speed, int milage);
-    static can_frame encode_ipd_state( double speed, int distance, bool reliable );
-    static can_frame encode_autolock_set_message (int autolock_type);
+    static CanFrame encode_mm_alt_long(double lat, double lon, bool reliability);
+    static CanFrame encode_ipd_date(int year, int month, int day, int hours, int minutes, int seconds);
+    static CanFrame encode_disp_state_a();
+    static CanFrame encode_disp_state_b();
+    static CanFrame encode_sys_key(key_state k_state, int key_code);
+    static CanFrame encode_mm_data(int speed, int milage);
+    static CanFrame encode_ipd_state( double speed, int distance, bool reliable );
+    static CanFrame encode_autolock_set_message (int autolock_type);
 };
 
 class can_decoder
 {
 public:
-    static int decode_speed(struct can_frame* frame, double* speed);
-    static int decode_speed_limit(struct can_frame* frame, int* speed_limit);
-    static int decode_target_speed(struct can_frame* frame, int* target_speed);
-    static int decode_acceleration(struct can_frame* frame, double* acceleration);
+    static int decode_speed(const CanFrame &frame, double* speed);
+    static int decode_speed_limit(const CanFrame &frame, int* speed_limit);
+    static int decode_target_speed(const CanFrame &frame, int* target_speed);
+    static int decode_acceleration(const CanFrame &frame, double* acceleration);
 
-    static int decode_movement_direction(struct can_frame* frame, int* movement_direction);
-    static int decode_trafficlight_light(struct can_frame* frame, int* trafficlight_light);
-    static int decode_trafficlight_freq(struct can_frame* frame, int* trafficlight_freq);
-    static int decode_passed_distance(struct can_frame* frame, int* passed_distance);
-    static int decode_orig_passed_distance(struct can_frame* frame, int* x);
-    static int decode_epv_released(struct can_frame* frame, int* epv_state);
-    static int decode_epv_key(struct can_frame* frame, int* epv_key);
-    static int decode_modules_activity(struct can_frame* frame, ModulesActivity* modulesActivity);
-    static int decode_mm_lat_lon(struct can_frame* frame, double* lat, double* lon);
-    static int decode_ipd_date(struct can_frame* frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds);
+    static int decode_movement_direction(const CanFrame &frame, int* movement_direction);
+    static int decode_trafficlight_light(const CanFrame &frame, int* trafficlight_light);
+    static int decode_trafficlight_freq(const CanFrame &frame, int* trafficlight_freq);
+    static int decode_passed_distance(const CanFrame &frame, int* passed_distance);
+    static int decode_orig_passed_distance(const CanFrame &frame, int* x);
+    static int decode_epv_released(const CanFrame &frame, int* epv_state);
+    static int decode_epv_key(const CanFrame &frame, int* epv_key);
+    static int decode_modules_activity(const CanFrame &frame, ModulesActivity* modulesActivity);
+    static int decode_mm_lat_lon(const CanFrame &frame, double* lat, double* lon);
+    static int decode_ipd_date(const CanFrame &frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds);
 
-    static int decode_driving_mode(struct can_frame* frame, int* driving_mode);
-    static int decode_vigilance(struct can_frame* frame, int* vigilance);
-    static int decode_reg_tape_avl(struct can_frame* frame, int* reg_tape_avl);
+    static int decode_driving_mode(const CanFrame &frame, int* driving_mode);
+    static int decode_vigilance(const CanFrame &frame, int* vigilance);
+    static int decode_reg_tape_avl(const CanFrame &frame, int* reg_tape_avl);
 
-    static int decode_pressure_tc_tm(struct can_frame* frame, double* pressure_tc, double* pressure_tm);
+    static int decode_pressure_tc_tm(const CanFrame &frame, double* pressure_tc, double* pressure_tm);
 
-    static int decode_ssps_mode(struct can_frame* frame, int* ssps_mode);
-    static int decode_traction(struct can_frame* frame, int* in_traction);
+    static int decode_ssps_mode(const CanFrame &frame, int* ssps_mode);
+    static int decode_traction(const CanFrame &frame, int* in_traction);
 
-    static int decode_is_on_road(struct can_frame* frame, int* is_on_road);
+    static int decode_is_on_road(const CanFrame &frame, int* is_on_road);
 
-    static int decode_autolock_type(struct can_frame* frame, int* autolock_type);
+    static int decode_autolock_type(const CanFrame &frame, int* autolock_type);
 };
 
 

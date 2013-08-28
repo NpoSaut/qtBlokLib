@@ -6,7 +6,6 @@
 #include <QFile>
 
 #include "qtCanLib/can.h"
-#include "qtCanLib/socketcan/sktcan.h"
 #include "iodrv.h"
 
 // Distance between coordinates in kilometers
@@ -167,57 +166,46 @@ int iodrv::init_sktcan(char* can_iface_name_0, char *can_iface_name_1)
     return 1;
 }
 
-void iodrv::write_canmsg_async(int write_socket, can_frame* frame)
+void iodrv::write_canmsg_async(int write_socket, const CanFrame &frame)
 {
-    // TODO: Передавать по значению и лочить вызов?
-    // Создавать новый сокет на отправку и закрывать его.
-
-    // Операция будет атомарной на одном сокете, пока не израсходован его внутренний буфер, который как минимум 512 байт.
-    // Учитывая размер can_frame и плотность их отправки, его исчерпание маловероятно.
-
-    //qDebug() << "cocure";
-    //QtConcurrent::run(write_can_frame, write_socket, *frame);
-
-    can.transmitMessage (CanInternals::convert (frame));
-    //CanInternals::write_can_frame(write_socket, *frame);
+    can.transmitMessage (frame);
 }
 
 void iodrv::process_can_messages(CanFrame frame)
 {
-    can_frame linuxFrame = CanInternals::convert (frame);
-    decode_speed(&linuxFrame);
-    decode_speed_limit(&linuxFrame);
-    decode_target_speed(&linuxFrame);
-    decode_acceleration(&linuxFrame);
+    decode_speed(frame);
+    decode_speed_limit(frame);
+    decode_target_speed(frame);
+    decode_acceleration(frame);
 
-    decode_trafficlight_light(&linuxFrame);
-    decode_trafficlight_freq(&linuxFrame);
-    decode_passed_distance(&linuxFrame);
-    decode_orig_passed_distance (&linuxFrame);
-    decode_epv_state(&linuxFrame);
-    decode_epv_key(&linuxFrame);
-    decode_modules_activity(&linuxFrame);
+    decode_trafficlight_light(frame);
+    decode_trafficlight_freq(frame);
+    decode_passed_distance(frame);
+    decode_orig_passed_distance (frame);
+    decode_epv_state(frame);
+    decode_epv_key(frame);
+    decode_modules_activity(frame);
 
-    decode_driving_mode(&linuxFrame);
-    decode_vigilance(&linuxFrame);
-    decode_movement_direction(&linuxFrame);
-    decode_reg_tape_avl(&linuxFrame);
+    decode_driving_mode(frame);
+    decode_vigilance(frame);
+    decode_movement_direction(frame);
+    decode_reg_tape_avl(frame);
 
-    decode_autolock_type(&linuxFrame);
+    decode_autolock_type(frame);
 
-    decode_pressure_tc_tm(&linuxFrame);
-    decode_ssps_mode(&linuxFrame);
-    decode_traction(&linuxFrame);
-    decode_is_on_road(&linuxFrame);
+    decode_pressure_tc_tm(frame);
+    decode_ssps_mode(frame);
+    decode_traction(frame);
+    decode_is_on_road(frame);
 
-//        decode_mm_lat_lon(&linuxFrame);
+//        decode_mm_lat_lon(frame);
 
 }
 
 
 // Скорость и ограничения
 
-int iodrv::decode_speed(struct can_frame* frame)
+int iodrv::decode_speed(const CanFrame &frame)
 {
     switch (can_decoder::decode_speed(frame, &c_speed))
     {
@@ -232,7 +220,7 @@ int iodrv::decode_speed(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_speed_limit(struct can_frame* frame)
+int iodrv::decode_speed_limit(const CanFrame &frame)
 {
     switch (can_decoder::decode_speed_limit(frame, &c_speed_limit))
     {
@@ -246,7 +234,7 @@ int iodrv::decode_speed_limit(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_autolock_type(struct can_frame* frame)
+int iodrv::decode_autolock_type(const CanFrame &frame)
 {
     switch (can_decoder::decode_autolock_type(frame, &c_autolock_type))
     {
@@ -274,11 +262,11 @@ int iodrv::decode_autolock_type(struct can_frame* frame)
 
 int iodrv::set_autolock_type(int autolock_type)
 {
-    can_frame frame = can_encoder::encode_autolock_set_message (autolock_type);
-    write_canmsg_async (write_socket_0, &frame);
+    CanFrame frame = can_encoder::encode_autolock_set_message (autolock_type);
+    write_canmsg_async (write_socket_0, frame);
 }
 
-int iodrv::decode_target_speed(struct can_frame* frame)
+int iodrv::decode_target_speed(const CanFrame &frame)
 {
     switch (can_decoder::decode_target_speed(frame, &c_target_speed))
     {
@@ -292,7 +280,7 @@ int iodrv::decode_target_speed(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_acceleration(struct can_frame* frame)
+int iodrv::decode_acceleration(const CanFrame &frame)
 {
     switch (can_decoder::decode_acceleration(frame, &c_acceleration))
     {
@@ -309,7 +297,7 @@ int iodrv::decode_acceleration(struct can_frame* frame)
 
 
 
-int iodrv::decode_movement_direction(struct can_frame* frame)
+int iodrv::decode_movement_direction(const CanFrame &frame)
 {
     switch (can_decoder::decode_movement_direction(frame, &c_movement_direction))
     {
@@ -324,7 +312,7 @@ int iodrv::decode_movement_direction(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_trafficlight_light(struct can_frame* frame)
+int iodrv::decode_trafficlight_light(const CanFrame &frame)
 {
     switch (can_decoder::decode_trafficlight_light(frame, &c_trafficlight_light))
     {
@@ -340,7 +328,7 @@ int iodrv::decode_trafficlight_light(struct can_frame* frame)
 }
 
 int trafficlight_freq_incorrect_count = 0;
-int iodrv::decode_trafficlight_freq(struct can_frame* frame)
+int iodrv::decode_trafficlight_freq(const CanFrame &frame)
 {
     switch (can_decoder::decode_trafficlight_freq(frame, &c_trafficlight_freq))
     {
@@ -366,7 +354,7 @@ int iodrv::decode_trafficlight_freq(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_passed_distance(struct can_frame* frame)
+int iodrv::decode_passed_distance(const CanFrame &frame)
 {
     switch (can_decoder::decode_passed_distance(frame, &c_passed_distance))
     {
@@ -406,7 +394,7 @@ int iodrv::decode_passed_distance(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_orig_passed_distance(can_frame *frame)
+int iodrv::decode_orig_passed_distance(const CanFrame &frame)
 {
     switch (can_decoder::decode_orig_passed_distance (frame, &c_orig_passed_distance))
     {
@@ -416,7 +404,7 @@ int iodrv::decode_orig_passed_distance(can_frame *frame)
     }
 }
 
-int iodrv::decode_epv_state(struct can_frame* frame)
+int iodrv::decode_epv_state(const CanFrame &frame)
 {
     switch (can_decoder::decode_epv_released(frame, &c_epv_state))
     {
@@ -430,7 +418,7 @@ int iodrv::decode_epv_state(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_epv_key(struct can_frame* frame)
+int iodrv::decode_epv_key(const CanFrame &frame)
 {
     switch (can_decoder::decode_epv_key(frame, &c_epv_key))
     {
@@ -444,7 +432,7 @@ int iodrv::decode_epv_key(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_modules_activity(can_frame *frame)
+int iodrv::decode_modules_activity(const CanFrame &frame)
 {
     switch (can_decoder::decode_modules_activity (frame, &c_modulesActivity))
     {
@@ -458,7 +446,7 @@ int iodrv::decode_modules_activity(can_frame *frame)
     }
 }
 
-int iodrv::decode_mm_lat_lon(struct can_frame* frame)
+int iodrv::decode_mm_lat_lon(const CanFrame &frame)
 {
     switch (can_decoder::decode_mm_lat_lon(frame, &c_lat, &c_lon))
     {
@@ -478,7 +466,7 @@ int iodrv::decode_mm_lat_lon(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_ipd_datetime(struct can_frame* frame)
+int iodrv::decode_ipd_datetime(const CanFrame &frame)
 {
     switch (can_decoder::decode_ipd_date(frame, &c_ipd_year, &c_ipd_month, &c_ipd_day, &c_ipd_hours, &c_ipd_mins, &c_ipd_secs))
     {
@@ -503,7 +491,7 @@ int iodrv::decode_ipd_datetime(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_driving_mode(struct can_frame* frame)
+int iodrv::decode_driving_mode(const CanFrame &frame)
 {
     switch (can_decoder::decode_driving_mode(frame, &c_driving_mode))
     {
@@ -527,7 +515,7 @@ int iodrv::decode_driving_mode(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_vigilance(struct can_frame* frame)
+int iodrv::decode_vigilance(const CanFrame &frame)
 {
     switch (can_decoder::decode_vigilance(frame, &c_vigilance))
     {
@@ -541,7 +529,7 @@ int iodrv::decode_vigilance(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_reg_tape_avl(struct can_frame* frame)
+int iodrv::decode_reg_tape_avl(const CanFrame &frame)
 {
     switch (can_decoder::decode_reg_tape_avl(frame, &c_reg_tape_avl))
     {
@@ -555,7 +543,7 @@ int iodrv::decode_reg_tape_avl(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_pressure_tc_tm(struct can_frame* frame)
+int iodrv::decode_pressure_tc_tm(const CanFrame &frame)
 {
     switch (can_decoder::decode_pressure_tc_tm(frame, &c_pressure_tc, &c_pressure_tm))
     {
@@ -576,7 +564,7 @@ int iodrv::decode_pressure_tc_tm(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_ssps_mode(struct can_frame* frame)
+int iodrv::decode_ssps_mode(const CanFrame &frame)
 {
     switch (can_decoder::decode_ssps_mode(frame, &c_ssps_mode))
     {
@@ -592,7 +580,7 @@ int iodrv::decode_ssps_mode(struct can_frame* frame)
 }
 
 
-int iodrv::decode_traction(struct can_frame* frame)
+int iodrv::decode_traction(const CanFrame &frame)
 {
     switch (can_decoder::decode_traction(frame, &c_in_traction))
     {
@@ -606,7 +594,7 @@ int iodrv::decode_traction(struct can_frame* frame)
     }
 }
 
-int iodrv::decode_is_on_road(struct can_frame* frame)
+int iodrv::decode_is_on_road(const CanFrame &frame)
 {
     switch (can_decoder::decode_is_on_road(frame, &c_is_on_road))
     {
@@ -728,12 +716,12 @@ void iodrv::slot_serial_ready_read()
             wframe_ipddate = can_encoder::encode_ipd_date(gd.year, gd.month, gd.day, gd.hours, gd.minutes, gd.seconds);
             wframe_mmdata = can_encoder::encode_mm_data(qRound(gd.speed), total_passed_distance);
 
-            write_canmsg_async(write_socket_0, &wframe_mmaltlon);
-            write_canmsg_async(write_socket_1, &wframe_mmaltlon);
-            write_canmsg_async(write_socket_0, &wframe_ipddate);
-            write_canmsg_async(write_socket_1, &wframe_ipddate);
-            write_canmsg_async(write_socket_0, &wframe_mmdata);
-            write_canmsg_async(write_socket_1, &wframe_mmdata);
+            write_canmsg_async(write_socket_0, wframe_mmaltlon);
+            write_canmsg_async(write_socket_1, wframe_mmaltlon);
+            write_canmsg_async(write_socket_0, wframe_ipddate);
+            write_canmsg_async(write_socket_1, wframe_ipddate);
+            write_canmsg_async(write_socket_0, wframe_mmdata);
+            write_canmsg_async(write_socket_1, wframe_mmdata);
         }
     }
 #endif
@@ -749,53 +737,52 @@ void iodrv::init_timers()
 
 void iodrv::slot_send_message(CanFrame frame)
 {
-    can_frame linux_frame = CanInternals::convert (frame);
-    write_canmsg_async ( write_socket_0, const_cast<can_frame *> (&linux_frame) );
+    write_canmsg_async ( write_socket_0, frame );
 }
 
 void iodrv::slot_can_write_disp_state()
 {
-    can_frame frame_a = can_encoder::encode_disp_state_a();
-    write_canmsg_async(write_socket_0, &frame_a);
+    CanFrame frame_a = can_encoder::encode_disp_state_a();
+    write_canmsg_async(write_socket_0, frame_a);
 
-    can_frame frame_b = can_encoder::encode_disp_state_b();
-    write_canmsg_async(write_socket_1, &frame_b);
+    CanFrame frame_b = can_encoder::encode_disp_state_b();
+    write_canmsg_async(write_socket_1, frame_b);
 }
 
 void iodrv::slot_f_key_down()
 {
-    can_frame frame = can_encoder::encode_sys_key(is_pressed, 0x1C);
-    write_canmsg_async(write_socket_0, &frame);
-    write_canmsg_async(write_socket_1, &frame);
+    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x1C);
+    write_canmsg_async(write_socket_0, frame);
+    write_canmsg_async(write_socket_1, frame);
 
     //target_trafficlight_freq = systemState->getAlsnFreqTarget();
 }
 
 void iodrv::slot_f_key_up()
 {
-    can_frame frame = can_encoder::encode_sys_key(is_released, 0x1C);
-    write_canmsg_async(write_socket_0, &frame);
-    write_canmsg_async(write_socket_1, &frame);
+    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x1C);
+    write_canmsg_async(write_socket_0, frame);
+    write_canmsg_async(write_socket_1, frame);
 }
 
 void iodrv::slot_vk_key_down()
 {
-    can_frame frame = can_encoder::encode_sys_key(is_pressed, 0x14);
-    write_canmsg_async(write_socket_0, &frame);
-    write_canmsg_async(write_socket_1, &frame);
+    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x14);
+    write_canmsg_async(write_socket_0, frame);
+    write_canmsg_async(write_socket_1, frame);
 }
 
 void iodrv::slot_vk_key_up()
 {
-    can_frame frame = can_encoder::encode_sys_key(is_released, 0x14);
-    write_canmsg_async(write_socket_0, &frame);
-    write_canmsg_async(write_socket_1, &frame);
+    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x14);
+    write_canmsg_async(write_socket_0, frame);
+    write_canmsg_async(write_socket_1, frame);
 }
 
 void iodrv::slot_rmp_key_down()
 {
-    can_frame frame = can_encoder::encode_sys_key(is_pressed, 0x16);
-    write_canmsg_async(write_socket_0, &frame);
+    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x16);
+    write_canmsg_async(write_socket_0, frame);
     //write_canmsg_async(write_socket_1, &frame);
 
     //this->target_driving_mode = systemState->getDriveModeTarget();
@@ -803,9 +790,9 @@ void iodrv::slot_rmp_key_down()
 
 void iodrv::slot_rmp_key_up()
 {
-    can_frame frame = can_encoder::encode_sys_key(is_released, 0x16);
-    write_canmsg_async(write_socket_0, &frame);
-    write_canmsg_async(write_socket_1, &frame);
+    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x16);
+    write_canmsg_async(write_socket_0, frame);
+    write_canmsg_async(write_socket_1, frame);
 }
 
 void iodrv::slot_autolock_type_target_changed (int value)

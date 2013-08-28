@@ -33,6 +33,9 @@ QString ModulesActivity::toString() const
 
 ModulesActivity ModulesActivity::loadFromMcoState(const QByteArray &mcoStateMessage)
 {
+    qDebug ("mcoState: %02x, %02x, %02x, %02x, %02x, %02x, %02x, %02x,",
+            mcoStateMessage[0], mcoStateMessage[1], mcoStateMessage[2], mcoStateMessage[3], mcoStateMessage[4], mcoStateMessage[5], mcoStateMessage[6], mcoStateMessage[7]);
+
     ModulesActivity ma;
 
     ma.mpAls            = mcoStateMessage[6] & (1 << 0);

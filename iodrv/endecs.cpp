@@ -7,77 +7,62 @@
 
 
 
-can_frame can_encoder::encode_mm_alt_long(double lat, double lon, bool reliability)
+CanFrame can_encoder::encode_mm_alt_long(double lat, double lon, bool reliability)
 {
-    can_frame frame;
-    frame.can_id = 0x213;
-    frame.can_dlc = 8;
+    CanFrame frame (0x4268, std::vector<unsigned char> (8)); // id: 0x213
 
     int flat = (int) ( lat * (double)1e8 * 3.14159265359 / (double)180 );
     int flon = ((int) ( lon * (double)1e8 * 3.14159265359 / (double)180 ));
     int flonr = reliability ? ( flon | (1 << 31) ) : ( flon & (~(1 << 31)) );
 
-    frame.data[0] = flat & 0xFF;
-    frame.data[1] = (flat >> 8) & 0xFF;
-    frame.data[2] = (flat >> 16) & 0xFF;
-    frame.data[3] = (flat >> 24) & 0xFF;
+    frame[1]= flat & 0xFF;
+    frame[2] = (flat >> 8) & 0xFF;
+    frame[3] = (flat >> 16) & 0xFF;
+    frame[4] = (flat >> 24) & 0xFF;
 
-    frame.data[4] = flonr & 0xFF;
-    frame.data[5] = (flonr >> 8) & 0xFF;
-    frame.data[6] = (flonr >> 16) & 0xFF;
-    frame.data[7] = (flonr >> 24) & 0xFF;
-
-    return frame;
-}
-
-can_frame can_encoder::encode_ipd_date(int year, int month, int day, int hours, int minutes, int seconds)
-{
-    can_frame frame;
-    frame.can_id = 0x0C7;
-    frame.can_dlc = 7;
-
-    frame.data[0] = (year >> 8) & 0xFF;
-    frame.data[1] = year & 0xFF;
-    frame.data[2] = month;
-    frame.data[3] = day;
-
-    frame.data[4] = hours;
-    frame.data[5] = minutes;
-    frame.data[6] = seconds;
+    frame[5] = flonr & 0xFF;
+    frame[6] = (flonr >> 8) & 0xFF;
+    frame[7] = (flonr >> 16) & 0xFF;
+    frame[8] = (flonr >> 24) & 0xFF;
 
     return frame;
 }
 
-can_frame can_encoder::encode_disp_state_a()
+CanFrame can_encoder::encode_ipd_date(int year, int month, int day, int hours, int minutes, int seconds)
 {
-    can_frame frame;
-    frame.can_id = 0x28F;
-    frame.can_dlc = 3;
+    CanFrame frame (0x18E7, std::vector<unsigned char> (8)); // id: 0x0C7
 
-    frame.data[0] = 0;
-    frame.data[1] = 0;
-    frame.data[2] = 0;
+    frame[1] = (year >> 8) & 0xFF;
+    frame[2] = year & 0xFF;
+    frame[3] = month;
+    frame[4] = day;
+
+    frame[5] = hours;
+    frame[6] = minutes;
+    frame[7] = seconds;
 
     return frame;
 }
 
-can_frame can_encoder::encode_disp_state_b()
+CanFrame can_encoder::encode_disp_state_a()
 {
-    can_frame frame;
-    frame.can_id = 0x29F;
-    frame.can_dlc = 2;
-
-    frame.data[0] = 0;
-    frame.data[1] = 0;
+    CanFrame frame (0x51E3, // id: 0x28F
+                    std::vector<unsigned char> {0, 0, 0} );
 
     return frame;
 }
 
-can_frame can_encoder::encode_sys_key(key_state k_state, int key_code)
+CanFrame can_encoder::encode_disp_state_b()
 {
-    can_frame frame;
-    frame.can_id = 0x060;   // SYS_KEY
-    frame.can_dlc = 1;
+    CanFrame frame (0x53E2, // id: 0x29F
+                    std::vector<unsigned char> {0,0} );
+
+    return frame;
+}
+
+CanFrame can_encoder::encode_sys_key(key_state k_state, int key_code)
+{
+    CanFrame frame (0x0C01, std::vector<unsigned char> (1) ); // id: 0x060
 
     int key_state_flag = 0;
     switch(k_state)
@@ -90,64 +75,59 @@ can_frame can_encoder::encode_sys_key(key_state k_state, int key_code)
             break;
     }
 
-    frame.data[0] = key_code + (key_state_flag << 6);
+    frame[1] = key_code + (key_state_flag << 6);
 
     return frame;
 }
 
-can_frame can_encoder::encode_mm_data(int speed, int milage)
+CanFrame can_encoder::encode_mm_data(int speed, int milage)
 {
-    can_frame frame;
-    frame.can_id = 0x211;
-    frame.can_dlc = 8;
+    CanFrame frame ( 0x4228, std::vector<unsigned char> (8) ); // id: 0x211
 
-    frame.data[0] = 0;
-    frame.data[1] = speed & 0b11111111;
-    frame.data[2] = 0;
-    frame.data[3] = char(milage/256/256);
-    frame.data[4] = char(milage/256);
-    frame.data[5] = char(milage);
-    frame.data[6] = 0;
-    frame.data[7] = 0;
+    frame[1] = 0;
+    frame[2] = speed & 0b11111111;
+    frame[3] = 0;
+    frame[4] = char(milage/256/256);
+    frame[5] = char(milage/256);
+    frame[6] = char(milage);
+    frame[7] = 0;
+    frame[8] = 0;
 
     return frame;
 }
 
-can_frame can_encoder::encode_ipd_state( double speed, int distance, bool reliable )
+CanFrame can_encoder::encode_ipd_state( double speed, int distance, bool reliable )
 {
-    can_frame frame;
-    frame.can_id = 0x0C4;
-    frame.can_dlc = 8;
+    CanFrame frame ( 0x1888, std::vector<unsigned char> (8) ); // id: 0x0C4
 
     distance = abs(distance);
 
-    frame.data[0] = reliable ? 0 : 1;
-    frame.data[1] = speed != 0 ? 4 : 0; // наличие движения
-    frame.data[2] = speed;
-    frame.data[3] = char(distance/256);
-    frame.data[4] = char(distance);
-    frame.data[5] = char(distance/256/256);
-    frame.data[6] = reliable ? 0 : 1;
-    frame.data[7] = 0;
+    frame[1] = reliable ? 0 : 1;
+    frame[2] = speed != 0 ? 4 : 0; // наличие движения
+    frame[3] = speed;
+    frame[4] = char(distance/256);
+    frame[5] = char(distance);
+    frame[6] = char(distance/256/256);
+    frame[7] = reliable ? 0 : 1;
+    frame[8] = 0;
 }
 
-can_frame can_encoder::encode_autolock_set_message(int autolock_type)
+CanFrame can_encoder::encode_autolock_set_message(int autolock_type)
 {
-    can_frame frame = {0x468,
-                       7,
-                       {3, 0, 0, 0, 0, 0, 0, 0} };
+    CanFrame frame (0x8D07, // id: 0x468
+                    std::vector<unsigned char> {3, 0, 0, 0, 0, 0, 0, 0} );
 
     switch (autolock_type) {
     case 0: // АБ
-        frame.data[1] = 0x20;
+        frame[2] = 0x20;
         break;
     case 1: // ПАБ
-        frame.data[1] = 0x29;
-        frame.data[2] = 40;
+        frame[2] = 0x29;
+        frame[3] = 40;
         break;
     case 2:
-        frame.data[1] = 0x1F;
-        frame.data[2] = 40;
+        frame[2] = 0x1F;
+        frame[3] = 40;
         break;
     default:
         break;
@@ -168,19 +148,12 @@ can_frame can_encoder::encode_autolock_set_message(int autolock_type)
 // 1 - success
 
 // SAUT_INFO_A
-int can_decoder::decode_speed(struct can_frame* frame, double* speed)
+int can_decoder::decode_speed(const CanFrame &frame, double* speed)
 {
-    if ((*frame).can_id != 0x233) return -1;
+    if ( frame.getDescriptor () != 0x4668 ) // id: 0x233
+        return -1;
 
-    /*(*speed) =(double)(   ( ((int)( (*frame).data[1] & 0b000000001 )) << 8 ) + (int)((*frame).data[2])   );*/
-
-    // SAUT_INFO_A
-    /*double s1 = (double)((*frame).data[0]);
-    double s2 = ( (double)( (*frame).data[1] >> 1 ) ) / 128;
-    double s3 = (double)( ((*frame).data[1] & 0b00000001 ) == 0 ? 0 : 256 );
-    (*speed) = s1 + s2 + s3;*/
-
-    int i0 = ((int)((*frame).data[0]) << 8) + ((int)((*frame).data[1]));
+    int i0 = ((int)(frame[1]) << 8) + ((int)(frame[2]));
     int i1 = ((i0 & 0b00000001) << 15) + (i0 >> 1);
     (*speed) = ((double)i1)/128;
 
@@ -188,73 +161,83 @@ int can_decoder::decode_speed(struct can_frame* frame, double* speed)
 }
 
 // MCO_STATE_A
-int can_decoder::decode_speed_limit(struct can_frame* frame, int* speed_limit)
+int can_decoder::decode_speed_limit(const CanFrame &frame, int* speed_limit)
 {
-    if ((*frame).can_id != 0x050) return -1;
+    if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
+        return -1;
 
-    (*speed_limit) = ( ((int)( (*frame).data[3] & 0b10000000 )) << 8 ) + (int)((*frame).data[1]);
+    (*speed_limit) = ( ((int)( frame[4] & 0b10000000 )) << 8 ) + (int)(frame[2]);
 
     return 1;
 }
 
 // MCO_MODE 0
-int can_decoder::decode_autolock_type(struct can_frame* frame, int* autolock_type)
+int can_decoder::decode_autolock_type(const CanFrame &frame, int* autolock_type)
 {
-    if ((*frame).can_id != 0x040) return -1;
+    if ( frame.getDescriptor () != 0x0803 ) // id: 0x040
+        return -1;
 
-    (*autolock_type) = (int)(((*frame).data[0] & 0b1100) >> 2);
+    (*autolock_type) = (int)((frame[1] & 0b1100) >> 2);
 
     return 1;
 }
 
 // MCO_STATE_A
-int can_decoder::decode_target_speed(struct can_frame* frame, int* target_speed)
+int can_decoder::decode_target_speed(const CanFrame &frame, int* target_speed)
 {
-    if ((*frame).can_id != 0x050) return -1;
+    if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
+         return -1;
 
-    (*target_speed) = ( ((int)( (*frame).data[3] & 0b01000000 )) << 8 ) + (int)((*frame).data[2]);
+    (*target_speed) = ( ((int)( frame[4] & 0b01000000 )) << 8 ) + (int)(frame[3]);
 
     return 1;
 }
 
 // IPD_STATE_A
-int can_decoder::decode_acceleration(struct can_frame* frame, double* acceleration)
+int can_decoder::decode_acceleration(const CanFrame &frame, double* acceleration)
 {
-    if ((*frame).can_id != 0x0C4) return -1;
+    if ( frame.getDescriptor () != 0x1888 ) // id: 0x0C4
+        return -1;
 
-    (*acceleration) = (double)( (*frame).data[7] ) / 128;
+    (*acceleration) = (double)( frame[8] ) / 128;
 
     return 1;
 }
 
 
 // MCO_LIMITS_A
-int can_decoder::decode_epv_released(struct can_frame* frame, int* epv_state)
+int can_decoder::decode_epv_released(const CanFrame &frame, int* epv_state)
 {
-    if ((*frame).can_id != 0x052) return -1;
+    if ( frame.getDescriptor () != 0x0A48 ) // id:0x052
+        return -1;
 
-    (*epv_state) = (int) ( ! ( ( (*frame).data[7] >> 7 ) & 0b00000001 ));
+    (*epv_state) = (int) ( ! ( ( frame[8] >> 7 ) & 0b00000001 ));
 
     return 1;
 }
 
 // MCO_STATE_A
-int can_decoder::decode_epv_key(struct can_frame* frame, int* epv_key)
+int can_decoder::decode_epv_key(const CanFrame &frame, int* epv_key)
 {
-    if ((*frame).can_id != 0x050) return -1;
+    if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
+        return -1;
 
-    (*epv_key) = (int) ( ( (*frame).data[0] >> 6 ) & 0b00000001 );
+    (*epv_key) = (int) ( ( frame[1] >> 6 ) & 0b00000001 );
 
     return 1;
 }
 
 // MCO_STATE_A
-int can_decoder::decode_modules_activity(can_frame *frame, ModulesActivity *modulesActivity)
+int can_decoder::decode_modules_activity(const CanFrame &frame, ModulesActivity *modulesActivity)
 {
-    if ((*frame).can_id != 0x050) return -1;
+    if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
+        return -1;
+
+    qDebug("MCOSTATE: %02x, %02x, %02x, %02x, %02x, %02x, %02x, %02x,",
+           frame[1], frame[2], frame[3], frame[4], frame[5], frame[6], frame[7], frame[8]);
 
     (*modulesActivity) = ModulesActivity::loadFromMcoState (
-                QByteArray(reinterpret_cast<const char *> (frame->data), frame->can_dlc) );
+                QByteArray( reinterpret_cast<const char*> (frame.getData().data()), frame.getData().size() ) );
 
     return 1;
 }
@@ -262,12 +245,13 @@ int can_decoder::decode_modules_activity(can_frame *frame, ModulesActivity *modu
 
 
 // IPD_STATE_A
-int can_decoder::decode_movement_direction(struct can_frame* frame, int* movement_direction)
+int can_decoder::decode_movement_direction(const CanFrame &frame, int* movement_direction)
 {
-    if ((*frame).can_id != 0x0C4) return -1;
+    if ( frame.getDescriptor () != 0x1888 ) // id: 0x0C4
+        return -1;
 
-    int stop_flag = (int) (( (*frame).data[1] >> 2 ) & 0b00000001 );
-    int direction = (int) (( (*frame).data[1] >> 7 ) & 0b00000001 );
+    int stop_flag = (int) (( frame[2] >> 2 ) & 0b00000001 );
+    int direction = (int) (( frame[2] >> 7 ) & 0b00000001 );
 
     // return -1 = назад, 0 = стоим, +1 = вперёд
     if (stop_flag == 0) // Стоим
@@ -290,22 +274,24 @@ int can_decoder::decode_movement_direction(struct can_frame* frame, int* movemen
 }
 
 // MCO_STATE_A
-int can_decoder::decode_trafficlight_light(struct can_frame* frame, int* trafficlight_light)
+int can_decoder::decode_trafficlight_light(const CanFrame &frame, int* trafficlight_light)
 {
-    if ((*frame).can_id != 0x050) return -1;
+    if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
+        return -1;
 
     // -1 - преобразование для передачи в уровень интерфейса.
-    (*trafficlight_light) = (int) ( (*frame).data[5] & 0b00001111 ) - 1;
+    (*trafficlight_light) = (int) ( frame[6] & 0b00001111 ) - 1;
 
     return 1;
 }
 
 // MP_STATE_A
-int can_decoder::decode_trafficlight_freq(struct can_frame* frame, int* trafficlight_freq)
+int can_decoder::decode_trafficlight_freq(const CanFrame &frame, int* trafficlight_freq)
 {
-    if ((*frame).can_id != 0x08F) return -1;
+    if ( frame.getDescriptor () != 0x11E8 ) // id: 0x08F
+        return -1;
 
-    int freq_code = (int) (( (*frame).data[4] & 0b00110000 ) >> 4);
+    int freq_code = (int) (( frame[5] & 0b00110000 ) >> 4);
 
     if (freq_code == 0)
         (*trafficlight_freq) = 50;
@@ -320,9 +306,10 @@ int can_decoder::decode_trafficlight_freq(struct can_frame* frame, int* trafficl
 }
 
 // IPD_STATE_A
-int can_decoder::decode_passed_distance(struct can_frame* frame, int* passed_distance)
+int can_decoder::decode_passed_distance(const CanFrame &frame, int* passed_distance)
 {
-    if ((*frame).can_id != 0x0C4) return -1;
+    if ( frame.getDescriptor () != 0x1888 ) // id: 0x0C4
+        return -1;
 
     struct IntByBytes
     {
@@ -332,16 +319,17 @@ int can_decoder::decode_passed_distance(struct can_frame* frame, int* passed_dis
         int byte4: 8;
     };
 
-    IntByBytes dist = {frame->data[4], frame->data[3], frame->data[5], (frame->data[5] & (1 << 7)) ? 0xFF : 0};
+    IntByBytes dist = {frame[5], frame[4], frame[6], (frame[6] & (1 << 7)) ? 0xFF : 0};
     (*passed_distance) = *((int *) &dist);
 
     return 1;
 }
 
 // MY_DEBUG_A
-int can_decoder::decode_orig_passed_distance(struct can_frame* frame, int* x)
+int can_decoder::decode_orig_passed_distance(const CanFrame &frame, int* x)
 {
-    if ((*frame).can_id != 0x0C4) return -1; // 0x1888
+    if ( frame.getDescriptor () != 0x1888 ) // id: 0x0C4
+        return -1;
 
     struct IntByBytes
     {
@@ -351,113 +339,122 @@ int can_decoder::decode_orig_passed_distance(struct can_frame* frame, int* x)
         int byte4: 8;
     };
 
-    (*x) = Complex<int32_t> ({frame->data[4], frame->data[3], frame->data[5], (frame->data[5] & (1 << 7)) ? 0xFF : 0});
+    (*x) = Complex<int32_t> ({frame[5], frame[4], frame[6], (frame[6] & (1 << 7)) ? 0xFF : 0});
 
     return 1;
 }
 
 // MM_ALT_LONG
-int can_decoder::decode_mm_lat_lon(struct can_frame* frame, double* lat, double* lon)
+int can_decoder::decode_mm_lat_lon(const CanFrame &frame, double* lat, double* lon)
 {
-    if ((*frame).can_id != 0x213) return -1;
+    if ( frame.getDescriptor () != 0x4268 ) // id: 0x213
+        return -1;
 
-    int lat_i =((int) (*frame).data[0]) + (((int) (*frame).data[1]) << 8) + (((int) (*frame).data[2]) << 16) + (((int) (*frame).data[3]) << 24);
+    int lat_i =((int) frame[1]) + (((int) frame[2]) << 8) + (((int) frame[3]) << 16) + (((int) frame[4]) << 24);
     *lat = (double)lat_i * 1e-8 * 180 / 3.14159265359;
 
-    int lon_i =((int) (*frame).data[4]) + (((int) (*frame).data[5]) << 8) + (((int) (*frame).data[6]) << 16) + (((int) ((*frame).data[7]) & 0b01111111 ) << 24);
+    int lon_i =((int) frame[5]) + (((int) frame[6]) << 8) + (((int) frame[7]) << 16) + (((int) (frame[8]) & 0b01111111 ) << 24);
     *lon = (double)lon_i * 1e-8 * 180 / 3.14159265359;
 
     return 1;
 }
 
 // IPD_DATE
-int can_decoder::decode_ipd_date(struct can_frame* frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds)
+int can_decoder::decode_ipd_date(const CanFrame &frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds)
 {
-    if ((*frame).can_id != 0x0C7) return -1;
+    if ( frame.getDescriptor () != 0x18E7 ) // id: 0x0C7
+        return -1;
 
-    *ipd_year = ( ((int)((*frame).data[0])) << 8 ) + (int)((*frame).data[1]);
+    *ipd_year = ( ((int)(frame[1])) << 8 ) + (int)(frame[2]);
 
-    *ipd_month = (int) (*frame).data[2];
-    *ipd_day = (int) (*frame).data[3];
+    *ipd_month = (int) frame[3];
+    *ipd_day = (int) frame[4];
 
-    *ipd_hours = (int) (*frame).data[4];
-    *ipd_minutes = (int) (*frame).data[5];
-    *ipd_seconds = (int) (*frame).data[6];
+    *ipd_hours = (int) frame[5];
+    *ipd_minutes = (int) frame[6];
+    *ipd_seconds = (int) frame[7];
 
     return 1;
 }
 
 // MCO_LIMITS_A
-int can_decoder::decode_driving_mode(struct can_frame* frame, int* driving_mode)
+int can_decoder::decode_driving_mode(const CanFrame &frame, int* driving_mode)
 {
-    if ((*frame).can_id != 0x052) return -1;
+    if ( frame.getDescriptor () != 0x0A48 ) // id: 0x052
+        return -1;
 
-    if ( (int) (( (*frame).data[1] ) & 0b01000000 ) )
+    if ( (int) (( frame[2] ) & 0b01000000 ) )
         (*driving_mode) = 4;
     else
-        (*driving_mode) = (int) (( (*frame).data[7] ) & 0b00000011 );
+        (*driving_mode) = (int) (( frame[8] ) & 0b00000011 );
 
     return 1;
 }
 
 // MCO_STATE_A
-int can_decoder::decode_vigilance(struct can_frame* frame, int* vigilance)
+int can_decoder::decode_vigilance(const CanFrame &frame, int* vigilance)
 {
-    if ((*frame).can_id != 0x050) return -1;
+    if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
+        return -1;
 
-    (*vigilance) = (int) (( (*frame).data[5] >> 4 ) & 0b00000001 );
+    (*vigilance) = (int) (( frame[6] >> 4 ) & 0b00000001 );
 
     return 1;
 }
 
 // AMR_STATE_I
-int can_decoder::decode_reg_tape_avl(struct can_frame* frame, int* reg_tape_avl)
+int can_decoder::decode_reg_tape_avl(const CanFrame &frame, int* reg_tape_avl)
 {
-    if ((*frame).can_id != 0x66F) return -1;
+    if ( frame.getDescriptor () != 0xCDE1 ) // id: 0x66F
+        return -1;
 
-    (*reg_tape_avl) = (int) (( (*frame).data[0] ) & 0b00000001 );
+    (*reg_tape_avl) = (int) (( frame[1] ) & 0b00000001 );
 
     return 1;
 }
 
 // MVD_DD
-int can_decoder::decode_pressure_tc_tm(struct can_frame* frame, double* pressure_tc, double* pressure_tm)
+int can_decoder::decode_pressure_tc_tm(const CanFrame &frame, double* pressure_tc, double* pressure_tm)
 {
-    if ((*frame).can_id != 0x2EA) return -1;
+    if ( frame.getDescriptor () != 0x5D45 ) // id: 0x2EA
+        return -1;
 
-    (*pressure_tc) = ((double)((*frame).data[1]))/255;
-    (*pressure_tm) = ((double)((*frame).data[2]))/255;
+    (*pressure_tc) = ((double)(frame[2]))/255;
+    (*pressure_tm) = ((double)(frame[3]))/255;
 
     return 1;
 }
 
 // VDS_STATE_A
-int can_decoder::decode_ssps_mode(struct can_frame* frame, int* ssps_mode)
+int can_decoder::decode_ssps_mode(const CanFrame &frame, int* ssps_mode)
 {
-    if ((*frame).can_id != 0x2E0) return -1;
+    if ( frame.getDescriptor () != 0x5C02 ) // id: 0x2E0
+        return -1;
 
-    (*ssps_mode) = (int) (( (*frame).data[1] ) & 0b00000001 );
+    (*ssps_mode) = (int) (( frame[2] ) & 0b00000001 );
 
     return 1;
 }
 
 // MCO_STATE_A
-int can_decoder::decode_traction(struct can_frame* frame, int* in_traction)
+int can_decoder::decode_traction(const CanFrame &frame, int* in_traction)
 {
-    if ((*frame).can_id != 0x050) return -1;
+    if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
+        return -1;
 
     // Инвертирую для удобства.
-    (*in_traction) = (int) ( ! (( (*frame).data[0] >> 5 ) & 0b00000001 ) );
+    (*in_traction) = (int) ( ! (( frame[1] >> 5 ) & 0b00000001 ) );
 
     return 1;
 }
 
 // MCO_LIMITS_A
-int can_decoder::decode_is_on_road(struct can_frame* frame, int* is_on_road)
+int can_decoder::decode_is_on_road(const CanFrame &frame, int* is_on_road)
 {
-    if ((*frame).can_id != 0x052) return -1;
+    if ( frame.getDescriptor () != 0x0A48 ) // id: 0x052
+        return -1;
 
-    (*is_on_road) = (int) (( (*frame).data[1] ) & 0b01000000 );
+    (*is_on_road) = (int) (( frame[2] ) & 0b01000000 );
 
     return 1;
 }

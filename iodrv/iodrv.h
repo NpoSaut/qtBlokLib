@@ -6,12 +6,12 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "qtCanLib/canframe.h"
+
 //!!!!! TODO: ВРЕМЕННО
 #include "systemstateviewmodel.h"
 
 #include "iodrvmain.h"
-//#include "sktcan.h"
-#include "qtCanLib/canframe.h"
 #include "endecs.h"
 #include "modulesactivity.h"
 
@@ -108,17 +108,17 @@ private:
     int init_sktcan(char* can_iface_name_0, char* can_iface_name_1);
 
     // TODO: Контролировать были ли сообщения отосланы и если нет, то что-нибудь делать.
-    void write_canmsg_async(int socket, can_frame* frame);
+    void write_canmsg_async(int socket, const CanFrame &frame);
 
     QFile distance_store_file;
     double total_passed_distance;
     double stored_passed_distance;
     gps_data pgd;
 
-    can_frame wframe_mmaltlon;
-    can_frame wframe_ipddate;
-    can_frame wframe_mmdata;
-    can_frame wframe_ipdstate;
+    CanFrame wframe_mmaltlon;
+    CanFrame wframe_ipddate;
+    CanFrame wframe_mmdata;
+    CanFrame wframe_ipdstate;
 
     // По-хорошему, эти переменные и работающие с ними функции должны быть объявлены в нити, обрабатывающей read_can_message.
     double c_speed;
@@ -173,33 +173,33 @@ private:
     int c_ssps_mode; int p_ssps_mode;
     int c_in_traction; int p_in_traction;
 
-    int decode_speed(struct can_frame* frame);
-    int decode_speed_limit(struct can_frame* frame);
-    int decode_target_speed(struct can_frame* frame);
-    int decode_acceleration(struct can_frame* frame);
+    int decode_speed(const CanFrame &frame);
+    int decode_speed_limit(const CanFrame &frame);
+    int decode_target_speed(const CanFrame &frame);
+    int decode_acceleration(const CanFrame &frame);
 
-    int decode_movement_direction(struct can_frame* frame);
-    int decode_trafficlight_light(struct can_frame* frame);
-    int decode_trafficlight_freq(struct can_frame* frame);
-    int decode_passed_distance(struct can_frame* frame);
-    int decode_orig_passed_distance (struct can_frame* frame);
-    int decode_epv_state(struct can_frame* frame);
-    int decode_epv_key(struct can_frame* frame);
-    int decode_modules_activity(struct can_frame* frame);
-    int decode_mm_lat_lon(struct can_frame* frame);
-    int decode_ipd_datetime(struct can_frame* frame);
-    int decode_driving_mode(struct can_frame* frame);
-    int decode_vigilance(struct can_frame* frame);
-    int decode_reg_tape_avl(struct can_frame* frame);
+    int decode_movement_direction(const CanFrame &frame);
+    int decode_trafficlight_light(const CanFrame &frame);
+    int decode_trafficlight_freq(const CanFrame &frame);
+    int decode_passed_distance(const CanFrame &frame);
+    int decode_orig_passed_distance (const CanFrame &frame);
+    int decode_epv_state(const CanFrame &frame);
+    int decode_epv_key(const CanFrame &frame);
+    int decode_modules_activity(const CanFrame &frame);
+    int decode_mm_lat_lon(const CanFrame &frame);
+    int decode_ipd_datetime(const CanFrame &frame);
+    int decode_driving_mode(const CanFrame &frame);
+    int decode_vigilance(const CanFrame &frame);
+    int decode_reg_tape_avl(const CanFrame &frame);
 
-    int decode_pressure_tc_tm(struct can_frame* frame);
+    int decode_pressure_tc_tm(const CanFrame &frame);
 
-    int decode_ssps_mode(struct can_frame* frame);
-    int decode_traction(struct can_frame* frame);
+    int decode_ssps_mode(const CanFrame &frame);
+    int decode_traction(const CanFrame &frame);
 
-    int decode_is_on_road(struct can_frame* frame);
+    int decode_is_on_road(const CanFrame &frame);
 
-    int decode_autolock_type(struct can_frame* frame);
+    int decode_autolock_type(const CanFrame &frame);
     int set_autolock_type(int autolock_type);
 
 
