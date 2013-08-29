@@ -57,6 +57,7 @@ signals:
     //Светофоры
     void signal_trafficlight_light(int trafficlight_light);
     void signal_trafficlight_freq(int trafficlight_freq);
+    void signal_trafficlight_freq_target (int trafficlight_freq_target);
     //Движение
     void signal_driving_mode(int driving_mode);
     void signal_vigilance(bool vigilance);
@@ -89,6 +90,7 @@ public slots:
     void slot_rmp_key_down();
     void slot_rmp_key_up();
     void slot_autolock_type_target_changed(int value);
+    void slot_trafficlight_freq_target (int trafficlight_freq_target);
 
 private slots:
     void process_can_messages(CanFrame frame);
@@ -126,6 +128,7 @@ private:
     int c_movement_direction;
     int c_trafficlight_light;
     int c_trafficlight_freq;
+    int c_trafficlight_freq_target;
     int c_passed_distance;
     int c_orig_passed_distance;
     int c_epv_state;

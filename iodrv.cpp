@@ -57,6 +57,7 @@ iodrv::iodrv()
     c_movement_direction = -1;
     c_trafficlight_light = -1;
     c_trafficlight_freq = -1;
+    c_trafficlight_freq_target = -1;
     c_passed_distance = -1;
     c_epv_state = -1;
     c_epv_key = -1;
@@ -330,29 +331,29 @@ int iodrv::decode_trafficlight_light(const CanFrame &frame)
 int trafficlight_freq_incorrect_count = 0;
 int iodrv::decode_trafficlight_freq(const CanFrame &frame)
 {
-    // ------ BROKEN! ------
-//    switch (can_decoder::decode_trafficlight_freq(frame, &c_trafficlight_freq))
-//    {
-//        case 1:
-//            if ((p_trafficlight_freq == -1) || (p_trafficlight_freq != -1 && p_trafficlight_freq != c_trafficlight_freq))
-//            {
-//                emit signal_trafficlight_freq(c_trafficlight_freq);
-//                if (systemState->getAlsnFreqTarget() == -1) systemState->setAlsnFreqTarget(c_trafficlight_freq);
-//            }
-//            if (systemState->getAlsnFreqTarget() != -1 && systemState->getAlsnFreqTarget() != c_trafficlight_freq)
-//            {
-//                if (trafficlight_freq_incorrect_count >= 1)
-//                {
-//                  this->slot_f_key_down();
-////                this->slot_f_key_up(); // Если делать, то с задержкой
-//                  trafficlight_freq_incorrect_count = 0;
-//                }
-//                else trafficlight_freq_incorrect_count ++;
-//            }
-//            p_trafficlight_freq = c_trafficlight_freq;
+    switch (can_decoder::decode_trafficlight_freq(frame, &c_trafficlight_freq))
+    {
+        case 1:
+            if ((p_trafficlight_freq == -1) || (p_trafficlight_freq != -1 && p_trafficlight_freq != c_trafficlight_freq))
+            {
+                emit signal_trafficlight_freq(c_trafficlight_freq);
+                if (c_trafficlight_freq_target == -1)
+                    emit signal_trafficlight_freq_target (c_trafficlight_freq);
+            }
+            if (c_trafficlight_freq_target != -1 && c_trafficlight_freq_target != c_trafficlight_freq)
+            {
+                if (trafficlight_freq_incorrect_count >= 1)
+                {
+                  this->slot_f_key_down();
+//                this->slot_f_key_up(); // Если делать, то с задержкой
+                  trafficlight_freq_incorrect_count = 0;
+                }
+                else trafficlight_freq_incorrect_count ++;
+            }
+            p_trafficlight_freq = c_trafficlight_freq;
 
-//            break;
-//    }
+            break;
+    }
 }
 
 int iodrv::decode_passed_distance(const CanFrame &frame)
@@ -794,6 +795,11 @@ void iodrv::slot_rmp_key_up()
 void iodrv::slot_autolock_type_target_changed (int value)
 {
     c_autolock_type_target = value;
+}
+
+void iodrv::slot_trafficlight_freq_target(int trafficlight_freq_target)
+{
+    c_trafficlight_freq_target = trafficlight_freq_target;
 }
 
 SpeedAgregator::SpeedAgregator()
