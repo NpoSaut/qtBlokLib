@@ -1,10 +1,9 @@
-#if defined WITH_CAN || defined WITH_SERIAL
+#if defined WITH_CAN || defined WITH_SERIALPORT
 
 #ifndef IODRVMAIN_H
 #define IODRVMAIN_H
 
 
-#include <QMainWindow>
 #include <QObject>
 #include <QtConcurrentRun>
 #include <QTimer>

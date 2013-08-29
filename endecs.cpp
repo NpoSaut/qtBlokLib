@@ -1,6 +1,7 @@
-#if defined WITH_CAN || defined WITH_SERIAL
+#if defined WITH_CAN || defined WITH_SERIALPORT
 
 #include <QByteArray>
+#include <QStringList>
 
 #include "endecs.h"
 #include "cDoodahLib/lowlevel.h"
@@ -232,9 +233,6 @@ int can_decoder::decode_modules_activity(const CanFrame &frame, ModulesActivity 
 {
     if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
         return -1;
-
-    qDebug("MCOSTATE: %02x, %02x, %02x, %02x, %02x, %02x, %02x, %02x,",
-           frame[1], frame[2], frame[3], frame[4], frame[5], frame[6], frame[7], frame[8]);
 
     (*modulesActivity) = ModulesActivity::loadFromMcoState (
                 QByteArray( reinterpret_cast<const char*> (frame.getData().data()), frame.getData().size() ) );

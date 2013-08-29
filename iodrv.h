@@ -1,4 +1,4 @@
-#if defined WITH_CAN || defined WITH_SERIAL
+#if defined WITH_CAN || defined WITH_SERIALPORT
 
 #ifndef IODRV_H
 #define IODRV_H
@@ -7,9 +7,6 @@
 #include <QTextStream>
 
 #include "qtCanLib/canframe.h"
-
-//!!!!! TODO: ВРЕМЕННО
-#include "systemstateviewmodel.h"
 
 #include "iodrvmain.h"
 #include "endecs.h"
@@ -32,7 +29,7 @@ class iodrv : public QObject
 
 public:
     //!!!!! TODO: ВРЕМЕННО
-    iodrv(SystemStateViewModel *systemState);
+    iodrv();
 
 
 public:
@@ -224,9 +221,6 @@ private:
     // Переменные отслеживания состояния, когда задаётся целевое значение, но до его «применения» могут приходить фактические значения.
     int target_trafficlight_freq;
     int target_driving_mode;
-
-    //!!!!! TODO: ВРЕМЕННО
-    SystemStateViewModel *systemState;
 };
 
 class SpeedAgregator: public QObject

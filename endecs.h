@@ -1,4 +1,4 @@
-#if defined WITH_CAN || defined WITH_SERIAL
+#if defined WITH_CAN || defined WITH_SERIALPORT
 
 #ifndef ENDECS_H
 #define ENDECS_H

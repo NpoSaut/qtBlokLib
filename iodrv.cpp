@@ -1,4 +1,4 @@
-#if defined WITH_CAN || defined WITH_SERIAL
+#if defined WITH_CAN || defined WITH_SERIALPORT
 
 #include <QDate>
 #include <QtCore/qmath.h>
@@ -26,13 +26,10 @@ static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2
     return 1000 * qAtan(num / denum) * 6372.795;
 }
 
-iodrv::iodrv(SystemStateViewModel *systemState)
+iodrv::iodrv()
     : distance_store_file("/media/milage.txt"),
       c_modulesActivity(), p_modulesActivity()
 {
-    //!!!!! TODO: ВРЕМЕННО
-    this->systemState = systemState;
-
     gps_source = gps_data_source_gps;
     read_socket_0 = -1;
     write_socket_0 = -1;
@@ -198,7 +195,10 @@ void iodrv::process_can_messages(CanFrame frame)
     decode_traction(frame);
     decode_is_on_road(frame);
 
-//        decode_mm_lat_lon(frame);
+#ifndef WITH_SERIALPORT
+    decode_mm_lat_lon(frame);
+    decode_ipd_datetime(frame);
+#endif
 
 }
 
@@ -330,28 +330,29 @@ int iodrv::decode_trafficlight_light(const CanFrame &frame)
 int trafficlight_freq_incorrect_count = 0;
 int iodrv::decode_trafficlight_freq(const CanFrame &frame)
 {
-    switch (can_decoder::decode_trafficlight_freq(frame, &c_trafficlight_freq))
-    {
-        case 1:
-            if ((p_trafficlight_freq == -1) || (p_trafficlight_freq != -1 && p_trafficlight_freq != c_trafficlight_freq))
-            {
-                emit signal_trafficlight_freq(c_trafficlight_freq);
-                if (systemState->getAlsnFreqTarget() == -1) systemState->setAlsnFreqTarget(c_trafficlight_freq);
-            }
-            if (systemState->getAlsnFreqTarget() != -1 && systemState->getAlsnFreqTarget() != c_trafficlight_freq)
-            {
-                if (trafficlight_freq_incorrect_count >= 1)
-                {
-                  this->slot_f_key_down();
-//                this->slot_f_key_up(); // Если делать, то с задержкой
-                  trafficlight_freq_incorrect_count = 0;
-                }
-                else trafficlight_freq_incorrect_count ++;
-            }
-            p_trafficlight_freq = c_trafficlight_freq;
+    // ------ BROKEN! ------
+//    switch (can_decoder::decode_trafficlight_freq(frame, &c_trafficlight_freq))
+//    {
+//        case 1:
+//            if ((p_trafficlight_freq == -1) || (p_trafficlight_freq != -1 && p_trafficlight_freq != c_trafficlight_freq))
+//            {
+//                emit signal_trafficlight_freq(c_trafficlight_freq);
+//                if (systemState->getAlsnFreqTarget() == -1) systemState->setAlsnFreqTarget(c_trafficlight_freq);
+//            }
+//            if (systemState->getAlsnFreqTarget() != -1 && systemState->getAlsnFreqTarget() != c_trafficlight_freq)
+//            {
+//                if (trafficlight_freq_incorrect_count >= 1)
+//                {
+//                  this->slot_f_key_down();
+////                this->slot_f_key_up(); // Если делать, то с задержкой
+//                  trafficlight_freq_incorrect_count = 0;
+//                }
+//                else trafficlight_freq_incorrect_count ++;
+//            }
+//            p_trafficlight_freq = c_trafficlight_freq;
 
-            break;
-    }
+//            break;
+//    }
 }
 
 int iodrv::decode_passed_distance(const CanFrame &frame)
@@ -754,8 +755,6 @@ void iodrv::slot_f_key_down()
     CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x1C);
     write_canmsg_async(write_socket_0, frame);
     write_canmsg_async(write_socket_1, frame);
-
-    //target_trafficlight_freq = systemState->getAlsnFreqTarget();
 }
 
 void iodrv::slot_f_key_up()
@@ -783,9 +782,6 @@ void iodrv::slot_rmp_key_down()
 {
     CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x16);
     write_canmsg_async(write_socket_0, frame);
-    //write_canmsg_async(write_socket_1, &frame);
-
-    //this->target_driving_mode = systemState->getDriveModeTarget();
 }
 
 void iodrv::slot_rmp_key_up()
