@@ -35,6 +35,9 @@ public:
     bool isValid() const;
 
     static constexpr int answerTimeout = 200;
+    static constexpr int maxAttempts = 10; // Количество попыток записи по answerTimeout.
+                                           // Каждую попытку производится повтор запроса,
+                                           // даже если никакой ответ не получен.
 
 signals:
     // Сиглнал испускается при получении из CAN
@@ -69,12 +72,28 @@ private:
     // Посылает в CAN команду на запись значения
     void writeValueRequestSend ();
 
+    // Посылвает в CAN комаду на чтение значения
+    void requestValueRequestSend ();
+
+    enum ActivityKind
+    {
+        NO_ACTION = 0,
+        WRITE_ACTION = 1,
+        READ_ACTION = 2
+    };
+    void startActivity (ActivityKind kind);
+    void stopActivity ();
+
     int index;
     int value;
     bool valid;
+
+
+    volatile ActivityKind activity;
     bool forceUpdate;
-    bool writeActive;
     int writeValue;
+    int attempt;
+
     QElapsedTimer lastUpdateTimer;
     QTimer answerWaitTimer;
 };

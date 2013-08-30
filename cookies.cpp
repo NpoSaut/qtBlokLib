@@ -5,7 +5,7 @@
 #include "cookies.h"
 
 Cookie::Cookie(int index)
-    : QObject(), answerWaitTimer(), index (index), valid (false), forceUpdate (false), writeActive (false)
+    : QObject(), answerWaitTimer(), index (index), valid (false), forceUpdate (false), activity(NO_ACTION), attempt (0)
 {
     QObject::connect (&can, SIGNAL(messageReceived(CanFrame)), this, SLOT(loadData(CanFrame)));
 
@@ -20,7 +20,7 @@ int Cookie::getValue()
     {
         // Обновление
         requestValue (false);
-        while ( answerWaitTimer.isActive () ); // Дожидаемся обновления
+        while ( activity != NO_ACTION ); // Дожидаемся обновления
         if ( !valid )
             emit onValidChange (valid); // Повторяем сигнал
     }
@@ -29,11 +29,17 @@ int Cookie::getValue()
 
 void Cookie::requestValue(bool forceUpdate)
 {
-    CanFrame frame( 0x0E01, std::vector<unsigned char> (1,index) ); // SYS_DATA_QUERY id: 0x070
-    can.transmitMessage (frame);
-
     this->forceUpdate = forceUpdate;
-    answerWaitTimer.start ();
+    startActivity (READ_ACTION);
+    requestValueRequestSend ();
+}
+
+void Cookie::setVaule(int value)
+{
+    this->forceUpdate = true;
+    writeValue = value;
+    startActivity (WRITE_ACTION);
+    writeValueRequestSend ();
 }
 
 bool Cookie::isValid() const
@@ -48,7 +54,21 @@ void Cookie::loadData(const CanFrame &frame)
 
 void Cookie::answerTimeoutHandler()
 {
-    applyNewValidity (false);
+    if ( attempt < maxAttempts )
+    {
+        attempt ++;
+        if (activity == WRITE_ACTION)
+            writeValueRequestSend ();
+        if (activity == READ_ACTION)
+            requestValueRequestSend ();
+
+        answerWaitTimer.start ();
+    }
+    else
+    {
+        stopActivity ();
+        applyNewValidity (false);
+    }
 }
 
 bool Cookie::loadDataWithControl(const CanFrame &frame)
@@ -60,34 +80,26 @@ bool Cookie::loadDataWithControl(const CanFrame &frame)
         if ( id == index )
         {
             lastUpdateTimer.start ();
-            answerWaitTimer.stop ();
+            answerWaitTimer.stop ();                // !!!!
 
             if ( byte[0] >> 7 ) // Признак ошибка
             {
-                if ( byte[4] == 1 ) // Код ошибки: устройство занято
+                if ( byte[1] == 1 ) // Код ошибки: устройство занято
                 {
-                    if ( writeActive )
-                    {
-                        // Повторяем запись
+                    if (activity == WRITE_ACTION)
                         writeValueRequestSend ();
-                    }
-                    else
-                    {
-                        // Повторяем запрос
-                        CanFrame frame( 0x0E01, std::vector<unsigned char> (1,index) );
-                        can.transmitMessage (frame);
-                    }
-
-                    if ( !answerWaitTimer.isActive () ) // Не перезапускать таймер, если уже запущен
-                        answerWaitTimer.start ();
+                    if (activity == READ_ACTION)
+                        requestValueRequestSend ();
                 }
                 else
                 {
+                    stopActivity ();
                     applyNewValidity (false);
                 }
             }
             else
             {
+                stopActivity ();
                 applyNewValue (Complex<uint32_t> (byte[4], byte[3], byte[2], byte[1]));
                 applyNewValidity (true); // в случае forceUpdate форсированно передадутся данные, а не достоверность
             }
@@ -100,10 +112,9 @@ return false;
 
 void Cookie::applyNewValue(int newValue)
 {
-    if ( newValue != value || forceUpdate || writeActive )
+    if ( newValue != value || forceUpdate )
     {
         forceUpdate = false;
-        writeActive = false;
 
         value = newValue;
         emit onChange (value);
@@ -112,10 +123,9 @@ void Cookie::applyNewValue(int newValue)
 
 void Cookie::applyNewValidity(bool newValid)
 {
-    if ( newValid != valid || forceUpdate  || writeActive )
+    if ( newValid != valid || forceUpdate )
     {
         forceUpdate = false;
-        writeActive = false;
 
         valid = newValid;
         emit onValidChange (valid);
@@ -137,14 +147,24 @@ void Cookie::writeValueRequestSend()
     can.transmitMessage (frame);
 }
 
-void Cookie::setVaule(int value)
+void Cookie::requestValueRequestSend()
 {
-    writeValue = value;
+    CanFrame frame( 0x0E01, std::vector<unsigned char> (1,index) ); // SYS_DATA_QUERY id: 0x070
+    can.transmitMessage (frame);
+}
 
-    writeValueRequestSend ();
-
-    writeActive = true;
+void Cookie::startActivity(ActivityKind kind)
+{
+    attempt = 1;
+    activity = kind;
     answerWaitTimer.start ();
+}
+
+void Cookie::stopActivity()
+{
+    answerWaitTimer.stop ();
+    activity = NO_ACTION;
+    attempt = 0;
 }
 
 // --------- Cookies ---------
