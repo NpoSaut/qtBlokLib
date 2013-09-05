@@ -659,6 +659,7 @@ void iodrv::slot_serial_ready_read()
             int h = gd.hours + 4;
             if (h < 0) h += 24;
             if (h > 24) h -= 24;
+            gd.hours = h;
             QString time = QString("%1:%2:%3").arg(h, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
             emit signal_time(time);
 

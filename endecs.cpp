@@ -14,7 +14,7 @@ CanFrame can_encoder::encode_mm_alt_long(double lat, double lon, bool reliabilit
 
     int flat = (int) ( lat * (double)1e8 * 3.14159265359 / (double)180 );
     int flon = ((int) ( lon * (double)1e8 * 3.14159265359 / (double)180 ));
-    int flonr = reliability ? ( flon | (1 << 31) ) : ( flon & (~(1 << 31)) );
+    int flonr = reliability ? ( flon & (~(1 << 31)) ) : ( flon | (1 << 31) );
 
     frame[1]= flat & 0xFF;
     frame[2] = (flat >> 8) & 0xFF;
