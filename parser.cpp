@@ -2,26 +2,29 @@
 
 #include "qtCanLib/can.h"
 
-void MmCoord::getCanMessage (CanFrame frame)
-{
-    if ( frame.getDescriptor () == 0xC0A3 ) // id: 0x605 MM_COORD
-    {
-        int newCoord = frame[1]*256*256 + frame[2]*256 + frame[3];
-
-        if ( newCoord != coord )
-        {
-            coord = newCoord;
-            emit railWayCoordinateChanged (coord);
-        }
-    }
-}
-
 Parser::Parser(QObject *parent) :
     QObject(parent),
+    ipdState(),
+    mcoLimits(),
+    mcoState(),
     mmCoord()
 {
+    ipdState.connect (&can, SIGNAL(messageReceived(CanFrame)),SLOT(getCanMessage(CanFrame)));
+    mcoLimits.connect (&can, SIGNAL(messageReceived(CanFrame)),SLOT(getCanMessage(CanFrame)));
+    mcoState.connect (&can, SIGNAL(messageReceived(CanFrame)),SLOT(getCanMessage(CanFrame)));
     mmCoord.connect (&can, SIGNAL(messageReceived(CanFrame)),SLOT(getCanMessage(CanFrame)));
+
+    this->connect (&ipdState, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
+    this->connect (&mcoLimits, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
+    this->connect (&mcoState, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
+    this->connect (&mmCoord, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
 }
 
 Parser blokMessages;
 
+
+
+void Parser::getChildChagnedSignal()
+{
+    emit whateverChagned ();
+}
