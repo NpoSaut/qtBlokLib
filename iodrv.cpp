@@ -604,6 +604,7 @@ int iodrv::decode_is_on_road(const CanFrame &frame)
             if ((p_is_on_road == -1) || (p_is_on_road != -1 && p_is_on_road != c_is_on_road))
             {
                 emit signal_is_on_road(c_is_on_road);
+                emit signal_is_on_rails(!c_is_on_road);
             }
             p_is_on_road = c_is_on_road;
             break;
@@ -801,62 +802,6 @@ void iodrv::slot_trafficlight_freq_target(int trafficlight_freq_target)
 {
     c_trafficlight_freq_target = trafficlight_freq_target;
 }
-
-SpeedAgregator::SpeedAgregator()
-    : currentSpeedFromEarth(-1), currentSpeedFromSky(-1), currentSpeedIsValid(false), onRails(true)
-    {}
-
-
-void SpeedAgregator::getSpeedFromSky (double speed)
-{
-    if ( currentSpeedFromSky != speed )
-        getNewSpeed( speed, currentSpeedFromEarth );
-}
-
-void SpeedAgregator::getSpeedFromEarth (double speed)
-{
-    if ( currentSpeedFromEarth != speed )
-        getNewSpeed( currentSpeedFromSky, speed );
-}
-
-void SpeedAgregator::setSpeedIsValid (bool isValid)
-{
-    if (currentSpeedIsValid != isValid)
-    {
-        currentSpeedIsValid = isValid;
-        emit speedIsValidChanged(isValid);
-    }
-}
-
-void SpeedAgregator::getIsOnRoad(bool isOnRoad)
-{
-    onRails = !isOnRoad;
-    getNewSpeed( currentSpeedFromSky, currentSpeedFromEarth );
-}
-
-void SpeedAgregator::getNewSpeed(double speedFromSky, double speedFromEarth)
-{
-    currentSpeedFromEarth = speedFromEarth;
-//    if (speedFromSky >= 0) // достоверность
-        currentSpeedFromSky = speedFromSky;
-
-//    qDebug() << "Speed | " << currentSpeedFromSky << " | " << currentSpeedFromEarth;
-
-    if ( onRails )
-    {
-//        qDebug() << "on rails: " << currentSpeedFromEarth;
-        setSpeedIsValid( true );
-        emit speedChanged(currentSpeedFromEarth);
-    }
-    else
-    {
-//        qDebug() << "no on rails: " << currentSpeedFromSky;
-        setSpeedIsValid( currentSpeedFromSky >= 0 );
-        emit speedChanged(currentSpeedFromSky);
-    }
-}
-
-
 
 rmp_key_handler::rmp_key_handler()
 {

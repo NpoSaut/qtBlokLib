@@ -70,6 +70,7 @@ signals:
     void signal_pressure_tc(QString pressure_tc);
     void signal_pressure_tm(QString pressure_tm);
     void signal_is_on_road(bool is_on_road);
+    void signal_is_on_rails(bool on_rails);
     void signal_ssps_mode(int ssps_mode);
     void signal_traction(bool in_traction);
     void signal_iron_wheels(bool iron_wheels);
@@ -225,37 +226,6 @@ private:
     int target_trafficlight_freq;
     int target_driving_mode;
 };
-
-class SpeedAgregator: public QObject
-{
-    Q_OBJECT
-public:
-    SpeedAgregator();
-
-    static constexpr double minSpeedSkyAccount = 8;
-    static constexpr double maxAllowDeltaSpeed = 4;
-
-public slots:
-    void getSpeedFromSky (double speed);
-    void getSpeedFromEarth (double speed);
-    void getIsOnRoad (bool isOnRoad);
-
-signals:
-    void speedChanged (double speed);
-    void speedIsValidChanged (bool isValid);
-
-private:
-    double currentSpeedFromSky;
-    double currentSpeedFromEarth;
-    bool currentSpeedIsValid;
-    bool onRails;
-
-    void getNewSpeed (double speedFromSky, double speedFromEarth);
-    void setSpeedIsValid (bool isValid);
-};
-
-
-
 
 /*class rmp_revolver : public QObject
 {
