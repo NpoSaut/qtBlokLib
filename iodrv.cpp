@@ -110,7 +110,7 @@ int iodrv::start(gps_data_source gps_datasource)
     gps_source = gps_datasource;
 
     // Инициализация сокетов
-    if (init_sktcan("can0", "can1") == 0)
+    if (init_sktcan() == 0)
     {
         //printf("Инициализация сокетов не удалась\n"); fflush(stdout);
         return 0;
@@ -134,7 +134,7 @@ int iodrv::start(gps_data_source gps_datasource)
     return 1;
 }
 
-int iodrv::init_sktcan(char* can_iface_name_0, char *can_iface_name_1)
+int iodrv::init_sktcan()
 {
 
 //    printf("Инициализация сокета чтения %s\n", iface_name_0); fflush(stdout);
@@ -623,6 +623,7 @@ int iodrv::decode_is_on_road(const CanFrame &frame)
             if ((p_is_on_road == -1) || (p_is_on_road != -1 && p_is_on_road != c_is_on_road))
             {
                 emit signal_is_on_road(c_is_on_road);
+                emit signal_is_on_rails(!c_is_on_road);
             }
             p_is_on_road = c_is_on_road;
             return 1;
@@ -679,6 +680,7 @@ void iodrv::slot_serial_ready_read()
             int h = gd.hours + 4;
             if (h < 0) h += 24;
             if (h > 24) h -= 24;
+            gd.hours = h;
             QString time = QString("%1:%2:%3").arg(h, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
             emit signal_time(time);
 
@@ -821,62 +823,6 @@ void iodrv::slot_trafficlight_freq_target(int trafficlight_freq_target)
 {
     c_trafficlight_freq_target = trafficlight_freq_target;
 }
-
-SpeedAgregator::SpeedAgregator()
-    : currentSpeedFromEarth(-1), currentSpeedFromSky(-1), currentSpeedIsValid(false), onRails(true)
-    {}
-
-
-void SpeedAgregator::getSpeedFromSky (double speed)
-{
-    if ( currentSpeedFromSky != speed )
-        getNewSpeed( speed, currentSpeedFromEarth );
-}
-
-void SpeedAgregator::getSpeedFromEarth (double speed)
-{
-    if ( currentSpeedFromEarth != speed )
-        getNewSpeed( currentSpeedFromSky, speed );
-}
-
-void SpeedAgregator::setSpeedIsValid (bool isValid)
-{
-    if (currentSpeedIsValid != isValid)
-    {
-        currentSpeedIsValid = isValid;
-        emit speedIsValidChanged(isValid);
-    }
-}
-
-void SpeedAgregator::getIsOnRoad(bool isOnRoad)
-{
-    onRails = !isOnRoad;
-    getNewSpeed( currentSpeedFromSky, currentSpeedFromEarth );
-}
-
-void SpeedAgregator::getNewSpeed(double speedFromSky, double speedFromEarth)
-{
-    currentSpeedFromEarth = speedFromEarth;
-//    if (speedFromSky >= 0) // достоверность
-        currentSpeedFromSky = speedFromSky;
-
-//    qDebug() << "Speed | " << currentSpeedFromSky << " | " << currentSpeedFromEarth;
-
-    if ( onRails )
-    {
-//        qDebug() << "on rails: " << currentSpeedFromEarth;
-        setSpeedIsValid( true );
-        emit speedChanged(currentSpeedFromEarth);
-    }
-    else
-    {
-//        qDebug() << "no on rails: " << currentSpeedFromSky;
-        setSpeedIsValid( currentSpeedFromSky >= 0 );
-        emit speedChanged(currentSpeedFromSky);
-    }
-}
-
-
 
 rmp_key_handler::rmp_key_handler()
 {

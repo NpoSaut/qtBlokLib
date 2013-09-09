@@ -4,41 +4,11 @@
 #include <QObject>
 
 #include "qtCanLib/can.h"
-#include "qtCanLib/canframe.h"
 
-class Parser;
-
-class CanBlokMessage : public QObject
-{
-    Q_OBJECT
-    friend class Parser;
-public:
-    explicit CanBlokMessage (Can *onCan, QObject *parent = 0)
-        : QObject (parent), can(onCan)
-    {}
-private:
-    Can *can;
-private slots:
-    virtual void getCanMessage (CanFrame canFrame) = 0;
-};
-
-class MmCoord : public CanBlokMessage
-{
-    Q_OBJECT
-public:
-    explicit MmCoord (Can *onCan, QObject *parent = 0)
-        : CanBlokMessage (onCan, parent)
-    {}
-
-signals:
-    void railWayCoordinateChanged (int coordinate);
-
-private slots:
-    void getCanMessage (CanFrame frame);
-
-private:
-    int coord;
-};
+#include "parsers/ipd_state.h"
+#include "parsers/mco_limits.h"
+#include "parsers/mco_state.h"
+#include "parsers/mm_coord.h"
 
 class Parser : public QObject
 {
@@ -46,11 +16,16 @@ class Parser : public QObject
 public:
     explicit Parser(Can *onCan, QObject *parent = 0);
 
+    IpdState ipdState;
+    McoLimits mcoLimits;
+    McoState mcoState;
     MmCoord mmCoord;
     
 signals:
+    void whateverChagned ();
     
-public slots:
+private slots:
+    void getChildChagnedSignal ();
     
 };
 

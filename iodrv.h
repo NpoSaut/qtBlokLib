@@ -67,6 +67,7 @@ signals:
     void signal_pressure_tc(QString pressure_tc);
     void signal_pressure_tm(QString pressure_tm);
     void signal_is_on_road(bool is_on_road);
+    void signal_is_on_rails(bool on_rails);
     void signal_ssps_mode(int ssps_mode);
     void signal_traction(bool in_traction);
     void signal_iron_wheels(bool iron_wheels);
@@ -102,7 +103,7 @@ private:
     int write_socket_1;
     //struct can_frame read_frame;
     //struct can_frame write_frame;
-    int init_sktcan(char* can_iface_name_0, char* can_iface_name_1);
+    int init_sktcan();
 
     // TODO: Контролировать были ли сообщения отосланы и если нет, то что-нибудь делать.
     void write_canmsg_async(int socket, const CanFrame &frame);
@@ -223,37 +224,6 @@ private:
     int target_trafficlight_freq;
     int target_driving_mode;
 };
-
-class SpeedAgregator: public QObject
-{
-    Q_OBJECT
-public:
-    SpeedAgregator();
-
-    static const int minSpeedSkyAccount = 8;
-    static const int maxAllowDeltaSpeed = 4;
-
-public slots:
-    void getSpeedFromSky (double speed);
-    void getSpeedFromEarth (double speed);
-    void getIsOnRoad (bool isOnRoad);
-
-signals:
-    void speedChanged (double speed);
-    void speedIsValidChanged (bool isValid);
-
-private:
-    double currentSpeedFromSky;
-    double currentSpeedFromEarth;
-    bool currentSpeedIsValid;
-    bool onRails;
-
-    void getNewSpeed (double speedFromSky, double speedFromEarth);
-    void setSpeedIsValid (bool isValid);
-};
-
-
-
 
 /*class rmp_revolver : public QObject
 {
