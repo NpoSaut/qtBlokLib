@@ -3,7 +3,8 @@
 McoState::McoState(QObject *parent) :
     CanBlokMessage(parent),
     epvReady (false),
-    epvReleased (false)
+    epvReleased (false),
+    traction (false)
 {
 }
 
@@ -27,6 +28,15 @@ void McoState::getCanMessage(CanFrame frame)
         {
             epvReleased = newEpvReleased;
             emit epvReleasedChanged (epvReleased);
+            emit whateverChanged ();
+        }
+
+        bool newTraction = !( frame[1] & (1 << 5) );
+
+        if ( newTraction != traction )
+        {
+            traction = newTraction;
+            emit tractionChanged (traction);
             emit whateverChanged ();
         }
 

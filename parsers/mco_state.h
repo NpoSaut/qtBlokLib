@@ -11,10 +11,12 @@ public:
 
     bool isEpvReady () const { return epvReady; }
     bool isEpvReleased () const { return epvReleased; }
+    bool isTraction () const { return traction; }
     
 signals:
     void epvReadyChanged (bool epvReady);
     void epvReleasedChanged (bool epvReleased);
+    void tractionChanged (bool traction);
     void whateverChanged ();
     
 private slots:
@@ -23,6 +25,7 @@ private slots:
 private:
     bool epvReady;
     bool epvReleased;
+    bool traction;
 };
 
 #endif // MCO_STATE_H
