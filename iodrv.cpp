@@ -1,5 +1,3 @@
-#if defined WITH_CAN || defined WITH_SERIALPORT
-
 #include <QDate>
 #include <QtCore/qmath.h>
 
@@ -26,9 +24,11 @@ static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2
     return 1000 * qAtan(num / denum) * 6372.795;
 }
 
-iodrv::iodrv()
-    : distance_store_file("/media/milage.txt"),
-      c_modulesActivity(), p_modulesActivity()
+iodrv::iodrv(Can *onCan, QObject *parent)
+    : QObject(parent),
+      distance_store_file("/media/milage.txt"),
+      c_modulesActivity(), p_modulesActivity(),
+      can(onCan)
 {
     gps_source = gps_data_source_gps;
     read_socket_0 = -1;
@@ -104,8 +104,9 @@ iodrv::iodrv()
     timer_disp_state = NULL;
 }
 
-int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source gps_datasource)
+int iodrv::start(gps_data_source gps_datasource)
 {
+    qDebug("iodrv start");
     gps_source = gps_datasource;
 
     // Инициализация сокетов
@@ -115,7 +116,7 @@ int iodrv::start(char* can_iface_name_0, char *can_iface_name_1, gps_data_source
         return 0;
     }
 
-    QObject::connect (&can, SIGNAL(messageReceived(CanFrame)), this, SLOT(process_can_messages(CanFrame)));
+    QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(process_can_messages(CanFrame)));
 
     // Инициализация и начало асинхронного чтения с последовательного порта.
     // Если не выбрано другое.
@@ -166,7 +167,7 @@ int iodrv::init_sktcan(char* can_iface_name_0, char *can_iface_name_1)
 
 void iodrv::write_canmsg_async(int write_socket, const CanFrame &frame)
 {
-    can.transmitMessage (frame);
+    can->transmitMessage (frame);
 }
 
 void iodrv::process_can_messages(CanFrame frame)
@@ -217,8 +218,9 @@ int iodrv::decode_speed(const CanFrame &frame)
 //                printf("Speed: %f\n", c_speed); fflush(stdout);
             }
             p_speed = c_speed;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_speed_limit(const CanFrame &frame)
@@ -231,8 +233,9 @@ int iodrv::decode_speed_limit(const CanFrame &frame)
                 emit signal_speed_limit(c_speed_limit);
             }
             p_speed_limit = c_speed_limit;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_autolock_type(const CanFrame &frame)
@@ -257,14 +260,16 @@ int iodrv::decode_autolock_type(const CanFrame &frame)
 
         p_autolock_type_target = c_autolock_type_target;
         p_autolock_type = c_autolock_type;
-        break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::set_autolock_type(int autolock_type)
 {
     CanFrame frame = can_encoder::encode_autolock_set_message (autolock_type);
     write_canmsg_async (write_socket_0, frame);
+    return 1;
 }
 
 int iodrv::decode_target_speed(const CanFrame &frame)
@@ -277,8 +282,9 @@ int iodrv::decode_target_speed(const CanFrame &frame)
                 emit signal_target_speed(c_target_speed);
             }
             p_target_speed = c_target_speed;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_acceleration(const CanFrame &frame)
@@ -291,8 +297,9 @@ int iodrv::decode_acceleration(const CanFrame &frame)
                 emit signal_acceleration(c_acceleration);
             }
             p_acceleration = c_acceleration;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 
@@ -309,8 +316,9 @@ int iodrv::decode_movement_direction(const CanFrame &frame)
             }*/
             emit signal_movement_direction(c_movement_direction);
             p_movement_direction = c_movement_direction;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_trafficlight_light(const CanFrame &frame)
@@ -324,8 +332,9 @@ int iodrv::decode_trafficlight_light(const CanFrame &frame)
             }*/
             emit signal_trafficlight_light(c_trafficlight_light);
             p_trafficlight_light = c_trafficlight_light;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int trafficlight_freq_incorrect_count = 0;
@@ -351,9 +360,9 @@ int iodrv::decode_trafficlight_freq(const CanFrame &frame)
                 else trafficlight_freq_incorrect_count ++;
             }
             p_trafficlight_freq = c_trafficlight_freq;
-
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_passed_distance(const CanFrame &frame)
@@ -391,9 +400,9 @@ int iodrv::decode_passed_distance(const CanFrame &frame)
                 }
             }
             p_passed_distance = c_passed_distance;
-
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_orig_passed_distance(const CanFrame &frame)
@@ -402,8 +411,9 @@ int iodrv::decode_orig_passed_distance(const CanFrame &frame)
     {
     case 1:
         emit signal_orig_passed_distance(c_orig_passed_distance);
-        break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_epv_state(const CanFrame &frame)
@@ -416,8 +426,9 @@ int iodrv::decode_epv_state(const CanFrame &frame)
                 emit signal_epv_released(c_epv_state);
             }
             p_epv_state = c_epv_state;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_epv_key(const CanFrame &frame)
@@ -429,9 +440,10 @@ int iodrv::decode_epv_key(const CanFrame &frame)
             {
                 emit signal_epv_key(c_epv_key);
             }
-            p_epv_key = c_epv_key;
-            break;
+                p_epv_key = c_epv_key;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_modules_activity(const CanFrame &frame)
@@ -444,8 +456,9 @@ int iodrv::decode_modules_activity(const CanFrame &frame)
                 emit signal_modules_activity (c_modulesActivity.toString ());
             }
             p_modulesActivity = c_modulesActivity;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_mm_lat_lon(const CanFrame &frame)
@@ -464,8 +477,9 @@ int iodrv::decode_mm_lat_lon(const CanFrame &frame)
             p_lon = c_lon;
 
 //            printf("Coord: lat = %f, lon = %f\n", c_lat, c_lon); fflush(stdout);
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_ipd_datetime(const CanFrame &frame)
@@ -489,8 +503,9 @@ int iodrv::decode_ipd_datetime(const CanFrame &frame)
             }
             p_ipd_secs = c_ipd_secs;
             p_ipd_day = c_ipd_day;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_driving_mode(const CanFrame &frame)
@@ -512,9 +527,9 @@ int iodrv::decode_driving_mode(const CanFrame &frame)
 //                //this->slot_rmp_key_down();
 //            }
             p_driving_mode = c_driving_mode;
-
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_vigilance(const CanFrame &frame)
@@ -527,8 +542,9 @@ int iodrv::decode_vigilance(const CanFrame &frame)
                 emit signal_vigilance(c_vigilance);
             }
             p_vigilance = c_vigilance;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_reg_tape_avl(const CanFrame &frame)
@@ -541,8 +557,9 @@ int iodrv::decode_reg_tape_avl(const CanFrame &frame)
                 emit signal_reg_tape_avl(c_reg_tape_avl);
             }
             p_reg_tape_avl = c_reg_tape_avl;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_pressure_tc_tm(const CanFrame &frame)
@@ -561,9 +578,9 @@ int iodrv::decode_pressure_tc_tm(const CanFrame &frame)
                 emit signal_pressure_tm(QString::number(c_pressure_tm, 'f', 2));
             }
             p_pressure_tm = c_pressure_tm;
-
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_ssps_mode(const CanFrame &frame)
@@ -577,8 +594,9 @@ int iodrv::decode_ssps_mode(const CanFrame &frame)
                 emit signal_iron_wheels((bool)c_ssps_mode);
             }
             p_ssps_mode = c_ssps_mode;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 
@@ -592,8 +610,9 @@ int iodrv::decode_traction(const CanFrame &frame)
                 emit signal_traction((bool)c_in_traction);
             }
             p_in_traction = c_in_traction;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 int iodrv::decode_is_on_road(const CanFrame &frame)
@@ -606,8 +625,9 @@ int iodrv::decode_is_on_road(const CanFrame &frame)
                 emit signal_is_on_road(c_is_on_road);
             }
             p_is_on_road = c_is_on_road;
-            break;
+            return 1;
     }
+    return 0;
 }
 
 
@@ -972,8 +992,4 @@ void rmp_key_handler::ssps_mode_received(int ssps_mode)
         }
     }
 }
-
-
-
-#endif
 

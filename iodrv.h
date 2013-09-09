@@ -1,12 +1,10 @@
-#if defined WITH_CAN || defined WITH_SERIALPORT
-
 #ifndef IODRV_H
 #define IODRV_H
 
 #include <QFile>
 #include <QTextStream>
 
-#include "qtCanLib/canframe.h"
+#include "qtCanLib/can.h"
 
 #include "iodrvmain.h"
 #include "endecs.h"
@@ -28,12 +26,11 @@ class iodrv : public QObject
     Q_OBJECT
 
 public:
-    //!!!!! TODO: ВРЕМЕННО
-    iodrv();
+    iodrv(Can *onCan, QObject *parent = 0);
 
 
 public:
-    int start(char* can_iface_name_0, char* can_iface_name_1, gps_data_source gps_datasource = gps_data_source_gps);
+    int start(gps_data_source gps_datasource = gps_data_source_gps);
 
 signals:
     // Сигналы вызываются немедленно или у них есть внутренняя очередь, так что они могут передать изменённое значение
@@ -98,6 +95,7 @@ private slots:
     void slot_can_write_disp_state();
 
 private:
+    Can *can;
     gps_data_source gps_source;
     int read_socket_0;
     int write_socket_0;
@@ -232,8 +230,8 @@ class SpeedAgregator: public QObject
 public:
     SpeedAgregator();
 
-    static constexpr double minSpeedSkyAccount = 8;
-    static constexpr double maxAllowDeltaSpeed = 4;
+    static const int minSpeedSkyAccount = 8;
+    static const int maxAllowDeltaSpeed = 4;
 
 public slots:
     void getSpeedFromSky (double speed);
@@ -307,5 +305,3 @@ signals:
 };
 
 #endif // IODRV_H
-
-#endif

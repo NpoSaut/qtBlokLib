@@ -7,13 +7,14 @@
 
 QTextDecoder *cp1251Decoder = QTextCodec::codecForName("CP1251")->makeDecoder ();
 
-ElmapForwardTarget::ElmapForwardTarget(QObject *parent) :
+ElmapForwardTarget::ElmapForwardTarget(Can *onCan, QObject *parent) :
     QObject(parent),
-    name (), distance (-1), kind (-1)
+    name (), distance (-1), kind (-1),
+    can(onCan)
 {
-    QObject::connect (&can, SIGNAL(messageReceived(CanFrame)), this, SLOT(getNameFromMmSignal(CanFrame)));
-    QObject::connect (&can, SIGNAL(messageReceived(CanFrame)), this, SLOT(getDistanceFromMcoState(CanFrame)));
-    QObject::connect (&can, SIGNAL(messageReceived(CanFrame)), this, SLOT(getKindFromMcoLimits(CanFrame)));
+    QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(getNameFromMmSignal(CanFrame)));
+    QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(getDistanceFromMcoState(CanFrame)));
+    QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(getKindFromMcoLimits(CanFrame)));
 }
 
 void ElmapForwardTarget::getNameFromMmSignal(CanFrame mmSignal)
@@ -34,6 +35,7 @@ void ElmapForwardTarget::getNameFromMmSignal(CanFrame mmSignal)
 
 void ElmapForwardTarget::getDistanceFromMcoState (CanFrame mcoState)
 {
+#ifndef WIN32
     if ( mcoState.getDescriptor () == 0x0A08 ) // id: 0x050 MCO_STATE
     {
         signed char high = unsigned(mcoState[4] & 0x1F);
@@ -45,6 +47,7 @@ void ElmapForwardTarget::getDistanceFromMcoState (CanFrame mcoState)
             emit distanceChanged (distance);
         }
     }
+#endif
 }
 
 void ElmapForwardTarget::getKindFromMcoLimits (CanFrame mcoLimits)
@@ -62,4 +65,4 @@ void ElmapForwardTarget::getKindFromMcoLimits (CanFrame mcoLimits)
 
 }
 
-ElmapForwardTarget elmapForwardTarget;
+//ElmapForwardTarget elmapForwardTarget;

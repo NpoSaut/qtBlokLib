@@ -16,12 +16,10 @@ void MmCoord::getCanMessage (CanFrame frame)
     }
 }
 
-Parser::Parser(QObject *parent) :
+Parser::Parser(Can *onCan, QObject *parent) :
     QObject(parent),
-    mmCoord()
+    mmCoord(onCan)
 {
-    mmCoord.connect (&can, SIGNAL(messageReceived(CanFrame)),SLOT(getCanMessage(CanFrame)));
+    mmCoord.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(getCanMessage(CanFrame)));
 }
-
-Parser blokMessages;
 

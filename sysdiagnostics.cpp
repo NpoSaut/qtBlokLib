@@ -1,9 +1,10 @@
 #include "sysdiagnostics.h"
 
-SysDiagnostics::SysDiagnostics(QObject *parent) :
-    QObject(parent)
+SysDiagnostics::SysDiagnostics(Can *onCan, QObject *parent) :
+    QObject(parent),
+    can(onCan)
 {
-    QObject::connect (&can,SIGNAL(messageReceived(CanFrame)), this, SLOT(checkRequestInCanMessage(CanFrame)));
+    QObject::connect (can,SIGNAL(messageReceived(CanFrame)), this, SLOT(checkRequestInCanMessage(CanFrame)));
 //    QObject::connect (this, SIGNAL(versionMessageSend(CanFrame)), &canDev, SLOT(transmitMessage(CanFrame)));
 }
 
@@ -24,20 +25,16 @@ void SysDiagnostics::checkRequestInCanMessage(CanFrame sysDiagnostics)
 
 void SysDiagnostics::sendVersion()
 {
-    std::vector<unsigned char> data =
-    {
-        0, // код сообщения = RES_VERSION
-        version,
-        subVersion,
-        0,
-        0 // Контрольная сумма
-    };
+    std::vector<unsigned char> data(5);
+    data.push_back(0); // код сообщения = RES_VERSION
+    data.push_back(version);
+    data.push_back(subVersion);
+    data.push_back(0);
+    data.push_back(0); // Контрольная сумма
 
     CanFrame auxResourceA (auxResourceBilDescriptorA, data);
 //    CanFrame auxResourceB (auxResourceBilDescriptorB, data);
 
-    can.transmitMessage (auxResourceA);
+    can->transmitMessage (auxResourceA);
 //    canDev.transmitMessage (auxResourceB);
 }
-
-SysDiagnostics monitorSysDiagnostics;

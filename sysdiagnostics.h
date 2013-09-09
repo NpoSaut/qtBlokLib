@@ -9,7 +9,7 @@ class SysDiagnostics : public QObject
 {
     Q_OBJECT
 public:
-    explicit SysDiagnostics(QObject *parent = 0);
+    explicit SysDiagnostics(Can *onCan, QObject *parent = 0);
     
 //signals:
 //    void versionMessageSend (CanFrame auxResource);
@@ -18,14 +18,16 @@ private slots:
     void checkRequestInCanMessage (CanFrame sysDiagnostics);
 
 private:
-    constexpr static int sysDiagnosticsDescriptor = 0x8D07; // id: 0x468
-    constexpr static int auxResourceBilDescriptorA = 0xD005; // id: 680
+    Can *can;
+
+    const static int sysDiagnosticsDescriptor = 0x8D07; // id: 0x468
+    const static int auxResourceBilDescriptorA = 0xD005; // id: 680
 //    constexpr static int auxResourceBilDescriptorB = 0xD205; // id: 690
 
-    constexpr static int moduleCode = 7; // Код модуля БИЛ-УМВ
+    const static int moduleCode = 7; // Код модуля БИЛ-УМВ
 
-    constexpr static unsigned int version = 100;
-    constexpr static unsigned int subVersion = 2;
+    const static unsigned int version = 100;
+    const static unsigned int subVersion = 2;
 
     void sendVersion ();
 };

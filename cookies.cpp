@@ -1,13 +1,12 @@
-// Временно: чтобы под виндоус у Жени компилировалось
-#if defined WITH_CAN
-
 #include "cDoodahLib/lowlevel.h"
 #include "cookies.h"
 
-Cookie::Cookie(int index)
-    : QObject(), answerWaitTimer(), index (index), valid (false), forceUpdate (false), activity(NO_ACTION), attempt (0)
+Cookie::Cookie(Can *onCan, int index, QObject *parent)
+    : QObject(parent),
+      can(onCan),
+      answerWaitTimer(), index (index), valid (false), forceUpdate (false), activity(NO_ACTION), attempt (0)
 {
-    QObject::connect (&can, SIGNAL(messageReceived(CanFrame)), this, SLOT(loadData(CanFrame)));
+    QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(loadData(CanFrame)));
 
     answerWaitTimer.setSingleShot (true);
     answerWaitTimer.setInterval (answerTimeout);
@@ -47,7 +46,7 @@ bool Cookie::isValid() const
     return valid;
 }
 
-void Cookie::loadData(const CanFrame &frame)
+void Cookie::loadData(CanFrame frame)
 {
     loadDataWithControl (frame);
 }
@@ -100,7 +99,11 @@ bool Cookie::loadDataWithControl(const CanFrame &frame)
             else
             {
                 stopActivity ();
-                applyNewValue (Complex<uint32_t> (byte[4], byte[3], byte[2], byte[1]));
+                //applyNewValue (Complex<uint32_t> (byte[4], byte[3], byte[2], byte[1]));
+                applyNewValue ( (unsigned int (byte[4]) << 3*8) +
+                                (unsigned int (byte[3]) << 2*8) +
+                                (unsigned int (byte[2]) << 1*8) +
+                                (unsigned int (byte[1]) << 0*8) );
                 applyNewValidity (true); // в случае forceUpdate форсированно передадутся данные, а не достоверность
             }
 
@@ -144,13 +147,13 @@ void Cookie::writeValueRequestSend()
     data[4] = valueByte[0];
 
     CanFrame frame( 0x6205, data ); // INPUT_DATA id: 0x310
-    can.transmitMessage (frame);
+    can->transmitMessage (frame);
 }
 
 void Cookie::requestValueRequestSend()
 {
     CanFrame frame( 0x0E01, std::vector<unsigned char> (1,index) ); // SYS_DATA_QUERY id: 0x070
-    can.transmitMessage (frame);
+    can->transmitMessage (frame);
 }
 
 void Cookie::startActivity(ActivityKind kind)
@@ -169,60 +172,57 @@ void Cookie::stopActivity()
 
 // --------- Cookies ---------
 
-Cookies::Cookies(QObject *parent)
+Cookies::Cookies(Can *onCan, QObject *parent)
     : QObject(parent),
-      trackNumbetNotSaved (1),
-      machinistNumber (2),
-      trainNumber (3),
-      categoryTrain (4),
-      lengthInWheels (5),
-      lengthInWagons (6),
-      locomotiveNumber (7),
-      mass (8),
-      startOrdinate (9),
-      timeshift (10),
-      locomotiveKind (11),
-      speedLimitWhite (12),
-      speedLimitRedYellow (13),
-      dozorLength (14),
-      diameter1 (15),
-      diameter2 (16),
-      dpsDentos (17),
-      configuration (18),
-      speedLimitGreen (19),
-      ordinateIncreaseDirection (20),
-      milage (21),
-      klubVersion (22),
-      trackNumberInMph (23),
-      vpdPrivate (24),
-      bilBrightnes (25),
-      sns1CabinPosition (26),
-      sns2CabinPosition (27),
+      can(onCan),
+      trackNumbetNotSaved (onCan, 1),
+      machinistNumber (onCan, 2),
+      trainNumber (onCan, 3),
+      categoryTrain (onCan, 4),
+      lengthInWheels (onCan, 5),
+      lengthInWagons (onCan, 6),
+      locomotiveNumber (onCan, 7),
+      mass (onCan, 8),
+      startOrdinate (onCan, 9),
+      timeshift (onCan, 10),
+      locomotiveKind (onCan, 11),
+      speedLimitWhite (onCan, 12),
+      speedLimitRedYellow (onCan, 13),
+      dozorLength (onCan, 14),
+      diameter1 (onCan, 15),
+      diameter2 (onCan, 16),
+      dpsDentos (onCan, 17),
+      configuration (onCan, 18),
+      speedLimitGreen (onCan, 19),
+      ordinateIncreaseDirection (onCan, 20),
+      milage (onCan, 21),
+      klubVersion (onCan, 22),
+      trackNumberInMph (onCan, 23),
+      vpdPrivate (onCan, 24),
+      bilBrightnes (onCan, 25),
+      sns1CabinPosition (onCan, 26),
+      sns2CabinPosition (onCan, 27),
       // --- Запись по MCO_DATA ---
-      outOfConfUfir (28),
-      outOfConfTskbm (29),
-      outOfConfSaut (30),
-      outOfConfBil (31),
-      outOfConfIpd (32),
-      outOfConfBvu (33),
-      outOfConfMm (34),
-      outOfConfEc (35),
+      outOfConfUfir (onCan, 28),
+      outOfConfTskbm (onCan, 29),
+      outOfConfSaut (onCan, 30),
+      outOfConfBil (onCan, 31),
+      outOfConfIpd (onCan, 32),
+      outOfConfBvu (onCan, 33),
+      outOfConfMm (onCan, 34),
+      outOfConfEc (onCan, 35),
       // --- Запись по BKSI_DATA ---
-      errorCasset (36),
-      errorDps1 (37),
-      errorDps2 (38),
-      errorSns (39),
-      errorEpk (40),
-      errorKon (41),
-      errorEpv (42),
-      errorEpt (43),
-      errorPkm1Tv (44),
-      errorPkm1Ov (45),
-      errorPkm2Tv (46),
-      errorPkm2Ov (47)
+      errorCasset (onCan, 36),
+      errorDps1 (onCan, 37),
+      errorDps2 (onCan, 38),
+      errorSns (onCan, 39),
+      errorEpk (onCan, 40),
+      errorKon (onCan, 41),
+      errorEpv (onCan, 42),
+      errorEpt (onCan, 43),
+      errorPkm1Tv (onCan, 44),
+      errorPkm1Ov (onCan, 45),
+      errorPkm2Tv (onCan, 46),
+      errorPkm2Ov (onCan, 47)
 {
 }
-
-Cookies cookies;
-
-#endif // WITH_CAN

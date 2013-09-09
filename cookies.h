@@ -1,9 +1,6 @@
 #ifndef COOKIES_H
 #define COOKIES_H
 
-// Временно: чтобы под виндоус у Жени компилировалось
-#if defined WITH_CAN
-
 #include <QObject>
 #include <QElapsedTimer>
 #include <QTimer>
@@ -18,7 +15,7 @@ class Cookie : public QObject
 {
     Q_OBJECT
 public:
-    explicit Cookie (int index);
+    explicit Cookie (Can *onCan, int index, QObject *parent = 0);
 
     // Возвращает локальную копию значения, хранимого в МПХ
     //   При необходимости обновляет локальное значение по данным МПХ,
@@ -34,10 +31,10 @@ public:
     // Возвращает признак достоверности данных
     bool isValid() const;
 
-    static constexpr int answerTimeout = 200;
-    static constexpr int maxAttempts = 10; // Количество попыток записи по answerTimeout.
-                                           // Каждую попытку производится повтор запроса,
-                                           // даже если никакой ответ не получен.
+    static const int answerTimeout = 200;
+    static const int maxAttempts = 10; // Количество попыток записи по answerTimeout.
+                                       // Каждую попытку производится повтор запроса,
+                                       // даже если никакой ответ не получен.
 
 signals:
     // Сиглнал испускается при получении из CAN
@@ -55,12 +52,14 @@ public slots:
 
 private slots:
     // В этот слот должны направляться все приходящие сообщения SYS_DATA
-    void loadData(const CanFrame &frame);
+    void loadData(CanFrame frame);
 
     // Вызывается по истечению таймаута на ожидания ответа на запрос
     void answerTimeoutHandler();
 
 private:
+    Can *can;
+
     // Если переданно сообщение SYS_DATA с индексом равным нашему,
     // то загружает данные и возвращает true,
     // в противном случае возвращает false
@@ -102,7 +101,7 @@ class Cookies : public QObject
 {
     Q_OBJECT
 public:
-    explicit Cookies(QObject *parent = 0);
+    explicit Cookies(Can *onCan, QObject *parent = 0);
 
     Cookie trackNumbetNotSaved;
     Cookie machinistNumber;
@@ -157,11 +156,10 @@ public:
 signals:
     
 public slots:
+
+private: // не для всех
+    Can *can;
     
 };
-
-extern Cookies cookies;
-
-#endif // WITH_CAN
 
 #endif // COOKIES_H

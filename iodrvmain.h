@@ -1,5 +1,3 @@
-#if defined WITH_CAN || defined WITH_SERIALPORT
-
 #ifndef IODRVMAIN_H
 #define IODRVMAIN_H
 
@@ -17,7 +15,7 @@
 
 #include <string.h>
 
-#include <unistd.h>
+//#include <unistd.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,5 +25,3 @@
 
 
 #endif // IODRVMAIN_H
-
-#endif
