@@ -100,10 +100,10 @@ bool Cookie::loadDataWithControl(const CanFrame &frame)
             {
                 stopActivity ();
                 //applyNewValue (Complex<uint32_t> (byte[4], byte[3], byte[2], byte[1]));
-                applyNewValue ( ((unsigned int) (byte[4]) << 3*8) +
-                                ((unsigned int) (byte[3]) << 2*8) +
-                                ((unsigned int) (byte[2]) << 1*8) +
-                                ((unsigned int) (byte[1]) << 0*8) );
+                applyNewValue ( ((unsigned int) (byte[1]) << 3*8) +
+                                ((unsigned int) (byte[2]) << 2*8) +
+                                ((unsigned int) (byte[3]) << 1*8) +
+                                ((unsigned int) (byte[4]) << 0*8) );
                 applyNewValidity (true); // в случае forceUpdate форсированно передадутся данные, а не достоверность
             }
 
