@@ -130,6 +130,7 @@ public:
     Cookie bilBrightnes;
     Cookie sns1CabinPosition;
     Cookie sns2CabinPosition;
+    Cookie designSpeed;
     // --- Запись по MCO_DATA ---
     Cookie outOfConfUfir;
     Cookie outOfConfTskbm;

@@ -202,6 +202,7 @@ Cookies::Cookies(Can *onCan, QObject *parent)
       bilBrightnes (onCan, 25),
       sns1CabinPosition (onCan, 26),
       sns2CabinPosition (onCan, 27),
+      designSpeed (onCan, 106),
       // --- Запись по MCO_DATA ---
       outOfConfUfir (onCan, 28),
       outOfConfTskbm (onCan, 29),
