@@ -43,22 +43,6 @@ CanFrame can_encoder::encode_ipd_date(int year, int month, int day, int hours, i
     return frame;
 }
 
-CanFrame can_encoder::encode_disp_state_a()
-{
-    CanFrame frame (0x51E3, // id: 0x28F
-                    std::vector<unsigned char> (3, 0) );
-
-    return frame;
-}
-
-CanFrame can_encoder::encode_disp_state_b()
-{
-    CanFrame frame (0x53E2, // id: 0x29F
-                    std::vector<unsigned char> (2, 0) );
-
-    return frame;
-}
-
 CanFrame can_encoder::encode_sys_key(key_state k_state, int key_code)
 {
     CanFrame frame (0x0C01, std::vector<unsigned char> (1) ); // id: 0x060

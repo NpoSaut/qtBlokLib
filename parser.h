@@ -9,6 +9,7 @@
 #include "parsers/mco_limits.h"
 #include "parsers/mco_state.h"
 #include "parsers/mm_coord.h"
+#include "parsers/sys_key.h"
 
 class Parser : public QObject
 {
@@ -20,6 +21,7 @@ public:
     McoLimits mcoLimits;
     McoState mcoState;
     MmCoord mmCoord;
+    SysKeysState sysKey;
     
 signals:
     void whateverChagned ();

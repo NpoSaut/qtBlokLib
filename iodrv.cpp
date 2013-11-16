@@ -100,8 +100,6 @@ iodrv::iodrv(Can *onCan, QObject *parent)
     p_lat = -1; p_lon = -1;
     p_ipd_hours = -1; p_ipd_mins = -1; p_ipd_secs = -1;
     p_ipd_year = -1; p_ipd_month = -1; p_ipd_day = -1;
-
-    timer_disp_state = NULL;
 }
 
 int iodrv::start(gps_data_source gps_datasource)
@@ -754,23 +752,11 @@ void iodrv::slot_serial_ready_read()
 
 void iodrv::init_timers()
 {
-    timer_disp_state = new QTimer(this);
-    connect(timer_disp_state, SIGNAL(timeout()), this, SLOT(slot_can_write_disp_state()));
-    timer_disp_state->start(500);
 }
 
 void iodrv::slot_send_message(CanFrame frame)
 {
     write_canmsg_async ( write_socket_0, frame );
-}
-
-void iodrv::slot_can_write_disp_state()
-{
-    CanFrame frame_a = can_encoder::encode_disp_state_a();
-    write_canmsg_async(write_socket_0, frame_a);
-
-    CanFrame frame_b = can_encoder::encode_disp_state_b();
-    write_canmsg_async(write_socket_1, frame_b);
 }
 
 void iodrv::slot_f_key_down()

@@ -93,7 +93,6 @@ public slots:
 private slots:
     void process_can_messages(CanFrame frame);
     void slot_serial_ready_read();
-    void slot_can_write_disp_state();
 
 private:
     Can *can;
@@ -216,8 +215,6 @@ private:
     int p_ipd_hours; int p_ipd_mins; int p_ipd_secs;
     int p_ipd_year; int p_ipd_month; int p_ipd_day;
 
-
-    QTimer* timer_disp_state;
     void init_timers();
 
     // Переменные отслеживания состояния, когда задаётся целевое значение, но до его «применения» могут приходить фактические значения.

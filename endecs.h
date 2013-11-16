@@ -18,8 +18,6 @@ class can_encoder
 public:
     static CanFrame encode_mm_alt_long(double lat, double lon, bool reliability);
     static CanFrame encode_ipd_date(int year, int month, int day, int hours, int minutes, int seconds);
-    static CanFrame encode_disp_state_a();
-    static CanFrame encode_disp_state_b();
     static CanFrame encode_sys_key(key_state k_state, int key_code);
     static CanFrame encode_mm_data(int speed, int milage);
     static CanFrame encode_ipd_state( double speed, int distance, bool reliable );
