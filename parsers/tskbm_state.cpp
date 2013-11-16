@@ -1,13 +1,21 @@
 #include "tskbm_state.h"
 
+#include <QDebug>
+
+TskbmState::TskbmState(QObject *parent)
+    : CanBlokMessage (parent),
+      online (false), machinistCheerful (false), vigilanceRequest (false), preAlarm (false)
+{
+}
+
 void TskbmState::getCanMessage(CanFrame frame)
 {
     if ( frame.getDescriptor () == 0x5801 ) // id: 0x2c0
     {
-        setOnline(            frame[0] & (1 << 7) > 0);
-        setMachinistCheerful( frame[0] & (1 << 6) > 0);
-        setVigilanceRequest(  frame[0] & (1 << 5) > 0);
-        setPreAlarm(          frame[0] & (1 << 4) > 0);
+        setOnline(            (frame[1] & (1 << 7)) );
+        setMachinistCheerful( (frame[1] & (1 << 6)) );
+        setVigilanceRequest(  (frame[1] & (1 << 5)) );
+        setPreAlarm(          (frame[1] & (1 << 4)) );
     }
 }
 
@@ -47,3 +55,4 @@ void TskbmState::setPreAlarm(bool newValue)
         emit whateverChanged();
     }
 }
+
