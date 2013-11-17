@@ -4,7 +4,7 @@
 
 McoLimits::McoLimits(QObject *parent) :
     CanBlokMessage(parent),
-    driveMode (ROAD),
+    driveMode (TRAIN),
     tractionShutdownCommand (false)
 {
     qRegisterMetaType<DriveMode>("DriveMode");
