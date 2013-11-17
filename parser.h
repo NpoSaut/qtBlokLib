@@ -10,6 +10,7 @@
 #include "parsers/mco_state.h"
 #include "parsers/mm_coord.h"
 #include "parsers/sys_key.h"
+#include "parsers/tskbm_state.h"
 
 class Parser : public QObject
 {
@@ -22,6 +23,7 @@ public:
     McoState mcoState;
     MmCoord mmCoord;
     SysKeysState sysKey;
+    TskbmState tskbmState;
     
 signals:
     void whateverChagned ();
