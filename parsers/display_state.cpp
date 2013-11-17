@@ -52,3 +52,51 @@ void DisplayStateA::processCanMessage(CanFrame frame)
         emit messageReceived ();
     }
 }
+
+
+DisplayStateB::DisplayStateB(QObject *parent)
+{
+}
+
+CanFrame DisplayStateB::encode() const
+{
+    CanFrame frame (0x53E2);
+    frame[1] = 0;
+    frame[2] = (quint8 (isRbPressed ()) << 7)
+            | (quint8 (isRbsPressed ()) << 6);
+    return frame;
+}
+
+void DisplayStateB::setRb(bool pressed)
+{
+    if ( rb != pressed || theFirstTime )
+    {
+        rb = pressed;
+        emit rbChanged (rb);
+        emit whateverChanged ();
+    }
+}
+
+void DisplayStateB::setRbs(bool pressed)
+{
+    if ( rbs != pressed || theFirstTime )
+    {
+        rbs = pressed;
+        emit rbsChanged (rbs);
+        emit whateverChanged ();
+    }
+}
+
+void DisplayStateB::processCanMessage(CanFrame frame)
+{
+    if ( frame.getDescriptor () == 0x53E2 )
+    {
+        setRb (frame[2] & (1 << 7));
+        setRbs(frame[2] & (1 << 6));
+
+        if (theFirstTime)
+            theFirstTime = false;
+
+        emit messageReceived ();
+    }
+}

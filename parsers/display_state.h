@@ -57,4 +57,37 @@ private:
     
 };
 
+// DISP_STATE_B
+// id: 0x29F
+// len: 2
+// desc:0x53E2
+class DisplayStateB : public CanBlokMessage
+{
+    Q_OBJECT
+public:
+    explicit DisplayStateB(QObject *parent = 0);
+
+    bool isRbPressed () const { return rb; }
+    bool isRbsPressed () const { return rbs; }
+
+    CanFrame encode () const;
+
+signals:
+    void rbChanged (bool pressed);
+    void rbsChanged (bool pressed);
+    void whateverChanged ();
+    void messageReceived ();
+
+public slots:
+    void setRb (bool pressed);
+    void setRbs (bool pressed);
+
+private slots:
+    void processCanMessage (CanFrame frame);
+
+private:
+    bool rb;
+    bool rbs;
+};
+
 #endif // DISPLAY_STATE_H
