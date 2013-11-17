@@ -8,44 +8,63 @@ McoState::McoState(QObject *parent) :
 {
 }
 
+CanFrame McoState::encode() const
+{
+    CanFrame frame (0x0A08);
+    frame[1] = (qint8 (isEpvReady ()) << 6)
+            | (qint8 (isTraction ()) << 5);
+    frame[2] = 0;
+    frame[3] = 0;
+    frame[4] = 0;
+    frame[5] = 0;
+    frame[6] = (qint8 (isEpvReleased ()) << 5);
+    frame[7] = 0;
+    frame[8] = 0;
+    return frame;
+}
 
-void McoState::getCanMessage(CanFrame frame)
+void McoState::setEpvReady(bool ready)
+{
+    if ( epvReady != ready || theFirstTime )
+    {
+        epvReady = ready;
+        emit epvReadyChanged (epvReady);
+        emit whateverChanged ();
+    }
+}
+
+void McoState::setEpvReleased(bool released)
+{
+    if ( epvReleased != released || theFirstTime )
+    {
+        epvReleased = released;
+        emit epvReleasedChanged (epvReleased);
+        emit whateverChanged ();
+    }
+}
+
+void McoState::setTraction(bool tr)
+{
+    if ( traction != tr || theFirstTime )
+    {
+        traction = tr;
+        emit tractionChanged (traction);
+        emit whateverChanged ();
+    }
+}
+
+void McoState::processCanMessage(CanFrame frame)
 {
     if ( frame.getDescriptor () == 0x0A08 ) // id: 0x050
     {
-        bool newEpvReady = frame[1] & (1 << 6);
-
-        if ( newEpvReady != epvReady )
-        {
-            epvReady = newEpvReady;
-            emit epvReadyChanged (epvReady);
-            emit whateverChanged ();
-        }
-
-        bool newEpvReleased = !( frame[6] & (1 << 5) );
-
-        if ( newEpvReleased != epvReleased )
-        {
-            epvReleased = newEpvReleased;
-            emit epvReleasedChanged (epvReleased);
-            emit whateverChanged ();
-        }
-
-        bool newTraction = !( frame[1] & (1 << 5) );
-
-        if ( newTraction != traction )
-        {
-            traction = newTraction;
-            emit tractionChanged (traction);
-            emit whateverChanged ();
-        }
+        setEpvReady         (frame[1] & (1 << 6));
+        setEpvReleased      (frame[6] & (1 << 5));
+        setTraction         (frame[1] & (1 << 5));
 
         if ( theFirstTime )
-        {
             theFirstTime = false;
-            emit epvReadyChanged (epvReady);
-            emit epvReleasedChanged (epvReleased);
-            emit whateverChanged ();
-        }
+
+        emit messageReceived ();
     }
 }
+

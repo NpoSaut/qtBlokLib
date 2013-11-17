@@ -1,17 +1,13 @@
 #ifndef MCO_LIMITS_H
 #define MCO_LIMITS_H
 
+#include "drivemode.h"
 #include "canblokmessage.h"
 
-enum DriveMode
-{
-    TRAIN = 0,
-    SHUNTING = 1,
-    WORKING = 2,
-    DOUBLE_TRACTION = 3,
-    ROAD = 4
-};
-
+// MCO_LIMITS
+// id: 0x052
+// len: 8
+// desc:0x0A48
 class McoLimits : public CanBlokMessage
 {
     Q_OBJECT
@@ -19,19 +15,26 @@ public:
     explicit McoLimits(QObject *parent = 0);
 
     DriveMode getDriveMode () const { return driveMode; }
-    bool isTractionShutdown () const { return tractionShutdown; }
+    bool isTractionShutdownCommand () const { return tractionShutdownCommand; }
+
+    CanFrame encode () const;
     
 signals:
     void driveModeChanged (DriveMode mode);
-    void tractionShutdownChandeg (bool tractionShutdown);
+    void tractionShutdownCommandChanged (bool tractionShutdownCommand);
     void whateverChanged ();
+    void messageReceived ();
+
+public slots:
+    void setDriveMode (DriveMode dm);
+    void setTractionShutdownCommand (bool shutdown);
     
 private slots:
-    void getCanMessage (CanFrame frame);
+    void processCanMessage (CanFrame frame);
 
 private:
     DriveMode driveMode;
-    bool tractionShutdown;
+    bool tractionShutdownCommand;
     
 };
 

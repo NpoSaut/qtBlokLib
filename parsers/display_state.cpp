@@ -1,9 +1,12 @@
 #include "display_state.h"
 
+#include <QMetaType>
+
 DisplayStateA::DisplayStateA(QObject *parent) :
     CanBlokMessage(parent),
     rb (false), rbs (false), vk (false), mode (TRAIN), pull (false), otpr (false), oc (false), k20 (false), freq (false)
 {
+    qRegisterMetaType<DriveMode> ("DriveMode");
 }
 
 CanFrame DisplayStateA::encode() const
@@ -23,21 +26,29 @@ CanFrame DisplayStateA::encode() const
     return frame;
 }
 
-void DisplayStateA::getCanMessage(CanFrame frame)
+void DisplayStateA::processCanMessage(CanFrame frame)
 {
-    setRb       (frame[2] & (1 << 7));
-    setRbs      (frame[2] & (1 << 6));
-    setVk       (frame[2] & (1 << 5));
-    setPull     (frame[2] & (1 << 3));
-    setOtpr     (frame[2] & (1 << 2));
-    setOc       (frame[2] & (1 << 1));
-    setK20      (frame[2] & (1 << 0));
-    setFreq     (frame[3] & (1 << 7));
+    if ( frame.getDescriptor () == 0x51E3 ) // id: 0x28F
+    {
+        setRb       (frame[2] & (1 << 7));
+        setRbs      (frame[2] & (1 << 6));
+        setVk       (frame[2] & (1 << 5));
+        setPull     (frame[2] & (1 << 3));
+        setOtpr     (frame[2] & (1 << 2));
+        setOc       (frame[2] & (1 << 1));
+        setK20      (frame[2] & (1 << 0));
+        setFreq     (frame[3] & (1 << 7));
 
-    if (frame[3] & (1 << 6))
-        setDriveMode (WORKING);
-    else if (frame[2] & (1 << 4))
-        setDriveMode (SHUNTING);
-    else
-        setDriveMode (TRAIN);
+        if (frame[3] & (1 << 6))
+            setDriveMode (WORKING);
+        else if (frame[2] & (1 << 4))
+            setDriveMode (SHUNTING);
+        else
+            setDriveMode (TRAIN);
+
+        if ( theFirstTime )
+            theFirstTime = false;
+
+        emit messageReceived ();
+    }
 }

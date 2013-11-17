@@ -37,17 +37,20 @@ public:
 
     explicit SysKey(Key key = DUMMY, Action action = RESERV0, QObject *parent = 0);
 
+    CanFrame encode () const;
+
 signals:
     void keyPressed (Key key);
     void keyReleased (Key key);
     void whateverChanged ();
+    void messageReceived ();
 
 protected:
     Action getAction (const CanFrame &frame) const;
     Key getKey (const CanFrame &frame) const;
 
 protected slots:
-    virtual void getCanMessage (CanFrame frame);
+    virtual void processCanMessage (CanFrame frame);
 
 private:
     Key key;
@@ -65,7 +68,7 @@ public:
 signals:
 
 private slots:
-    void getCanMessage (CanFrame frame);
+    void processCanMessage (CanFrame frame);
 
 private:
     QList<Key> pressedKeys;

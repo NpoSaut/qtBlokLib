@@ -5,6 +5,10 @@
 
 #include "canblokmessage.h"
 
+// MM_COORD
+// id: 0x605
+// len: 3
+// desc:0xC0A3
 class MmCoord : public CanBlokMessage
 {
     Q_OBJECT
@@ -13,12 +17,18 @@ public:
 
     int getRailWayCoordinate () const { return railWayCoordinate; }
 
+    CanFrame encode () const;
+
 signals:
     void railWayCoordinateChanged (int coordinate);
     void whateverChanged ();
+    void messageReceived ();
+
+public slots:
+    void setRailWayCoordinate (int coordiante);
 
 private slots:
-    void getCanMessage (CanFrame frame);
+    void processCanMessage (CanFrame frame);
 
 private:
     int railWayCoordinate;

@@ -14,8 +14,10 @@ class CanBlokMessage : public QObject
 public:
     explicit CanBlokMessage (QObject *parent = 0);
 
+    virtual CanFrame encode () const = 0;
+
 private slots:
-    virtual void getCanMessage (CanFrame canFrame) = 0;
+    virtual void processCanMessage (CanFrame canFrame) = 0;
 
 protected:
     bool theFirstTime;

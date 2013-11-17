@@ -233,42 +233,4 @@ public:
 //private:
 };*/
 
-class rmp_key_handler : public QObject
-{
-    Q_OBJECT
-
-public:
-    rmp_key_handler();
-
-private:
-    int get_next_driving_mode(int driving_mode, int ssps_mode);
-
-    int previous_ssps_mode;
-    int actual_ssps_mode;
-    int previous_driving_mode;
-    int actual_driving_mode;
-    int target_driving_mode;
-    int req_count;
-    void request_next_driving_mode();
-    void request_driving_mode(int driving_mode);
-
-    bool start;
-
-public slots:
-    // Interface
-    void rmp_key_pressed();
-    // IO
-    void ssps_mode_received(int actual_ssps_mode);
-    void driving_mode_received(int driving_mode);
-
-signals:
-    // Interface
-    void target_driving_mode_changed(int driving_mode);
-    void actual_driving_mode_changed(int driving_mode);
-    // Interface, IO
-    // void driving_mode_request_failed();
-    // IO
-    void rmp_key_pressed_send();
-};
-
 #endif // IODRV_H

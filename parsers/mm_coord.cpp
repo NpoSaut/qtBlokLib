@@ -6,24 +6,34 @@ MmCoord::MmCoord(QObject *parent)
 {
 }
 
-void MmCoord::getCanMessage (CanFrame frame)
+CanFrame MmCoord::encode() const
 {
-    if ( frame.getDescriptor () == 0xC0A3 ) // id: 0x605 MM_COORD
+    CanFrame frame (0xC0A3);
+    frame[1] = getRailWayCoordinate () / 256 / 256;
+    frame[2] = getRailWayCoordinate () / 256;
+    frame[3] = getRailWayCoordinate ();
+    return frame;
+}
+
+void MmCoord::setRailWayCoordinate(int coordiante)
+{
+    if (railWayCoordinate != coordiante || theFirstTime)
     {
-        int newCoord = frame[1]*256*256 + frame[2]*256 + frame[3];
-
-        if ( newCoord != railWayCoordinate )
-        {
-            railWayCoordinate = newCoord;
-            emit railWayCoordinateChanged (railWayCoordinate);
-            emit whateverChanged ();
-        }
-
-        if ( theFirstTime )
-        {
-            emit railWayCoordinateChanged (railWayCoordinate);
-            emit whateverChanged ();
-        }
+        railWayCoordinate = coordiante;
+        emit railWayCoordinateChanged (railWayCoordinate);
+        emit whateverChanged ();
     }
 }
 
+void MmCoord::processCanMessage (CanFrame frame)
+{
+    if ( frame.getDescriptor () == 0xC0A3 ) // id: 0x605 MM_COORD
+    {
+        setRailWayCoordinate (quint32(frame[1])*256*256 + quint32(frame[2])*256 + quint32(frame[3]));
+
+        if ( theFirstTime )
+            theFirstTime = false;
+
+        emit messageReceived ();
+    }
+}

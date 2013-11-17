@@ -1,13 +1,23 @@
 #include "sys_key.h"
 
+#include <QMetaType>
+
 SysKey::SysKey(Key key, Action action, QObject *parent) :
      CanBlokMessage(parent),
      key (key),
      action (action)
 {
+    qRegisterMetaType<Key> ("Key");
 }
 
-void SysKey::getCanMessage(CanFrame frame)
+CanFrame SysKey::encode() const
+{
+    CanFrame frame (0x0C01);
+    frame[1] = (qint8 (action) << 6) | (qint8 (key) & 0x1F);
+    return frame;
+}
+
+void SysKey::processCanMessage(CanFrame frame)
 {
     if ( frame.getDescriptor () == 0x0C01 ) // 0x060
     {
@@ -16,6 +26,11 @@ void SysKey::getCanMessage(CanFrame frame)
         else if ( getAction (frame) == RELEASE )
             emit keyReleased ( getKey (frame) );
         whateverChanged ();
+
+        if (theFirstTime)
+            theFirstTime = false;
+
+        emit messageReceived ();
     }
 }
 
@@ -40,7 +55,7 @@ bool SysKeysState::isKeyPressed(SysKey::Key key) const
     return pressedKeys.indexOf (key) != -1;
 }
 
-void SysKeysState::getCanMessage(CanFrame frame)
+void SysKeysState::processCanMessage(CanFrame frame)
 {
     if ( frame.getDescriptor () == 0x0C01 )
     {
@@ -50,5 +65,5 @@ void SysKeysState::getCanMessage(CanFrame frame)
             pressedKeys.removeAll (getKey (frame));
     }
 
-    SysKey::getCanMessage (frame);
+    SysKey::processCanMessage (frame);
 }

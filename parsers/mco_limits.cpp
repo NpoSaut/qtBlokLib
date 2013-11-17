@@ -5,12 +5,47 @@
 McoLimits::McoLimits(QObject *parent) :
     CanBlokMessage(parent),
     driveMode (ROAD),
-    tractionShutdown (false)
+    tractionShutdownCommand (false)
 {
-       qRegisterMetaType<DriveMode>("DriveMode");
+    qRegisterMetaType<DriveMode>("DriveMode");
 }
 
-void McoLimits::getCanMessage(CanFrame frame)
+CanFrame McoLimits::encode() const
+{
+    CanFrame frame (0x0A48);
+    frame[1] = 0;
+    frame[2] = getDriveMode () == ROAD ? (1 << 6) : 0;
+    frame[3] = 0;
+    frame[4] = 0;
+    frame[5] = 0;
+    frame[6] = 0;
+    frame[7] = 0;
+    frame[8] = (qint8 (!isTractionShutdownCommand ()) << 7)
+            | ( (qint8 (getDriveMode ()) & 0x3) << 0 );
+    return frame;
+}
+
+void McoLimits::setDriveMode(DriveMode dm)
+{
+    if ( driveMode != dm || theFirstTime )
+    {
+        driveMode = dm;
+        emit driveModeChanged (driveMode);
+        emit whateverChanged ();
+    }
+}
+
+void McoLimits::setTractionShutdownCommand(bool shutdown)
+{
+    if ( tractionShutdownCommand != shutdown || theFirstTime )
+    {
+        tractionShutdownCommand = shutdown;
+        emit tractionShutdownCommandChanged (tractionShutdownCommand);
+        emit whateverChanged ();
+    }
+}
+
+void McoLimits::processCanMessage(CanFrame frame)
 {
     if ( frame.getDescriptor () == 0x0A48 ) // id: 0x052
     {
@@ -26,27 +61,13 @@ void McoLimits::getCanMessage(CanFrame frame)
         else if ( (frame[8] & 0x03) == 3 )
             newMode = DOUBLE_TRACTION;
 
-        if ( newMode != driveMode )
-        {
-            driveMode = newMode;
-            emit driveModeChanged (driveMode);
-            emit whateverChanged ();
-        }
-
-        bool newTractionShutdown = !( frame[8] & (1 << 7) );
-
-        if ( newTractionShutdown != tractionShutdown )
-        {
-            tractionShutdown = newTractionShutdown;
-            emit tractionShutdownChandeg (tractionShutdown);
-            emit whateverChanged ();
-        }
+        setDriveMode (newMode);
+        setTractionShutdownCommand ( !(frame[8] & (1 << 7) ) );
 
         if ( theFirstTime )
-        {
-            emit driveModeChanged (driveMode);
-            emit tractionShutdownChandeg (tractionShutdown);
-            emit whateverChanged ();
-        }
+            theFirstTime = false;
+
+        emit messageReceived ();
     }
 }
+

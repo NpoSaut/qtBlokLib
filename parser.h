@@ -11,6 +11,7 @@
 #include "parsers/mm_coord.h"
 #include "parsers/sys_key.h"
 #include "parsers/tskbm_state.h"
+#include "parsers/vds_state.h"
 
 class Parser : public QObject
 {
@@ -24,6 +25,7 @@ public:
     MmCoord mmCoord;
     SysKeysState sysKey;
     TskbmState tskbmState;
+    VdsState vdsState;
     
 signals:
     void whateverChagned ();

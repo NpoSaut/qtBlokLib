@@ -13,10 +13,12 @@ class TskbmState : public CanBlokMessage
 public:
     explicit TskbmState(QObject *parent = 0);
 
-    bool isOnline() { return online; }
-    bool isMachinistCheerful() { return machinistCheerful; }
-    bool isVigilanceRequest() { return vigilanceRequest; }
-    bool isPreAlarm() { return preAlarm; }
+    bool isOnline() const { return online; }
+    bool isMachinistCheerful() const { return machinistCheerful; }
+    bool isVigilanceRequest() const { return vigilanceRequest; }
+    bool isPreAlarm() const { return preAlarm; }
+
+    CanFrame encode () const;
 
 signals:
     void onlineChanged(bool newValue);
@@ -24,9 +26,10 @@ signals:
     void vigilanceRequestChanged(bool newValue);
     void preAlarmChanged(bool newValue);
     void whateverChanged();
+    void messageReceived();
 
 private slots:
-    void getCanMessage (CanFrame frame);
+    void processCanMessage (CanFrame frame);
 
 private:
     bool online;

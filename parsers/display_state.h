@@ -1,22 +1,18 @@
 #ifndef DISPLAY_STATE_H
 #define DISPLAY_STATE_H
 
+#include "drivemode.h"
 #include "canblokmessage.h"
 
+// DISP_STATE_A
+// id: 0x28F
+// len: 3
+// desc:0x51E3
 class DisplayStateA : public CanBlokMessage
 {
     Q_OBJECT
 public:
     explicit DisplayStateA(QObject *parent = 0);
-
-    enum DriveMode
-    {
-        TRAIN = 0,
-        SHUNTING = 1,
-        WORKING = 2,
-        TWIN = 3,
-        ROAD = 4
-    };
 
     void setRb (bool press) {rb = press;}
     void setRbs (bool press) {rbs = press;}
@@ -43,9 +39,10 @@ public:
 signals:
     // Нужно ещё сигналы.... Блин, нет, не могу больше..
     void whateverChanged ();
+    void messageReceived ();
 
 private slots:
-    void getCanMessage (CanFrame frame);
+    void processCanMessage (CanFrame frame);
 
 private:
     bool rb;
