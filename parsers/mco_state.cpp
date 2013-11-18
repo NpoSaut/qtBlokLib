@@ -4,7 +4,8 @@ McoState::McoState(QObject *parent) :
     CanBlokMessage(0x050, 8, parent),
     epvReady (false),
     epvReleased (false),
-    traction (false)
+    traction (false),
+    conClosed (true)
 {
 }
 
@@ -18,7 +19,7 @@ void McoState::fillMessage(CanFrame &frame) const
     frame[5] = 0;
     frame[6] = (qint8 (isEpvReleased ()) << 5);
     frame[7] = 0;
-    frame[8] = 0;
+    frame[8] = (quint8 (isConClosed ()) << 1);
 }
 
 bool McoState::setEpvReady(bool ready)
@@ -54,11 +55,26 @@ bool McoState::setTraction(bool tr)
     return false;
 }
 
+bool McoState::setConClosed(bool closed)
+{
+    if ( conClosed != closed || theFirstTime )
+    {
+        conClosed = closed;
+        emit conClosedChanged (conClosed);
+        return true;
+    }
+    return false;
+}
+
 bool McoState::parseSuitableMessage(const CanFrame &frame)
 {
     return
         setEpvReady         (frame[1] & (1 << 6))
      || setEpvReleased      (frame[6] & (1 << 5))
-     || setTraction         (frame[1] & (1 << 5));
+     || setTraction         (frame[1] & (1 << 5))
+     || setConClosed        (frame[8] & (1 << 1));
 }
+
+
+
 
