@@ -17,22 +17,18 @@ public:
     DriveMode getDriveMode () const { return driveMode; }
     bool isTractionShutdownCommand () const { return tractionShutdownCommand; }
 
-    CanFrame encode () const;
-    
 signals:
     void driveModeChanged (DriveMode mode);
     void tractionShutdownCommandChanged (bool tractionShutdownCommand);
-    void whateverChanged ();
-    void messageReceived ();
 
 public slots:
-    void setDriveMode (DriveMode dm);
-    void setTractionShutdownCommand (bool shutdown);
+    bool setDriveMode (DriveMode dm);
+    bool setTractionShutdownCommand (bool shutdown);
     
-private slots:
-    void processCanMessage (CanFrame frame);
-
 private:
+    void fillMessage (CanFrame &frame) const;
+    bool parseSuitableMessage (const CanFrame &frame);
+
     DriveMode driveMode;
     bool tractionShutdownCommand;
     

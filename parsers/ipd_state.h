@@ -15,20 +15,16 @@ public:
 
     bool isInMotion () const { return inMotion; }
 
-    CanFrame encode () const;
-    
 signals:
     void inMotionChanged (bool inMotion);
-    void whateverChanged ();
-    void messageReceived ();
 
 public slots:
-    void setInMotion (bool motion);
+    bool setInMotion (bool motion);
     
-private slots:
-    void processCanMessage (CanFrame frame);
-
 private:
+    void fillMessage (CanFrame &frame) const;
+    bool parseSuitableMessage (const CanFrame &frame);
+
     bool inMotion;
 };
 

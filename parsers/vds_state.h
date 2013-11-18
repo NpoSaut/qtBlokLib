@@ -29,8 +29,6 @@ public:
     bool isSiren () const {return siren;}
     bool isTifon () const {return tifon;}
     bool isIronWheels () const {return ironWheels;}
-
-    CanFrame encode () const;
     
 signals:
     void epvKeyChanged (bool key);
@@ -42,24 +40,22 @@ signals:
     void sirenChanged (bool beep);
     void tifonChanged (bool tifon);
     void ironWheelsChagned (bool ironWheels);
-    void whateverChanged ();
-    void messageReceived ();
 
 public slots:
-    void setEpvKey (bool key);
-    void setTraction (bool tr);
-    void setTransmissionDirection (TransmissionDirection td);
-    void setEngineWork (bool ew);
-    void setVigilanceButton (bool vb);
-    void setEmergencyStop (bool stop);
-    void setSiren (bool sn);
-    void setTifon (bool tf);
-    void setIronWheels (bool iw);
-
-private slots:
-    void processCanMessage (CanFrame frame);
+    bool setEpvKey (bool key);
+    bool setTraction (bool tr);
+    bool setTransmissionDirection (TransmissionDirection td);
+    bool setEngineWork (bool ew);
+    bool setVigilanceButton (bool vb);
+    bool setEmergencyStop (bool stop);
+    bool setSiren (bool sn);
+    bool setTifon (bool tf);
+    bool setIronWheels (bool iw);
 
 private:
+    void fillMessage (CanFrame &frame) const;
+    bool parseSuitableMessage (const CanFrame &frame);
+
     bool epvKey;
     bool traction;
     TransmissionDirection transmissionDirection;

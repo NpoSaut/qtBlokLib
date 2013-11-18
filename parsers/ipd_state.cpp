@@ -1,14 +1,13 @@
 #include "ipd_state.h"
 
 IpdState::IpdState(QObject *parent) :
-    CanBlokMessage(parent),
+    CanBlokMessage(0x0C4, 8, parent),
     inMotion(false)
 {
 }
 
-CanFrame IpdState::encode() const
+void IpdState::fillMessage(CanFrame &frame) const
 {
-    CanFrame frame (0x1888);
     frame[1] = 0;
     frame[2] = (qint8 (isInMotion ()) << 2);
     frame[3] = 0;
@@ -19,26 +18,22 @@ CanFrame IpdState::encode() const
     frame[8] = 0;
 }
 
-void IpdState::setInMotion(bool motion)
+bool IpdState::setInMotion(bool motion)
 {
     if ( inMotion != motion || theFirstTime )
     {
         inMotion = motion;
         emit inMotionChanged (inMotion);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void IpdState::processCanMessage(CanFrame frame)
+
+
+bool IpdState::parseSuitableMessage(const CanFrame &frame)
 {
-    if ( frame.getDescriptor () == 0x1888 ) // id: 0x0C4
-    {
+    return
         setInMotion (frame[2] & (1 << 2));
-
-        if ( theFirstTime )
-            theFirstTime = false;
-
-        emit messageReceived ();
-    }
 }
 

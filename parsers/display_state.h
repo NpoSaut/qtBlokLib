@@ -14,16 +14,6 @@ class DisplayStateA : public CanBlokMessage
 public:
     explicit DisplayStateA(QObject *parent = 0);
 
-    void setRb (bool press) {rb = press;}
-    void setRbs (bool press) {rbs = press;}
-    void setVk (bool press) {vk = press;}
-    void setDriveMode (DriveMode mode) {this->mode = mode;}
-    void setPull (bool press) {pull = press;}
-    void setOtpr (bool press) {otpr = press;}
-    void setOc (bool press) {oc = press;}
-    void setK20 (bool press) {k20 = press;}
-    void setFreq (bool press) {freq = press;}
-
     bool isRbPressed () const {return rb;}
     bool isRbsPressed () const {return rbs;}
     bool isVkPressed () const {return vk;}
@@ -33,18 +23,33 @@ public:
     bool isOcPressed () const {return oc;}
     bool isK20Pressed () const {return k20;}
     bool isFreqPressed () const {return freq;}
-
-    CanFrame encode () const;
     
 signals:
-    // Нужно ещё сигналы.... Блин, нет, не могу больше..
-    void whateverChanged ();
-    void messageReceived ();
+    void rbChanged (bool press);
+    void rbsChanged (bool press);
+    void vkChanged (bool press);
+    void driveModeChanged (DriveMode mode);
+    void pullChanged (bool press);
+    void otprChanged (bool press);
+    void ocChanged (bool press);
+    void k20Changed (bool press);
+    void freqChanged (bool press);
 
-private slots:
-    void processCanMessage (CanFrame frame);
+public slots:
+    bool setRb (bool press);
+    bool setRbs (bool press);
+    bool setVk (bool press);
+    bool setDriveMode (DriveMode newMode);
+    bool setPull (bool press);
+    bool setOtpr (bool press);
+    bool setOc (bool press);
+    bool setK20 (bool press);
+    bool setFreq (bool press);
 
 private:
+    void fillMessage (CanFrame &frame) const;
+    bool parseSuitableMessage (const CanFrame &frame);
+
     bool rb;
     bool rbs;
     bool vk;
@@ -70,22 +75,18 @@ public:
     bool isRbPressed () const { return rb; }
     bool isRbsPressed () const { return rbs; }
 
-    CanFrame encode () const;
-
 signals:
     void rbChanged (bool pressed);
     void rbsChanged (bool pressed);
-    void whateverChanged ();
-    void messageReceived ();
 
 public slots:
-    void setRb (bool pressed);
-    void setRbs (bool pressed);
-
-private slots:
-    void processCanMessage (CanFrame frame);
+    bool setRb (bool pressed);
+    bool setRbs (bool pressed);
 
 private:
+    void fillMessage (CanFrame &frame) const;
+    bool parseSuitableMessage (const CanFrame &frame);
+
     bool rb;
     bool rbs;
 };

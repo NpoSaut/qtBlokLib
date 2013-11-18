@@ -3,43 +3,36 @@
 #include <QMetaType>
 
 SysKey::SysKey(Key key, Action action, QObject *parent) :
-     CanBlokMessage(parent),
+     CanBlokMessage(0x060, 1, parent),
      key (key),
      action (action)
 {
     qRegisterMetaType<Key> ("Key");
 }
 
-CanFrame SysKey::encode() const
+void SysKey::fillMessage(CanFrame &frame) const
 {
-    CanFrame frame (0x0C01);
     frame[1] = (qint8 (action) << 6) | (qint8 (key) & 0x1F);
-    return frame;
 }
 
-void SysKey::processCanMessage(CanFrame frame)
+// Внимание! Здесь логика отличается от обычной.
+// Сигнал испускается на каждое нажатие (даже если не было отпускания)
+bool SysKey::parseSuitableMessage(const CanFrame &frame)
 {
-    if ( frame.getDescriptor () == 0x0C01 ) // 0x060
-    {
-        if ( getAction (frame) == PRESS )
-            emit keyPressed ( getKey (frame) );
-        else if ( getAction (frame) == RELEASE )
-            emit keyReleased ( getKey (frame) );
-        whateverChanged ();
+    if ( decodeAction (frame) == PRESS )
+        emit keyPressed ( decodeKey (frame) );
+    else if ( decodeAction (frame) == RELEASE )
+        emit keyReleased ( decodeKey (frame) );
 
-        if (theFirstTime)
-            theFirstTime = false;
-
-        emit messageReceived ();
-    }
+    return true;
 }
 
-SysKey::Action SysKey::getAction(const CanFrame &frame) const
+SysKey::Action SysKey::decodeAction(const CanFrame &frame) const
 {
     return (Action) ((frame[1] >> 6) & 0x3);
 }
 
-SysKey::Key SysKey::getKey(const CanFrame &frame) const
+SysKey::Key SysKey::decodeKey(const CanFrame &frame) const
 {
     return (Key) (frame[1] & 0x1F);
 }
@@ -55,15 +48,13 @@ bool SysKeysState::isKeyPressed(SysKey::Key key) const
     return pressedKeys.indexOf (key) != -1;
 }
 
-void SysKeysState::processCanMessage(CanFrame frame)
+bool SysKeysState::parseSuitableMessage(const CanFrame &frame)
 {
-    if ( frame.getDescriptor () == 0x0C01 )
-    {
-        if ( getAction (frame) == PRESS )
-            pressedKeys.append (getKey (frame));
-        else if ( getAction (frame) == RELEASE )
-            pressedKeys.removeAll (getKey (frame));
-    }
+    if ( decodeAction (frame) == PRESS )
+        pressedKeys.append (decodeKey (frame));
+    else if ( decodeAction (frame) == RELEASE )
+        pressedKeys.removeAll (decodeKey (frame));
 
-    SysKey::processCanMessage (frame);
+    return SysKey::parseSuitableMessage (frame);
 }
+

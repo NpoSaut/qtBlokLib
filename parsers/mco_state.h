@@ -17,24 +17,20 @@ public:
     bool isEpvReleased () const { return epvReleased; }
     bool isTraction () const { return traction; }
 
-    CanFrame encode () const;
-    
 signals:
     void epvReadyChanged (bool epvReady);
     void epvReleasedChanged (bool epvReleased);
     void tractionChanged (bool traction);
-    void whateverChanged ();
-    void messageReceived ();
 
 public slots:
-    void setEpvReady (bool ready);
-    void setEpvReleased (bool released);
-    void setTraction (bool traction);
+    bool setEpvReady (bool ready);
+    bool setEpvReleased (bool released);
+    bool setTraction (bool traction);
     
-private slots:
-    void processCanMessage (CanFrame frame);
-
 private:
+    void fillMessage (CanFrame &frame) const;
+    bool parseSuitableMessage (const CanFrame &frame);
+
     bool epvReady;
     bool epvReleased;
     bool traction;

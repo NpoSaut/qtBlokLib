@@ -17,20 +17,16 @@ public:
 
     int getRailWayCoordinate () const { return railWayCoordinate; }
 
-    CanFrame encode () const;
-
 signals:
     void railWayCoordinateChanged (int coordinate);
-    void whateverChanged ();
-    void messageReceived ();
 
 public slots:
-    void setRailWayCoordinate (int coordiante);
-
-private slots:
-    void processCanMessage (CanFrame frame);
+    bool setRailWayCoordinate (int coordiante);
 
 private:
+    void fillMessage (CanFrame &frame) const;
+    bool parseSuitableMessage (const CanFrame &frame);
+
     int railWayCoordinate;
 };
 

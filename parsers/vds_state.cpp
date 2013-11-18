@@ -3,14 +3,22 @@
 #include <QMetaType>
 
 VdsState::VdsState(QObject *parent) :
-    CanBlokMessage(parent)
+    CanBlokMessage(0x2E0, 2, parent),
+    epvKey (false),
+    traction (false),
+    transmissionDirection(NEUTRAL),
+    engineWork (false),
+    vigilanceButton (false),
+    emergencyStop (false),
+    siren (false),
+    tifon (false),
+    ironWheels (true)
 {
     qRegisterMetaType<TransmissionDirection>("TransmissionDirection");
 }
 
-CanFrame VdsState::encode() const
+void VdsState::fillMessage(CanFrame &frame) const
 {
-    CanFrame frame (0x5C02);
     frame[1] = (qint8 (isEpvKey ()) << 2)
             | (qint8 (!isTraction ()) << 0);
     frame[2] = (qint8 (getTransmissionDirection ()) << 6)
@@ -20,117 +28,118 @@ CanFrame VdsState::encode() const
             | (qint8 (isSiren ()) << 2)
             | (qint8 (isTifon ()) << 1)
             | (qint8 (isIronWheels ()) << 0);
-    return frame;
 }
 
 
-void VdsState::setEpvKey(bool key)
+bool VdsState::setEpvKey(bool key)
 {
     if (epvKey != key || theFirstTime)
     {
         epvKey = key;
         emit epvKeyChanged (epvKey);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void VdsState::setTraction(bool tr)
+bool VdsState::setTraction(bool tr)
 {
     if (traction != tr || theFirstTime)
     {
         traction = tr;
         emit tractionChanged (traction);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void VdsState::setTransmissionDirection(VdsState::TransmissionDirection td)
+bool VdsState::setTransmissionDirection(VdsState::TransmissionDirection td)
 {
     if (transmissionDirection != td || theFirstTime)
     {
         transmissionDirection = td;
         emit transmissionDirectionChanged (transmissionDirection);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void VdsState::setEngineWork(bool ew)
+bool VdsState::setEngineWork(bool ew)
 {
     if (engineWork != ew || theFirstTime)
     {
         engineWork = ew;
         emit engineWorkChanged (engineWork);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void VdsState::setVigilanceButton(bool vb)
+bool VdsState::setVigilanceButton(bool vb)
 {
     if (vigilanceButton != vb || theFirstTime)
     {
         vigilanceButton = vb;
         emit vigilanceButtonChanged (vigilanceButton);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void VdsState::setEmergencyStop(bool stop)
+bool VdsState::setEmergencyStop(bool stop)
 {
     if (emergencyStop != stop || theFirstTime)
     {
         emergencyStop = stop;
         emit emergencyStopChanged (emergencyStop);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void VdsState::setSiren(bool sn)
+bool VdsState::setSiren(bool sn)
 {
     if (siren != sn || theFirstTime)
     {
         siren = sn;
         emit sirenChanged (siren);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void VdsState::setTifon(bool tf)
+bool VdsState::setTifon(bool tf)
 {
     if (tifon != tf || theFirstTime)
     {
         tifon = tf;
         emit tifonChanged (tifon);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void VdsState::setIronWheels(bool iw)
+bool VdsState::setIronWheels(bool iw)
 {
     if (ironWheels != iw || theFirstTime)
     {
         ironWheels = iw;
         emit ironWheelsChagned (ironWheels);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void VdsState::processCanMessage(CanFrame frame)
+bool VdsState::parseSuitableMessage(const CanFrame &frame)
 {
-    if (frame.getDescriptor () == 0x5C02)
-    {
-        setEpvKey                   (frame[1] & (1 << 2));
-        setTraction               (!(frame[1] & (1 << 0)));
-        setTransmissionDirection  (TransmissionDirection((frame[2] >> 6) & 0x3));
-        setEngineWork               (frame[2] & (1 << 5));
-        setVigilanceButton          (frame[2] & (1 << 4));
-        setEmergencyStop            (frame[2] & (1 << 3));
-        setSiren                    (frame[2] & (1 << 2));
-        setTifon                    (frame[2] & (1 << 1));
-        setIronWheels               (frame[2] & (1 << 0));
-
-        if (theFirstTime)
-            theFirstTime = false;
-
-        emit messageReceived ();
-    }
+    return
+        setEpvKey                   (frame[1] & (1 << 2))
+     || setTraction               (!(frame[1] & (1 << 0)))
+     || setTransmissionDirection  (TransmissionDirection((frame[2] >> 6) & 0x3))
+     || setEngineWork               (frame[2] & (1 << 5))
+     || setVigilanceButton          (frame[2] & (1 << 4))
+     || setEmergencyStop            (frame[2] & (1 << 3))
+     || setSiren                    (frame[2] & (1 << 2))
+     || setTifon                    (frame[2] & (1 << 1))
+     || setIronWheels               (frame[2] & (1 << 0));
 }

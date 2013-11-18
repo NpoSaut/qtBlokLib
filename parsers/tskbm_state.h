@@ -6,7 +6,6 @@
 // Идентификатор: 2C0
 // Длина поля данных: 1
 // Дескриптор: 5801
-
 class TskbmState : public CanBlokMessage
 {
     Q_OBJECT
@@ -18,29 +17,26 @@ public:
     bool isVigilanceRequest() const { return vigilanceRequest; }
     bool isPreAlarm() const { return preAlarm; }
 
-    CanFrame encode () const;
-
 signals:
     void onlineChanged(bool newValue);
     void machinistCheerfulChanged(bool newValue);
     void vigilanceRequestChanged(bool newValue);
     void preAlarmChanged(bool newValue);
-    void whateverChanged();
-    void messageReceived();
 
-private slots:
-    void processCanMessage (CanFrame frame);
+public slots:
+    bool setOnline(bool newValue);
+    bool setMachinistCheerful(bool newValue);
+    bool setVigilanceRequest(bool newValue);
+    bool setPreAlarm(bool newValue);
 
 private:
+    void fillMessage (CanFrame &frame) const;
+    bool parseSuitableMessage (const CanFrame &frame);
+
     bool online;
     bool machinistCheerful;
     bool vigilanceRequest;
     bool preAlarm;
-
-    void setOnline(bool newValue);
-    void setMachinistCheerful(bool newValue);
-    void setVigilanceRequest(bool newValue);
-    void setPreAlarm(bool newValue);
 };
 
 #endif // TSKBM_STATE_H

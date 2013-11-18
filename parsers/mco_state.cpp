@@ -1,16 +1,15 @@
 #include "mco_state.h"
 
 McoState::McoState(QObject *parent) :
-    CanBlokMessage(parent),
+    CanBlokMessage(0x050, 8, parent),
     epvReady (false),
     epvReleased (false),
     traction (false)
 {
 }
 
-CanFrame McoState::encode() const
+void McoState::fillMessage(CanFrame &frame) const
 {
-    CanFrame frame (0x0A08);
     frame[1] = (qint8 (isEpvReady ()) << 6)
             | (qint8 (isTraction ()) << 5);
     frame[2] = 0;
@@ -20,51 +19,46 @@ CanFrame McoState::encode() const
     frame[6] = (qint8 (isEpvReleased ()) << 5);
     frame[7] = 0;
     frame[8] = 0;
-    return frame;
 }
 
-void McoState::setEpvReady(bool ready)
+bool McoState::setEpvReady(bool ready)
 {
     if ( epvReady != ready || theFirstTime )
     {
         epvReady = ready;
         emit epvReadyChanged (epvReady);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void McoState::setEpvReleased(bool released)
+bool McoState::setEpvReleased(bool released)
 {
     if ( epvReleased != released || theFirstTime )
     {
         epvReleased = released;
         emit epvReleasedChanged (epvReleased);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void McoState::setTraction(bool tr)
+bool McoState::setTraction(bool tr)
 {
     if ( traction != tr || theFirstTime )
     {
         traction = tr;
         emit tractionChanged (traction);
-        emit whateverChanged ();
+        return true;
     }
+    return false;
 }
 
-void McoState::processCanMessage(CanFrame frame)
+bool McoState::parseSuitableMessage(const CanFrame &frame)
 {
-    if ( frame.getDescriptor () == 0x0A08 ) // id: 0x050
-    {
-        setEpvReady         (frame[1] & (1 << 6));
-        setEpvReleased      (frame[6] & (1 << 5));
-        setTraction         (frame[1] & (1 << 5));
-
-        if ( theFirstTime )
-            theFirstTime = false;
-
-        emit messageReceived ();
-    }
+    return
+        setEpvReady         (frame[1] & (1 << 6))
+     || setEpvReleased      (frame[6] & (1 << 5))
+     || setTraction         (frame[1] & (1 << 5));
 }
 
