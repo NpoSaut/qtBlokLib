@@ -397,54 +397,6 @@ int can_decoder::decode_reg_tape_avl(const CanFrame &frame, int* reg_tape_avl)
     return 1;
 }
 
-// MVD_DD
-int can_decoder::decode_pressure_tc_tm(const CanFrame &frame, double* pressure_tc, double* pressure_tm)
-{
-    if ( frame.getDescriptor () != 0x5D45 ) // id: 0x2EA
-        return -1;
-
-    (*pressure_tc) = ((double)(frame[2]))/255;
-    (*pressure_tm) = ((double)(frame[3]))/255;
-
-    return 1;
-}
-
-// VDS_STATE_A
-int can_decoder::decode_ssps_mode(const CanFrame &frame, int* ssps_mode)
-{
-    if ( frame.getDescriptor () != 0x5C02 ) // id: 0x2E0
-        return -1;
-
-    (*ssps_mode) = (int) (( frame[2] ) & 0x01 );
-
-    return 1;
-}
-
-// MCO_STATE_A
-int can_decoder::decode_traction(const CanFrame &frame, int* in_traction)
-{
-    if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
-        return -1;
-
-    // Инвертирую для удобства.
-    (*in_traction) = (int) ( ! (( frame[1] >> 5 ) & 0x01 ) );
-
-    return 1;
-}
-
-// MCO_LIMITS_A
-int can_decoder::decode_is_on_road(const CanFrame &frame, int* is_on_road)
-{
-    if ( frame.getDescriptor () != 0x0A48 ) // id: 0x052
-        return -1;
-
-    (*is_on_road) = (int) (( frame[2] ) & 0x40 );
-
-    return 1;
-}
-
-
-
 bool nmea::decode_nmea_message(QString message, struct gps_data* gd)
 {
     if (message.mid(3,3) == "RMC")

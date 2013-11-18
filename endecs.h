@@ -47,13 +47,6 @@ public:
     static int decode_vigilance(const CanFrame &frame, int* vigilance);
     static int decode_reg_tape_avl(const CanFrame &frame, int* reg_tape_avl);
 
-    static int decode_pressure_tc_tm(const CanFrame &frame, double* pressure_tc, double* pressure_tm);
-
-    static int decode_ssps_mode(const CanFrame &frame, int* ssps_mode);
-    static int decode_traction(const CanFrame &frame, int* in_traction);
-
-    static int decode_is_on_road(const CanFrame &frame, int* is_on_road);
-
     static int decode_autolock_type(const CanFrame &frame, int* autolock_type);
 };
 

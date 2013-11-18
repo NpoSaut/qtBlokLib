@@ -45,8 +45,6 @@ signals:
     void signal_target_speed(int target_speed);
     void signal_acceleration(double acceleration);
     //Состояние системы
-    void signal_epv_released(bool epv_state);
-    void signal_epv_key(bool epv_key);
     void signal_modules_activity(QString modulesActivity);
     //Одометр
     void signal_passed_distance(int passed_distance);
@@ -56,21 +54,12 @@ signals:
     void signal_trafficlight_freq(int trafficlight_freq);
     void signal_trafficlight_freq_target (int trafficlight_freq_target);
     //Движение
-    void signal_driving_mode(int driving_mode);
     void signal_vigilance(bool vigilance);
     void signal_movement_direction(int movement_direction);
     void signal_reg_tape_avl(bool reg_tape_avl);
 
     void signal_autolock_type(int autolock_type);
     void signal_autolock_type_target(int autolock_type);
-
-    void signal_pressure_tc(QString pressure_tc);
-    void signal_pressure_tm(QString pressure_tm);
-    void signal_is_on_road(bool is_on_road);
-    void signal_is_on_rails(bool on_rails);
-    void signal_ssps_mode(int ssps_mode);
-    void signal_traction(bool in_traction);
-    void signal_iron_wheels(bool iron_wheels);
 
     void signal_lat(double lat);
     void signal_lon(double lon);
@@ -181,21 +170,11 @@ private:
     int decode_trafficlight_freq(const CanFrame &frame);
     int decode_passed_distance(const CanFrame &frame);
     int decode_orig_passed_distance (const CanFrame &frame);
-    int decode_epv_state(const CanFrame &frame);
-    int decode_epv_key(const CanFrame &frame);
     int decode_modules_activity(const CanFrame &frame);
     int decode_mm_lat_lon(const CanFrame &frame);
     int decode_ipd_datetime(const CanFrame &frame);
-    int decode_driving_mode(const CanFrame &frame);
     int decode_vigilance(const CanFrame &frame);
     int decode_reg_tape_avl(const CanFrame &frame);
-
-    int decode_pressure_tc_tm(const CanFrame &frame);
-
-    int decode_ssps_mode(const CanFrame &frame);
-    int decode_traction(const CanFrame &frame);
-
-    int decode_is_on_road(const CanFrame &frame);
 
     int decode_autolock_type(const CanFrame &frame);
     int set_autolock_type(int autolock_type);

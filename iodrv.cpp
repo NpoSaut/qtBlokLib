@@ -179,21 +179,13 @@ void iodrv::process_can_messages(CanFrame frame)
     decode_trafficlight_freq(frame);
     decode_passed_distance(frame);
     decode_orig_passed_distance (frame);
-    decode_epv_state(frame);
-    decode_epv_key(frame);
     decode_modules_activity(frame);
 
-    decode_driving_mode(frame);
     decode_vigilance(frame);
     decode_movement_direction(frame);
     decode_reg_tape_avl(frame);
 
     decode_autolock_type(frame);
-
-    decode_pressure_tc_tm(frame);
-    decode_ssps_mode(frame);
-    decode_traction(frame);
-    decode_is_on_road(frame);
 
 #ifndef WITH_SERIALPORT
     decode_mm_lat_lon(frame);
@@ -414,36 +406,6 @@ int iodrv::decode_orig_passed_distance(const CanFrame &frame)
     return 0;
 }
 
-int iodrv::decode_epv_state(const CanFrame &frame)
-{
-    switch (can_decoder::decode_epv_released(frame, &c_epv_state))
-    {
-        case 1:
-            if ((p_epv_state == -1) || (p_epv_state != -1 && p_epv_state != c_epv_state))
-            {
-                emit signal_epv_released(c_epv_state);
-            }
-            p_epv_state = c_epv_state;
-            return 1;
-    }
-    return 0;
-}
-
-int iodrv::decode_epv_key(const CanFrame &frame)
-{
-    switch (can_decoder::decode_epv_key(frame, &c_epv_key))
-    {
-        case 1:
-            if ((p_epv_key == -1) || (p_epv_key != -1 && p_epv_key != c_epv_key))
-            {
-                emit signal_epv_key(c_epv_key);
-            }
-                p_epv_key = c_epv_key;
-            return 1;
-    }
-    return 0;
-}
-
 int iodrv::decode_modules_activity(const CanFrame &frame)
 {
     switch (can_decoder::decode_modules_activity (frame, &c_modulesActivity))
@@ -506,30 +468,6 @@ int iodrv::decode_ipd_datetime(const CanFrame &frame)
     return 0;
 }
 
-int iodrv::decode_driving_mode(const CanFrame &frame)
-{
-    switch (can_decoder::decode_driving_mode(frame, &c_driving_mode))
-    {
-        case 1:
-            emit signal_driving_mode(c_driving_mode);
-//            if ((p_driving_mode == -1) || (p_driving_mode != -1 && p_driving_mode != c_driving_mode))
-//            {
-
-//                //printf("driving_mode %d\n", c_driving_mode); fflush(stdout);
-//            }
-//            if (target_driving_mode != c_driving_mode)
-//            {
-//                // Временно отключил подстраивание под заказной РМП
-//                // т.к. возникли проблемы с различием наборов заказных
-//                // и реальных режимов движения
-//                //this->slot_rmp_key_down();
-//            }
-            p_driving_mode = c_driving_mode;
-            return 1;
-    }
-    return 0;
-}
-
 int iodrv::decode_vigilance(const CanFrame &frame)
 {
     switch (can_decoder::decode_vigilance(frame, &c_vigilance))
@@ -559,78 +497,6 @@ int iodrv::decode_reg_tape_avl(const CanFrame &frame)
     }
     return 0;
 }
-
-int iodrv::decode_pressure_tc_tm(const CanFrame &frame)
-{
-    switch (can_decoder::decode_pressure_tc_tm(frame, &c_pressure_tc, &c_pressure_tm))
-    {
-        case 1:
-            if ((p_pressure_tc == -1) || (p_pressure_tc != -1 && p_pressure_tc != c_pressure_tc))
-            {
-                emit signal_pressure_tc(QString::number(c_pressure_tc, 'f', 2));
-            }
-            p_pressure_tc = c_pressure_tc;
-
-            if ((p_pressure_tm == -1) || (p_pressure_tm != -1 && p_pressure_tm != c_pressure_tm))
-            {
-                emit signal_pressure_tm(QString::number(c_pressure_tm, 'f', 2));
-            }
-            p_pressure_tm = c_pressure_tm;
-            return 1;
-    }
-    return 0;
-}
-
-int iodrv::decode_ssps_mode(const CanFrame &frame)
-{
-    switch (can_decoder::decode_ssps_mode(frame, &c_ssps_mode))
-    {
-        case 1:
-            if ((p_ssps_mode == -1) || (p_ssps_mode != -1 && p_ssps_mode != c_ssps_mode))
-            {
-                emit signal_ssps_mode(c_ssps_mode);
-                emit signal_iron_wheels((bool)c_ssps_mode);
-            }
-            p_ssps_mode = c_ssps_mode;
-            return 1;
-    }
-    return 0;
-}
-
-
-int iodrv::decode_traction(const CanFrame &frame)
-{
-    switch (can_decoder::decode_traction(frame, &c_in_traction))
-    {
-        case 1:
-            if ((p_in_traction == -1) || (p_in_traction != -1 && p_in_traction != c_in_traction))
-            {
-                emit signal_traction((bool)c_in_traction);
-            }
-            p_in_traction = c_in_traction;
-            return 1;
-    }
-    return 0;
-}
-
-int iodrv::decode_is_on_road(const CanFrame &frame)
-{
-    switch (can_decoder::decode_is_on_road(frame, &c_is_on_road))
-    {
-        case 1:
-            if ((p_is_on_road == -1) || (p_is_on_road != -1 && p_is_on_road != c_is_on_road))
-            {
-                emit signal_is_on_road(c_is_on_road);
-                emit signal_is_on_rails(!c_is_on_road);
-            }
-            p_is_on_road = c_is_on_road;
-            return 1;
-    }
-    return 0;
-}
-
-
-
 
 int iodrv::init_serial_port()
 {
