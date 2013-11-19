@@ -15,8 +15,8 @@ class MvdDd : public PeriodicalCanBlokMessage
 public:
     explicit MvdDd(QObject *parent = 0);
 
-    Pressure getTcPressure () const { return tcPressure; }
-    Pressure getTmPressure () const { return tmPressure; }
+    const Pressure &getTcPressure () const { return tcPressure; }
+    const Pressure &getTmPressure () const { return tmPressure; }
 
 signals:
     void tcPressureChanged (Pressure value);

@@ -9,8 +9,10 @@
 #include "parsers/mco_limits.h"
 #include "parsers/mco_state.h"
 #include "parsers/mm_coord.h"
+#include "parsers/mvd_dd.h"
 #include "parsers/sys_key.h"
 #include "parsers/tskbm_state.h"
+#include "parsers/uktol_dd1.h"
 #include "parsers/vds_state.h"
 
 class Parser : public QObject
@@ -23,8 +25,10 @@ public:
     McoLimits mcoLimits;
     McoState mcoState;
     MmCoord mmCoord;
+    MvdDd mvdDd;
     SysKeysState sysKey;
     TskbmState tskbmState;
+    UktolDd1 uktolDd1;
     VdsState vdsState;
     
 signals:

@@ -9,29 +9,29 @@ class Pressure
 {
 public:
     Pressure()
-        : mpa (0), validity (false)
+        : mpa (0), valid (false)
     {}
 
     void setAtm (float value) { mpa = value * 0.0980665; }
     void setBar (float value) { mpa = value * 0.1; }
     void setMpa (float value) { mpa = value; }
-    void setValidity (bool val) { validity = val; }
+    void setValid (bool val) { valid = val; }
 
     float getAtm () const { return mpa * 10.19716213; }
     float getBar () const { return mpa * 10; }
     float getMpa () const { return mpa; }
-    bool getValidity () const { return validity; }
+    bool isValid () const { return valid; }
 
-    QString printAtm () const { return (validity ? QString::number (getAtm(), 'f', 1) : QString("--")) + QString(" атм") ; }
-    QString printBar () const { return (validity ? QString::number (getBar(), 'f', 1) : QString("--")) + QString(" бар") ; }
-    QString pringMpa () const { return (validity ? QString::number (getMpa(), 'f', 2) : QString("--")) + QString(" МПа") ; }
+    QString printAtm () const { return (valid ? QString::number (getAtm(), 'f', 1) : QString("--")) + QString(" атм") ; }
+    QString printBar () const { return (valid ? QString::number (getBar(), 'f', 1) : QString("--")) + QString(" бар") ; }
+    QString printMpa () const { return (valid ? QString::number (getMpa(), 'f', 2) : QString("--")) + QString(" МПа") ; }
 
-    bool operator == (const Pressure &b) const { return getMpa() == b.getMpa() && getValidity() == b.getValidity(); }
+    bool operator == (const Pressure &b) const { return getMpa() == b.getMpa() && isValid() == b.isValid(); }
     bool operator != (const Pressure &b) const { return !(*this == b); }
 
 private:
     float mpa;
-    bool validity;
+    bool valid;
 };
 
 #endif // PRESSURE_H

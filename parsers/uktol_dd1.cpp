@@ -11,9 +11,9 @@ UktolDd1::UktolDd1(QObject *parent) :
 void UktolDd1::fillMessage(CanFrame &frame) const
 {
     frame[1] =
-              (quint8 (tmPressure.getValidity ()) << 2)
-            | (quint8 (tcPressure.getValidity ()) << 1)
-            | (quint8 (urPressure.getValidity ()) << 0);
+              (quint8 (tmPressure.isValid ()) << 2)
+            | (quint8 (tcPressure.isValid ()) << 1)
+            | (quint8 (urPressure.isValid ()) << 0);
 
     quint16 urConvert = urPressure.getAtm () * 100;
     frame[2] = quint8(urConvert);
@@ -65,9 +65,9 @@ bool UktolDd1::parseSuitableMessage(const CanFrame &frame)
 {
     Pressure ur, tc, tm;
 
-    ur.setValidity ( frame[1] & (1 << 0) );
-    tc.setValidity ( frame[1] & (1 << 1) );
-    tm.setValidity ( frame[1] & (1 << 2) );
+    ur.setValid ( frame[1] & (1 << 0) );
+    tc.setValid ( frame[1] & (1 << 1) );
+    tm.setValid ( frame[1] & (1 << 2) );
 
     ur.setAtm ( quint16(frame[3]) + quint16(frame[2]) );
     tc.setAtm ( quint16(frame[5]) + quint16(frame[4]) );

@@ -14,9 +14,9 @@ class UktolDd1 : public PeriodicalCanBlokMessage
 public:
     explicit UktolDd1(QObject *parent = 0);
 
-    Pressure getUrPressure () const { return urPressure; }
-    Pressure getTcPressure () const { return tcPressure; }
-    Pressure getTmPressure () const { return tmPressure; }
+    const Pressure &getUrPressure () const { return urPressure; }
+    const Pressure &getTcPressure () const { return tcPressure; }
+    const Pressure &getTmPressure () const { return tmPressure; }
 
 signals:
     void urPressureChanged (Pressure value);
