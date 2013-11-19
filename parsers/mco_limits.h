@@ -8,7 +8,7 @@
 // id: 0x052
 // len: 8
 // desc:0x0A48
-class McoLimits : public CanBlokMessage
+class McoLimits : public PeriodicalCanBlokMessage
 {
     Q_OBJECT
 public:

@@ -8,7 +8,7 @@
 // id: 0x1E6
 // len: 7
 // desc: 0x3CC7
-class UktolDd1 : public CanBlokMessage
+class UktolDd1 : public PeriodicalCanBlokMessage
 {
     Q_OBJECT
 public:

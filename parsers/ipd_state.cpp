@@ -1,7 +1,7 @@
 #include "ipd_state.h"
 
 IpdState::IpdState(QObject *parent) :
-    CanBlokMessage(0x0C4, 8, parent),
+    PeriodicalCanBlokMessage(0x0C4, 8, parent),
     inMotion(false)
 {
 }

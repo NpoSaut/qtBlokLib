@@ -7,7 +7,7 @@
 // id: 0x0C4
 // len: 8
 // desc:0x1888
-class IpdState : public CanBlokMessage
+class IpdState : public PeriodicalCanBlokMessage
 {
     Q_OBJECT
 public:

@@ -3,7 +3,7 @@
 #include <QMetaType>
 
 VdsState::VdsState(QObject *parent) :
-    CanBlokMessage(0x2E0, 2, parent),
+    PeriodicalCanBlokMessage(0x2E0, 2, parent),
     epvKey (false),
     traction (false),
     transmissionDirection(NEUTRAL),

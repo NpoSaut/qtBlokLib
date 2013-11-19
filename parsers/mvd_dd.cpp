@@ -1,7 +1,7 @@
 #include "mvd_dd.h"
 
 MvdDd::MvdDd(QObject *parent) :
-    CanBlokMessage(0x2EA, 5, parent),
+    PeriodicalCanBlokMessage(0x2EA, 5, parent),
     tcPressure(),
     tmPressure()
 {

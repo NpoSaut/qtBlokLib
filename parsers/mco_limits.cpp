@@ -3,7 +3,7 @@
 #include <QMetaType>
 
 McoLimits::McoLimits(QObject *parent) :
-    CanBlokMessage(0x052, 8, parent),
+    PeriodicalCanBlokMessage(0x052, 8, parent),
     driveMode (TRAIN),
     tractionShutdownCommand (false)
 {

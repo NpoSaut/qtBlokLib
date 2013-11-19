@@ -8,7 +8,7 @@
 // id: 0x2EA
 // len: 5
 // desc: 0x5D45
-class MvdDd : public CanBlokMessage
+class MvdDd : public PeriodicalCanBlokMessage
 {
     Q_OBJECT
 

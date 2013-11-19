@@ -1,7 +1,7 @@
 #include "uktol_dd1.h"
 
 UktolDd1::UktolDd1(QObject *parent) :
-    CanBlokMessage(0x1E6, 7, parent),
+    PeriodicalCanBlokMessage(0x1E6, 7, parent),
     urPressure(),
     tcPressure(),
     tmPressure()

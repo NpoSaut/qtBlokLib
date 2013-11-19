@@ -7,7 +7,7 @@
 // id: 0x050
 // len: 8
 // desc:0x0A08
-class McoState : public CanBlokMessage
+class McoState : public PeriodicalCanBlokMessage
 {
     Q_OBJECT
 public:

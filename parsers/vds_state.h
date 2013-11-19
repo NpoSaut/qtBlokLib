@@ -7,7 +7,7 @@
 // id: 0x2E0
 // len: 2
 // desc:0x5C02
-class VdsState : public CanBlokMessage
+class VdsState : public PeriodicalCanBlokMessage
 {
     Q_OBJECT
 public:

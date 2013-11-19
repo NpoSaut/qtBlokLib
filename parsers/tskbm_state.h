@@ -6,7 +6,7 @@
 // Идентификатор: 2C0
 // Длина поля данных: 1
 // Дескриптор: 5801
-class TskbmState : public CanBlokMessage
+class TskbmState : public PeriodicalCanBlokMessage
 {
     Q_OBJECT
 public:

@@ -28,3 +28,34 @@ void CanBlokMessage::processCanMessage(CanFrame canFrame)
     }
 }
 
+// ------------------------ PeriodicalCanBlokMessage ------------------------------
+
+PeriodicalCanBlokMessage::PeriodicalCanBlokMessage(int id, unsigned int size, QObject *parent) :
+    CanBlokMessage (id, size, parent),
+    fresh (false),
+    checkin (false)
+{
+    startTimer (1000);
+}
+
+void PeriodicalCanBlokMessage::timerEvent(QTimerEvent *event)
+{
+    setFresh (checkin == true);
+    checkin = false; // Для следующего контроля
+}
+
+void PeriodicalCanBlokMessage::processCanMessage(CanFrame canFrame)
+{
+    checkin = true;
+    CanBlokMessage::processCanMessage (canFrame);
+}
+
+void PeriodicalCanBlokMessage::setFresh(bool f)
+{
+    if ( fresh != f || theFirstTime )
+    {
+        fresh = f;
+        emit freshChanged (fresh);
+    }
+}
+

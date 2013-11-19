@@ -1,7 +1,7 @@
 #include "mm_coord.h"
 
 MmCoord::MmCoord(QObject *parent)
-    : CanBlokMessage (0x605, 3, parent),
+    : PeriodicalCanBlokMessage (0x605, 3, parent),
       railWayCoordinate (0)
 {
 }

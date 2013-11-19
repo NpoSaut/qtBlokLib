@@ -15,7 +15,7 @@ public:
     CanFrame encode () const;
 
 public slots:
-    // Если переданное CAN-сообщение соответсвует обрабатываемуму (совпадают дескрипторы),
+    // Если принятое CAN-сообщение соответсвует обрабатываемуму (совпадают дескрипторы),
     // то производит парсинг соощения и заполняет свойства объекта.
     void processCanMessage (CanFrame canFrame);
 
@@ -44,6 +44,43 @@ protected:
     // вызвать все сигналы с изменением свойств, даже если эти свойства не поменялись отностильно дефолтных
     // !Класс-наследник, на тебя возлагается ответсвенность по проверки этой метки, когда испускаешь сигналы!
     bool theFirstTime;
+};
+
+// Для периодических сообщений осуществляет проверку их периодичности
+class PeriodicalCanBlokMessage : public CanBlokMessage
+{
+    Q_OBJECT
+
+public:
+    // Возвращает false, если данные давно не подтверждались (CAN-сообщения не приходили)
+    bool isFresh () const { return fresh; }
+
+public slots:
+    // Осуществляет контроль прихода сообщения и передаёт по конвейеру в CanBlokMessage
+    void processCanMessage (CanFrame canFrame);
+
+signals:
+    // Если CAN-сообщения не приходили в течении заданного времени испускает false
+    // если после отсутвия CAN-сообщений вновь пришло сообщение, испускает true
+    void freshChanged (bool fresh);
+
+protected:
+    // Конструктор должен вызваться наследником с нужными id и size (дескриптором)
+    explicit PeriodicalCanBlokMessage (int id, unsigned int size, QObject *parent = 0);
+
+    // Проверка периодичности прихода CAN-сообщений (fresh-контроль)
+    void timerEvent (QTimerEvent *event);
+
+    // Обновитель, отслеживающий изменения и испускающий freshChanged()
+    void setFresh (bool f);
+
+    // Флаг наличия переодического получения CAN-сообщений
+    bool fresh;
+
+    // Флаг снимается по timerEvent и выставляется по приходу сообщения в processCanMessage
+    // Если по заходу в timerEvent флаг обнаруживается не выставленным, то fresh устанавливается в false
+    // В противном случае fresh устанавливается в true
+    bool checkin;
 };
 
 #endif // CANBLOKMESSAGE_H

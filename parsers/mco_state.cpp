@@ -1,7 +1,7 @@
 #include "mco_state.h"
 
 McoState::McoState(QObject *parent) :
-    CanBlokMessage(0x050, 8, parent),
+    PeriodicalCanBlokMessage(0x050, 8, parent),
     epvReady (false),
     epvReleased (false),
     traction (false),

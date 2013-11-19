@@ -9,7 +9,7 @@
 // id: 0x605
 // len: 3
 // desc:0xC0A3
-class MmCoord : public CanBlokMessage
+class MmCoord : public PeriodicalCanBlokMessage
 {
     Q_OBJECT
 public:

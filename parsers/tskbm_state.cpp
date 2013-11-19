@@ -3,7 +3,7 @@
 #include <QDebug>
 
 TskbmState::TskbmState(QObject *parent)
-    : CanBlokMessage (0x2C0, 1, parent),
+    : PeriodicalCanBlokMessage (0x2C0, 1, parent),
       online (false), machinistCheerful (false), vigilanceRequest (false), preAlarm (false)
 {
 }

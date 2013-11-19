@@ -8,7 +8,7 @@
 // id: 0x28F
 // len: 3
 // desc:0x51E3
-class DisplayStateA : public CanBlokMessage
+class DisplayStateA : public PeriodicalCanBlokMessage
 {
     Q_OBJECT
 public:

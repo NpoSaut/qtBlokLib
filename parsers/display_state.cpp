@@ -3,7 +3,7 @@
 #include <QMetaType>
 
 DisplayStateA::DisplayStateA(QObject *parent) :
-    CanBlokMessage(0x28F, 3, parent),
+    PeriodicalCanBlokMessage(0x28F, 3, parent),
     rb (false), rbs (false), vk (false), mode (TRAIN), pull (false), otpr (false), oc (false), k20 (false), freq (false)
 {
     qRegisterMetaType<DriveMode> ("DriveMode");
