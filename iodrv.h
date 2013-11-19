@@ -77,6 +77,7 @@ public slots:
     void slot_rmp_key_down();
     void slot_rmp_key_up();
     void slot_autolock_type_target_changed(int value);
+    void slot_autolock_speed_changed(int value);
     void slot_trafficlight_freq_target (int trafficlight_freq_target);
 
 private slots:
@@ -128,6 +129,7 @@ private:
 
     int c_autolock_type;
     int c_autolock_type_target;
+    int c_autolock_speed;
 
     double c_pressure_tc;
     double c_pressure_tm;
@@ -177,7 +179,7 @@ private:
     int decode_reg_tape_avl(const CanFrame &frame);
 
     int decode_autolock_type(const CanFrame &frame);
-    int set_autolock_type(int autolock_type);
+    int set_autolock_type(int autolock_type, int speed);
 
 
 #ifdef WITH_SERIALPORT

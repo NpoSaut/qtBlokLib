@@ -21,7 +21,7 @@ public:
     static CanFrame encode_sys_key(key_state k_state, int key_code);
     static CanFrame encode_mm_data(int speed, int milage);
     static CanFrame encode_ipd_state( double speed, int distance, bool reliable );
-    static CanFrame encode_autolock_set_message (int autolock_type);
+    static CanFrame encode_autolock_set_message (int autolock_type, int speed);
 };
 
 class can_decoder

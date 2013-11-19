@@ -97,7 +97,7 @@ CanFrame can_encoder::encode_ipd_state( double speed, int distance, bool reliabl
     return frame;
 }
 
-CanFrame can_encoder::encode_autolock_set_message(int autolock_type)
+CanFrame can_encoder::encode_autolock_set_message(int autolock_type, int speed)
 {
     CanFrame frame (0x8D07);
     frame[1] = 0x03;
@@ -108,11 +108,13 @@ CanFrame can_encoder::encode_autolock_set_message(int autolock_type)
         break;
     case 1: // ПАБ
         frame[2] = 0x29;
-        frame[3] = 40;
+        frame[3] = speed;
+        frame[4] = speed/256;
         break;
     case 2:
         frame[2] = 0x1F;
-        frame[3] = 40;
+        frame[3] = speed;
+        frame[4] = speed/256;
         break;
     default:
         break;

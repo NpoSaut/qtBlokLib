@@ -70,6 +70,7 @@ iodrv::iodrv(Can *onCan, QObject *parent)
 
     c_autolock_type = -1;
     c_autolock_type_target = -1;
+    c_autolock_speed = 40;
 
     p_speed = -1;
     p_speed_limit = -1;
@@ -245,7 +246,7 @@ int iodrv::decode_autolock_type(const CanFrame &frame)
 
         if (c_autolock_type_target == p_autolock_type_target && c_autolock_type_target != c_autolock_type)
         {
-            this->set_autolock_type(c_autolock_type_target);
+            this->set_autolock_type(c_autolock_type_target, c_autolock_speed);
         }
 
         p_autolock_type_target = c_autolock_type_target;
@@ -255,9 +256,9 @@ int iodrv::decode_autolock_type(const CanFrame &frame)
     return 0;
 }
 
-int iodrv::set_autolock_type(int autolock_type)
+int iodrv::set_autolock_type(int autolock_type, int speed)
 {
-    CanFrame frame = can_encoder::encode_autolock_set_message (autolock_type);
+    CanFrame frame = can_encoder::encode_autolock_set_message (autolock_type, speed);
     write_canmsg_async (write_socket_0, frame);
     return 1;
 }
@@ -669,6 +670,11 @@ void iodrv::slot_rmp_key_up()
 void iodrv::slot_autolock_type_target_changed (int value)
 {
     c_autolock_type_target = value;
+}
+
+void iodrv::slot_autolock_speed_changed(int value)
+{
+    c_autolock_speed = value;
 }
 
 void iodrv::slot_trafficlight_freq_target(int trafficlight_freq_target)
