@@ -12,7 +12,7 @@ McoState::McoState(QObject *parent) :
 void McoState::fillMessage(CanFrame &frame) const
 {
     frame[1] = (qint8 (isEpvReady ()) << 6)
-            | (qint8 (isTraction ()) << 5);
+            | (qint8 (!isTraction ()) << 5);
     frame[2] = 0;
     frame[3] = 0;
     frame[4] = 0;
@@ -71,7 +71,7 @@ bool McoState::parseSuitableMessage(const CanFrame &frame)
     return
         setEpvReady         (frame[1] & (1 << 6))
      || setEpvReleased      (frame[6] & (1 << 5))
-     || setTraction         (frame[1] & (1 << 5))
+     || setTraction       (!(frame[1] & (1 << 5)))
      || setConClosed        (frame[8] & (1 << 1));
 }
 
