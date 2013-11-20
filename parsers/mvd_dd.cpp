@@ -9,8 +9,8 @@ MvdDd::MvdDd(QObject *parent) :
 
 void MvdDd::fillMessage(CanFrame &frame) const
 {
-    frame[1] = (quint8 (tmPressure.isValid ()) << 1)
-             | (quint8 (tcPressure.isValid ()) << 0);
+    frame[1] = (quint8 (!tmPressure.isValid ()) << 1)
+             | (quint8 (!tcPressure.isValid ()) << 0);
     frame[2] = quint8 (tcPressure.getMpa () * 255);
     frame[2] = quint8 (tmPressure.getMpa () * 255);
     frame[4] = 0;
@@ -43,8 +43,8 @@ bool MvdDd::parseSuitableMessage(const CanFrame &frame)
 {
     Pressure tc, tm;
 
-    tc.setValid ( frame[1] & (1 << 0) );
-    tm.setValid ( frame[1] & (1 << 1) );
+    tc.setValid ( !(frame[1] & (1 << 0)) );
+    tm.setValid ( !(frame[1] & (1 << 1)) );
 
     tc.setMpa ( float(frame[2]) / 255 );
     tm.setMpa ( float(frame[3]) / 255 );

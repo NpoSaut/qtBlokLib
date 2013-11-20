@@ -35,19 +35,19 @@ PeriodicalCanBlokMessage::PeriodicalCanBlokMessage(int id, unsigned int size, QO
     fresh (false),
     checkin (false)
 {
+    QObject::connect (this, SIGNAL(messageReceived()), this, SLOT(checkinMessage()));
     startTimer (1000);
+}
+
+void PeriodicalCanBlokMessage::checkinMessage()
+{
+    checkin = true;
 }
 
 void PeriodicalCanBlokMessage::timerEvent(QTimerEvent *event)
 {
     setFresh (checkin == true);
     checkin = false; // Для следующего контроля
-}
-
-void PeriodicalCanBlokMessage::processCanMessage(CanFrame canFrame)
-{
-    checkin = true;
-    CanBlokMessage::processCanMessage (canFrame);
 }
 
 void PeriodicalCanBlokMessage::setFresh(bool f)

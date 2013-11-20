@@ -55,14 +55,14 @@ public:
     // Возвращает false, если данные давно не подтверждались (CAN-сообщения не приходили)
     bool isFresh () const { return fresh; }
 
-public slots:
-    // Осуществляет контроль прихода сообщения и передаёт по конвейеру в CanBlokMessage
-    void processCanMessage (CanFrame canFrame);
-
 signals:
     // Если CAN-сообщения не приходили в течении заданного времени испускает false
     // если после отсутвия CAN-сообщений вновь пришло сообщение, испускает true
     void freshChanged (bool fresh);
+
+protected slots:
+    // Отмечает приход сообщения
+    void checkinMessage ();
 
 protected:
     // Конструктор должен вызваться наследником с нужными id и size (дескриптором)
