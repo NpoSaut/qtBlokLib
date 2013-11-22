@@ -7,7 +7,8 @@ enum DriveMode
     SHUNTING = 1,
     WORKING = 2,
     DOUBLE_TRACTION = 3,
-    ROAD = 4
+    ROAD = 4,
+    HILL = 5
 };
 
 #endif // DRIVEMODE_H
