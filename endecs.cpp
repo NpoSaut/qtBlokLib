@@ -257,18 +257,6 @@ int can_decoder::decode_movement_direction(const CanFrame &frame, int* movement_
     return 1;
 }
 
-// MCO_STATE_A
-int can_decoder::decode_trafficlight_light(const CanFrame &frame, int* trafficlight_light)
-{
-    if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
-        return -1;
-
-    // -1 - преобразование для передачи в уровень интерфейса.
-    (*trafficlight_light) = (int) ( frame[6] & 0x0F ) - 1;
-
-    return 1;
-}
-
 // MP_STATE_A
 int can_decoder::decode_trafficlight_freq(const CanFrame &frame, int* trafficlight_freq)
 {
