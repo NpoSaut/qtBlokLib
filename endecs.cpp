@@ -97,34 +97,6 @@ CanFrame can_encoder::encode_ipd_state( double speed, int distance, bool reliabl
     return frame;
 }
 
-CanFrame can_encoder::encode_autolock_set_message(int autolock_type, int speed)
-{
-    CanFrame frame (0x8D07);
-    frame[1] = 0x03;
-
-    switch (autolock_type) {
-    case 0: // АБ
-        frame[2] = 0x20;
-        break;
-    case 1: // ПАБ
-        frame[2] = 0x29;
-        frame[3] = speed;
-        frame[4] = speed/256;
-        break;
-    case 2:
-        frame[2] = 0x1F;
-        frame[3] = speed;
-        frame[4] = speed/256;
-        break;
-    default:
-        break;
-    }
-
-    return frame;
-}
-
-
-
 
 // Decode
 
@@ -154,17 +126,6 @@ int can_decoder::decode_speed_limit(const CanFrame &frame, int* speed_limit)
         return -1;
 
     (*speed_limit) = ( ((int)( frame[4] & 0x80 )) << 8 ) + (int)(frame[2]);
-
-    return 1;
-}
-
-// MCO_MODE 0
-int can_decoder::decode_autolock_type(const CanFrame &frame, int* autolock_type)
-{
-    if ( frame.getDescriptor () != 0x0803 ) // id: 0x040
-        return -1;
-
-    (*autolock_type) = (int)((frame[1] & 0x0C) >> 2);
 
     return 1;
 }

@@ -65,10 +65,6 @@ iodrv::iodrv(Can *onCan, QObject *parent)
     c_pressure_tm = -1;
     c_is_on_road = 1;
 
-    c_autolock_type = -1;
-    c_autolock_type_target = -1;
-    c_autolock_speed = 40;
-
     p_speed = -1;
     p_speed_limit = -1;
     p_target_speed = -1;
@@ -83,8 +79,6 @@ iodrv::iodrv(Can *onCan, QObject *parent)
     p_pressure_tc = -1;
     p_pressure_tm = -1;
     p_is_on_road = -1;
-
-    p_autolock_type = -1;
 
     c_ssps_mode = -1; p_ssps_mode = -1;
 
@@ -178,8 +172,6 @@ void iodrv::process_can_messages(CanFrame frame)
     decode_movement_direction(frame);
     decode_reg_tape_avl(frame);
 
-    decode_autolock_type(frame);
-
 #ifndef WITH_SERIALPORT
     decode_mm_lat_lon(frame);
     decode_ipd_datetime(frame);
@@ -219,39 +211,6 @@ int iodrv::decode_speed_limit(const CanFrame &frame)
             return 1;
     }
     return 0;
-}
-
-int iodrv::decode_autolock_type(const CanFrame &frame)
-{
-    switch (can_decoder::decode_autolock_type(frame, &c_autolock_type))
-    {
-    case 1:
-        if ((p_autolock_type == -1) || (p_autolock_type != -1 && p_autolock_type != c_autolock_type))
-        {
-            emit signal_autolock_type(c_autolock_type);
-            if (c_autolock_type_target == -1)
-            {
-                c_autolock_type_target = c_autolock_type;
-                emit signal_autolock_type_target(c_autolock_type);
-            }
-        }
-
-        if ( c_autolock_type == p_autolock_type && c_autolock_type != c_autolock_type_target )
-        {
-            this->set_autolock_type(c_autolock_type_target, c_autolock_speed);
-        }
-
-        p_autolock_type = c_autolock_type;
-            return 1;
-    }
-    return 0;
-}
-
-int iodrv::set_autolock_type(int autolock_type, int speed)
-{
-    CanFrame frame = can_encoder::encode_autolock_set_message (autolock_type, speed);
-    write_canmsg_async (write_socket_0, frame);
-    return 1;
 }
 
 int iodrv::decode_target_speed(const CanFrame &frame)
@@ -612,14 +571,4 @@ void iodrv::slot_rmp_key_up()
     CanFrame frame = can_encoder::encode_sys_key(is_released, 0x16);
     write_canmsg_async(write_socket_0, frame);
     write_canmsg_async(write_socket_1, frame);
-}
-
-void iodrv::slot_autolock_type_target_changed (int value)
-{
-    c_autolock_type_target = value;
-}
-
-void iodrv::slot_autolock_speed_changed(int value)
-{
-    c_autolock_speed = value;
 }

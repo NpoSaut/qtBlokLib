@@ -57,9 +57,6 @@ signals:
     void signal_movement_direction(int movement_direction);
     void signal_reg_tape_avl(bool reg_tape_avl);
 
-    void signal_autolock_type(int autolock_type);
-    void signal_autolock_type_target(int autolock_type);
-
     void signal_lat(double lat);
     void signal_lon(double lon);
     void signal_lat_lon(double lat, double lon);
@@ -75,8 +72,6 @@ public slots:
     void slot_vk_key_up();
     void slot_rmp_key_down();
     void slot_rmp_key_up();
-    void slot_autolock_type_target_changed(int value);
-    void slot_autolock_speed_changed(int value);
 
 private slots:
     void process_can_messages(CanFrame frame);
@@ -122,10 +117,6 @@ private:
     int c_vigilance;
     int c_reg_tape_avl;
 
-    int c_autolock_type;
-    int c_autolock_type_target;
-    int c_autolock_speed;
-
     double c_pressure_tc;
     double c_pressure_tm;
     int c_is_on_road;
@@ -144,8 +135,6 @@ private:
     int p_driving_mode;
     int p_vigilance;
     int p_reg_tape_avl;
-
-    int p_autolock_type;
 
     double p_pressure_tc;
     double p_pressure_tm;
@@ -168,10 +157,6 @@ private:
     int decode_ipd_datetime(const CanFrame &frame);
     int decode_vigilance(const CanFrame &frame);
     int decode_reg_tape_avl(const CanFrame &frame);
-
-    int decode_autolock_type(const CanFrame &frame);
-    int set_autolock_type(int autolock_type, int speed);
-
 
 #ifdef WITH_SERIALPORT
     QSerialPort serial_port;
