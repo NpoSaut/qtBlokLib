@@ -55,7 +55,6 @@ iodrv::iodrv(Can *onCan, QObject *parent)
     c_target_speed = -1;
     c_acceleration = -1;
     c_movement_direction = -1;
-    c_trafficlight_light = -1;
     c_trafficlight_freq = -1;
     c_trafficlight_freq_target = -1;
     c_passed_distance = -1;
@@ -77,7 +76,6 @@ iodrv::iodrv(Can *onCan, QObject *parent)
     p_target_speed = -1;
     p_acceleration = -1;
     p_movement_direction = -1;
-    p_trafficlight_light = -1;
     p_trafficlight_freq = -1;
     p_passed_distance = -1;
     p_epv_state = -1;
@@ -90,7 +88,6 @@ iodrv::iodrv(Can *onCan, QObject *parent)
     p_is_on_road = -1;
 
     p_autolock_type = -1;
-    p_autolock_type_target = -1;
 
     c_ssps_mode = -1; p_ssps_mode = -1;
 
@@ -242,12 +239,11 @@ int iodrv::decode_autolock_type(const CanFrame &frame)
             }
         }
 
-        if (c_autolock_type_target == p_autolock_type_target && c_autolock_type_target != c_autolock_type)
+        if ( c_autolock_type == p_autolock_type && c_autolock_type != c_autolock_type_target )
         {
             this->set_autolock_type(c_autolock_type_target, c_autolock_speed);
         }
 
-        p_autolock_type_target = c_autolock_type_target;
         p_autolock_type = c_autolock_type;
             return 1;
     }

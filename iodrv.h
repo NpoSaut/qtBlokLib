@@ -50,7 +50,6 @@ signals:
     void signal_passed_distance(int passed_distance);
     void signal_orig_passed_distance(int orig_passed_distance);
     //Светофоры
-    void signal_trafficlight_light(int trafficlight_light);
     void signal_trafficlight_freq(int trafficlight_freq);
     void signal_trafficlight_freq_target (int trafficlight_freq_target);
     //Движение
@@ -148,7 +147,6 @@ private:
     int p_reg_tape_avl;
 
     int p_autolock_type;
-    int p_autolock_type_target;
 
     double p_pressure_tc;
     double p_pressure_tm;
