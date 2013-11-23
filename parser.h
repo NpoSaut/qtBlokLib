@@ -9,6 +9,7 @@
 #include "parsers/mco_limits.h"
 #include "parsers/mco_state.h"
 #include "parsers/mm_coord.h"
+#include "parsers/mp_state.h"
 #include "parsers/mvd_dd.h"
 #include "parsers/sys_key.h"
 #include "parsers/tskbm_state.h"
@@ -25,6 +26,7 @@ public:
     McoLimits mcoLimits;
     McoState mcoState;
     MmCoord mmCoord;
+    MpState mpState;
     MvdDd mvdDd;
     SysKeysState sysKey;
     TskbmState tskbmState;
