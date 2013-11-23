@@ -176,8 +176,6 @@ void iodrv::process_can_messages(CanFrame frame)
     decode_target_speed(frame);
     decode_acceleration(frame);
 
-    decode_trafficlight_light(frame);
-    decode_trafficlight_freq(frame);
     decode_passed_distance(frame);
     decode_orig_passed_distance (frame);
     decode_modules_activity(frame);
@@ -307,50 +305,6 @@ int iodrv::decode_movement_direction(const CanFrame &frame)
             }*/
             emit signal_movement_direction(c_movement_direction);
             p_movement_direction = c_movement_direction;
-            return 1;
-    }
-    return 0;
-}
-
-int iodrv::decode_trafficlight_light(const CanFrame &frame)
-{
-    switch (can_decoder::decode_trafficlight_light(frame, &c_trafficlight_light))
-    {
-        case 1:
-            /*if ((p_trafficlight_light == -1) || (p_trafficlight_light != -1 && p_trafficlight_light != c_trafficlight_light))
-            {
-                emit signal_trafficlight_light(c_trafficlight_light);
-            }*/
-            emit signal_trafficlight_light(c_trafficlight_light);
-            p_trafficlight_light = c_trafficlight_light;
-            return 1;
-    }
-    return 0;
-}
-
-int trafficlight_freq_incorrect_count = 0;
-int iodrv::decode_trafficlight_freq(const CanFrame &frame)
-{
-    switch (can_decoder::decode_trafficlight_freq(frame, &c_trafficlight_freq))
-    {
-        case 1:
-            if ((p_trafficlight_freq == -1) || (p_trafficlight_freq != -1 && p_trafficlight_freq != c_trafficlight_freq))
-            {
-                emit signal_trafficlight_freq(c_trafficlight_freq);
-                if (c_trafficlight_freq_target == -1)
-                    emit signal_trafficlight_freq_target (c_trafficlight_freq);
-            }
-            if (c_trafficlight_freq_target != -1 && c_trafficlight_freq_target != c_trafficlight_freq)
-            {
-                if (trafficlight_freq_incorrect_count >= 1)
-                {
-                  this->slot_f_key_down();
-//                this->slot_f_key_up(); // Если делать, то с задержкой
-                  trafficlight_freq_incorrect_count = 0;
-                }
-                else trafficlight_freq_incorrect_count ++;
-            }
-            p_trafficlight_freq = c_trafficlight_freq;
             return 1;
     }
     return 0;

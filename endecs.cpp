@@ -257,38 +257,6 @@ int can_decoder::decode_movement_direction(const CanFrame &frame, int* movement_
     return 1;
 }
 
-// MCO_STATE_A
-int can_decoder::decode_trafficlight_light(const CanFrame &frame, int* trafficlight_light)
-{
-    if ( frame.getDescriptor () != 0x0A08 ) // id: 0x050
-        return -1;
-
-    // -1 - преобразование для передачи в уровень интерфейса.
-    (*trafficlight_light) = (int) ( frame[6] & 0x0F ) - 1;
-
-    return 1;
-}
-
-// MP_STATE_A
-int can_decoder::decode_trafficlight_freq(const CanFrame &frame, int* trafficlight_freq)
-{
-    if ( frame.getDescriptor () != 0x11E8 ) // id: 0x08F
-        return -1;
-
-    int freq_code = (int) (( frame[5] & 0x30 ) >> 4);
-
-    if (freq_code == 0)
-        (*trafficlight_freq) = 50;
-    else if (freq_code == 1)
-        (*trafficlight_freq) = 75;
-    else if (freq_code == 2)
-        (*trafficlight_freq) = 0;
-    else if (freq_code == 3)
-        (*trafficlight_freq) = 25;
-
-    return 1;
-}
-
 // IPD_STATE_A
 int can_decoder::decode_passed_distance(const CanFrame &frame, int* passed_distance)
 {

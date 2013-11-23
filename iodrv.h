@@ -114,9 +114,6 @@ private:
     double c_acceleration;
 
     int c_movement_direction;
-    int c_trafficlight_light;
-    int c_trafficlight_freq;
-    int c_trafficlight_freq_target;
     int c_passed_distance;
     int c_orig_passed_distance;
     int c_epv_state;
@@ -141,8 +138,6 @@ private:
     double p_acceleration;
 
     int p_movement_direction;
-    int p_trafficlight_light;
-    int p_trafficlight_freq;
     int p_passed_distance;
     int p_epv_state;
     int p_epv_key;
@@ -168,9 +163,7 @@ private:
     int decode_acceleration(const CanFrame &frame);
 
     int decode_movement_direction(const CanFrame &frame);
-    int decode_trafficlight_light(const CanFrame &frame);
     int decode_trafficlight_freq(const CanFrame &frame);
-    int decode_passed_distance(const CanFrame &frame);
     int decode_orig_passed_distance (const CanFrame &frame);
     int decode_modules_activity(const CanFrame &frame);
     int decode_mm_lat_lon(const CanFrame &frame);

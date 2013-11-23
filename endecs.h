@@ -33,8 +33,6 @@ public:
     static int decode_acceleration(const CanFrame &frame, double* acceleration);
 
     static int decode_movement_direction(const CanFrame &frame, int* movement_direction);
-    static int decode_trafficlight_light(const CanFrame &frame, int* trafficlight_light);
-    static int decode_trafficlight_freq(const CanFrame &frame, int* trafficlight_freq);
     static int decode_passed_distance(const CanFrame &frame, int* passed_distance);
     static int decode_orig_passed_distance(const CanFrame &frame, int* x);
     static int decode_epv_released(const CanFrame &frame, int* epv_state);
