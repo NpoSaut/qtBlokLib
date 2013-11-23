@@ -55,8 +55,6 @@ iodrv::iodrv(Can *onCan, QObject *parent)
     c_target_speed = -1;
     c_acceleration = -1;
     c_movement_direction = -1;
-    c_trafficlight_freq = -1;
-    c_trafficlight_freq_target = -1;
     c_passed_distance = -1;
     c_epv_state = -1;
     c_epv_key = -1;
@@ -76,7 +74,6 @@ iodrv::iodrv(Can *onCan, QObject *parent)
     p_target_speed = -1;
     p_acceleration = -1;
     p_movement_direction = -1;
-    p_trafficlight_freq = -1;
     p_passed_distance = -1;
     p_epv_state = -1;
     p_epv_key = -1;
@@ -626,9 +623,3 @@ void iodrv::slot_autolock_speed_changed(int value)
 {
     c_autolock_speed = value;
 }
-
-void iodrv::slot_trafficlight_freq_target(int trafficlight_freq_target)
-{
-    c_trafficlight_freq_target = trafficlight_freq_target;
-}
-

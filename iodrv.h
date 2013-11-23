@@ -77,7 +77,6 @@ public slots:
     void slot_rmp_key_up();
     void slot_autolock_type_target_changed(int value);
     void slot_autolock_speed_changed(int value);
-    void slot_trafficlight_freq_target (int trafficlight_freq_target);
 
 private slots:
     void process_can_messages(CanFrame frame);
@@ -159,6 +158,7 @@ private:
     int decode_speed_limit(const CanFrame &frame);
     int decode_target_speed(const CanFrame &frame);
     int decode_acceleration(const CanFrame &frame);
+    int decode_passed_distance(const CanFrame &frame);
 
     int decode_movement_direction(const CanFrame &frame);
     int decode_trafficlight_freq(const CanFrame &frame);
