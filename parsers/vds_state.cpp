@@ -132,14 +132,15 @@ bool VdsState::setIronWheels(bool iw)
 
 bool VdsState::parseSuitableMessage(const CanFrame &frame)
 {
-    return
-        setEpvKey                   (frame[1] & (1 << 2))
-     || setTraction               (!(frame[1] & (1 << 0)))
-     || setTransmissionDirection  (TransmissionDirection((frame[2] >> 6) & 0x3))
-     || setEngineWork               (frame[2] & (1 << 5))
-     || setVigilanceButton          (frame[2] & (1 << 4))
-     || setEmergencyStop            (frame[2] & (1 << 3))
-     || setSiren                    (frame[2] & (1 << 2))
-     || setTifon                    (frame[2] & (1 << 1))
-     || setIronWheels               (frame[2] & (1 << 0));
+    bool update = false;
+    update = setEpvKey                   (frame[1] & (1 << 2)) || update;
+    update = setTraction               (!(frame[1] & (1 << 0))) || update;
+    update = setTransmissionDirection  (TransmissionDirection((frame[2] >> 6) & 0x3)) || update;
+    update = setEngineWork               (frame[2] & (1 << 5)) || update;
+    update = setVigilanceButton          (frame[2] & (1 << 4)) || update;
+    update = setEmergencyStop            (frame[2] & (1 << 3)) || update;
+    update = setSiren                    (frame[2] & (1 << 2)) || update;
+    update = setTifon                    (frame[2] & (1 << 1)) || update;
+    update = setIronWheels               (frame[2] & (1 << 0)) || update;
+    return update;
 }

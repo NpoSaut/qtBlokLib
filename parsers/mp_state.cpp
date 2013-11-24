@@ -2,6 +2,8 @@
 
 #include "QMetaType"
 
+#include <QDebug>
+
 MpState::MpState(QObject *parent) :
     CanBlokMessage(0x08F, 8, parent),
     trafficlight (WHITE),
@@ -177,19 +179,20 @@ bool MpState::setBlockzoneLength(int length)
 
 bool MpState::parseSuitableMessage(const CanFrame &frame)
 {
-    return
-            setTrafficlight (Trafficlight (frame[2] >> 4))
-            || setDeviationFromNarrow (frame[2] & (1 << 3))
-            || setRestrictionSpeed ( quint16 (frame[3]) + quint16 (frame[2] & (1 << 0))*256 )
-            || setTargetSpeed ( quint16 (frame[8]) + quint16 (frame[2] >> 1 & 1)*256 )
-            || setKptType (KptType (frame[5] >> 6))
-            || setFrequency (AlsnFrequency ((frame[5] >> 4) & 0x3))
-            || setAlsnActive (frame[5] & (1 << 3))
-            || setAlsEnActive (frame[5] & (1 << 2))
-            || setAlsnLight ( AlsnLight (frame[5] & 0x3) )
-            || setAutoblockClosed (frame[6] & (1 << 6))
-            || setAutoblockSemiClosed (frame[6] & (1 << 5))
-            || setBlockzoneLength ( quint16 (frame[7]) + quint16 (frame[6] & 0xF)*256 );
+    bool changed = false;
+    changed = setTrafficlight (Trafficlight (frame[2] >> 4)) || changed;
+    changed = setDeviationFromNarrow (frame[2] & (1 << 3)) || changed;
+    changed = setRestrictionSpeed ( quint16 (frame[3]) + quint16 (frame[2] & (1 << 0))*256 ) || changed;
+    changed = setTargetSpeed ( quint16 (frame[8]) + quint16 (frame[2] >> 1 & 1)*256 ) || changed;
+    changed = setKptType (KptType (frame[5] >> 6)) || changed;
+    changed = setFrequency (AlsnFrequency ((frame[5] >> 4) & 0x3)) || changed;
+    changed = setAlsnActive (frame[5] & (1 << 3)) || changed;
+    changed = setAlsEnActive (frame[5] & (1 << 2)) || changed;
+    changed = setAlsnLight ( AlsnLight (frame[5] & 0x3) ) || changed;
+    changed = setAutoblockClosed (frame[6] & (1 << 6)) || changed;
+    changed = setAutoblockSemiClosed (frame[6] & (1 << 5)) || changed;
+    changed = setBlockzoneLength ( quint16 (frame[7]) + quint16 (frame[6] & 0xF)*256 ) || changed;
+    return changed;
 }
 
 

@@ -73,9 +73,10 @@ bool UktolDd1::parseSuitableMessage(const CanFrame &frame)
     tc.setAtm ( float(quint16(frame[5])*256 + quint16(frame[4]))/100 );
     tm.setAtm ( float(quint16(frame[7])*256 + quint16(frame[6]))/100 );
 
-    return
-            setUrPressure (ur)
-         || setTcPressure (tc)
-         || setTmPressure (tm);
+    bool update = false;
+    update = setUrPressure (ur) || update;
+    update = setTcPressure (tc) || update;
+    update = setTmPressure (tm) || update;
+    return update;
 }
 

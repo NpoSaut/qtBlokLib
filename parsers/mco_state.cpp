@@ -81,12 +81,12 @@ bool McoState::setConClosed(bool closed)
 
 bool McoState::parseSuitableMessage(const CanFrame &frame)
 {
-    return
-        setTraction       (!(frame[1] & (1 << 5)))
-     || setEpvReady         (frame[1] & (1 << 6))
-     || setEpvReleased      (frame[6] & (1 << 5))
-     || setTrafficlight     (Trafficlight (frame[6] & 0xF))
-     || setConClosed        (frame[8] & (1 << 1));
+    bool update = false;
+    update =   setTraction      (!(frame[1] & (1 << 5))) || update;
+    update =  setEpvReady         (frame[1] & (1 << 6))  || update;
+    update =  setEpvReleased      (frame[6] & (1 << 5))  || update;
+    update =  setTrafficlight     (Trafficlight (frame[6] & 0xF)) || update;
+    update =  setConClosed        (frame[8] & (1 << 1))  || update;;
 }
 
 

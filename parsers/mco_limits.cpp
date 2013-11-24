@@ -59,8 +59,9 @@ bool McoLimits::parseSuitableMessage(const CanFrame &frame)
     else if ( (frame[8] & 0x03) == 3 )
         newMode = DOUBLE_TRACTION;
 
-    return
-           setDriveMode (newMode)
-        || setTractionShutdownCommand ( !(frame[8] & (1 << 7) ) );
+    bool update = false;
+    update = setDriveMode (newMode) || update;
+    update = setTractionShutdownCommand ( !(frame[8] & (1 << 7) ) ) || update;
+    return update;
 }
 

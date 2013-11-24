@@ -62,11 +62,12 @@ bool TskbmState::setPreAlarm(bool newValue)
 
 bool TskbmState::parseSuitableMessage(const CanFrame &frame)
 {
-    return
-        setOnline(            (frame[1] & (1 << 7)) )
-     || setMachinistCheerful( (frame[1] & (1 << 6)) )
-     || setVigilanceRequest(  (frame[1] & (1 << 5)) )
-     || setPreAlarm(          (frame[1] & (1 << 4)) );
+    bool update = false;
+    update = setOnline(            (frame[1] & (1 << 7)) )  || update;
+    update =  setMachinistCheerful( (frame[1] & (1 << 6)) ) || update;
+    update =  setVigilanceRequest(  (frame[1] & (1 << 5)) ) || update;
+    update =  setPreAlarm(          (frame[1] & (1 << 4)) ) || update;
+    return update;
 }
 
 

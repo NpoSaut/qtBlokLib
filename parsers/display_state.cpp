@@ -125,15 +125,15 @@ bool DisplayStateA::setFreq(bool press)
 
 bool DisplayStateA::parseSuitableMessage(const CanFrame &frame)
 {
-    bool update =
-               setRb       (frame[2] & (1 << 7))
-            || setRbs      (frame[2] & (1 << 6))
-            || setVk       (frame[2] & (1 << 5))
-            || setPull     (frame[2] & (1 << 3))
-            || setOtpr     (frame[2] & (1 << 2))
-            || setOc       (frame[2] & (1 << 1))
-            || setK20      (frame[2] & (1 << 0))
-            || setFreq     (frame[3] & (1 << 7));
+    bool update = false;
+    update =  setRb       (frame[2] & (1 << 7)) || update;
+    update =  setRbs      (frame[2] & (1 << 6)) || update;
+    update =  setVk       (frame[2] & (1 << 5)) || update;
+    update =  setPull     (frame[2] & (1 << 3)) || update;
+    update =  setOtpr     (frame[2] & (1 << 2)) || update;
+    update =  setOc       (frame[2] & (1 << 1)) || update;
+    update =  setK20      (frame[2] & (1 << 0)) || update;
+    update =  setFreq     (frame[3] & (1 << 7)) || update;
 
     if (frame[3] & (1 << 6))
         update = update || setDriveMode (WORKING);
@@ -182,8 +182,9 @@ bool DisplayStateB::setRbs(bool pressed)
 
 bool DisplayStateB::parseSuitableMessage(const CanFrame &frame)
 {
-    return
-            setRb (frame[2] & (1 << 7))
-         || setRbs(frame[2] & (1 << 6));
+    bool update = false;
+    update = setRb (frame[2] & (1 << 7)) || update;
+    update = setRbs(frame[2] & (1 << 6)) || update;
+    return update;
 }
 

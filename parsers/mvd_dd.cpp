@@ -49,7 +49,8 @@ bool MvdDd::parseSuitableMessage(const CanFrame &frame)
     tc.setMpa ( float(frame[2]) / 255 );
     tm.setMpa ( float(frame[3]) / 255 );
 
-    return
-        setTcPressure (tc)
-      | setTmPressure (tm);
+    bool update = false;
+    update = setTcPressure (tc) || update;
+    update = setTmPressure (tm) || update;
+    return update;
 }
