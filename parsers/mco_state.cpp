@@ -1,5 +1,7 @@
 #include "mco_state.h"
 
+#include "QMetaType"
+
 McoState::McoState(QObject *parent) :
     PeriodicalCanBlokMessage(0x050, 8, parent),
     traction (false),
@@ -8,6 +10,7 @@ McoState::McoState(QObject *parent) :
     trafficlight (WHITE),
     conClosed (true)
 {
+    qRegisterMetaType<Trafficlight>("Trafficlight");
 }
 
 void McoState::fillMessage(CanFrame &frame) const
@@ -51,7 +54,7 @@ bool McoState::setTrafficlight(Trafficlight light)
     if ( trafficlight != light || theFirstTime )
     {
         trafficlight = light;
-        emit trafficlightChanged (RED);
+        emit trafficlightChanged (trafficlight);
         return true;
     }
     return false;
@@ -86,7 +89,8 @@ bool McoState::parseSuitableMessage(const CanFrame &frame)
     update =  setEpvReady         (frame[1] & (1 << 6))  || update;
     update =  setEpvReleased      (frame[6] & (1 << 5))  || update;
     update =  setTrafficlight     (Trafficlight (frame[6] & 0xF)) || update;
-    update =  setConClosed        (frame[8] & (1 << 1))  || update;;
+    update =  setConClosed        (frame[8] & (1 << 1))  || update;
+    return update;
 }
 
 
