@@ -82,11 +82,9 @@ iodrv::iodrv(Can *onCan, QObject *parent)
 
     c_ssps_mode = -1; p_ssps_mode = -1;
 
-    c_lat = -1; c_lon = -1;
     c_ipd_hours = -1; c_ipd_mins = -1; c_ipd_secs = -1;
     c_ipd_year = -1; c_ipd_month = -1; c_ipd_day = -1;
 
-    p_lat = -1; p_lon = -1;
     p_ipd_hours = -1; p_ipd_mins = -1; p_ipd_secs = -1;
     p_ipd_year = -1; p_ipd_month = -1; p_ipd_day = -1;
 }
@@ -173,7 +171,6 @@ void iodrv::process_can_messages(CanFrame frame)
     decode_reg_tape_avl(frame);
 
 #ifndef WITH_SERIALPORT
-    decode_mm_lat_lon(frame);
     decode_ipd_datetime(frame);
 #endif
 
@@ -328,27 +325,6 @@ int iodrv::decode_modules_activity(const CanFrame &frame)
     return 0;
 }
 
-int iodrv::decode_mm_lat_lon(const CanFrame &frame)
-{
-    switch (can_decoder::decode_mm_lat_lon(frame, &c_lat, &c_lon))
-    {
-        case 1:
-            if (((p_lat == -1) || (p_lat != -1 && p_lat != c_lat)) ||
-                ((p_lon == -1) || (p_lon != -1 && p_lon != c_lon)))
-            {
-                emit signal_lat(c_lat);
-                emit signal_lon(c_lon);
-            }
-//            emit signal_lat_lon (c_lat, c_lon);
-            p_lat = c_lat;
-            p_lon = c_lon;
-
-//            printf("Coord: lat = %f, lon = %f\n", c_lat, c_lon); fflush(stdout);
-            return 1;
-    }
-    return 0;
-}
-
 int iodrv::decode_ipd_datetime(const CanFrame &frame)
 {
     switch (can_decoder::decode_ipd_date(frame, &c_ipd_year, &c_ipd_month, &c_ipd_day, &c_ipd_hours, &c_ipd_mins, &c_ipd_secs))
@@ -477,6 +453,7 @@ void iodrv::slot_serial_ready_read()
             else
                 speed_old = gd.speed;
 
+            qDebug() << "speed from sky: " << "reliable: " << gd.is_reliable << "speed: " gd.speed;
             emit signal_speed_sky(gd.is_reliable ? gd.speed : -1);
 
             if ( c_is_on_road == 1 &&

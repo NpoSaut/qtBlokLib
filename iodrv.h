@@ -153,7 +153,6 @@ private:
     int decode_trafficlight_freq(const CanFrame &frame);
     int decode_orig_passed_distance (const CanFrame &frame);
     int decode_modules_activity(const CanFrame &frame);
-    int decode_mm_lat_lon(const CanFrame &frame);
     int decode_ipd_datetime(const CanFrame &frame);
     int decode_vigilance(const CanFrame &frame);
     int decode_reg_tape_avl(const CanFrame &frame);
@@ -164,11 +163,9 @@ private:
     int init_serial_port();
 
 
-    double c_lat; double c_lon;
     int c_ipd_hours; int c_ipd_mins; int c_ipd_secs;
     int c_ipd_year; int c_ipd_month; int c_ipd_day;
 
-    double p_lat; double p_lon;
     int p_ipd_hours; int p_ipd_mins; int p_ipd_secs;
     int p_ipd_year; int p_ipd_month; int p_ipd_day;
 

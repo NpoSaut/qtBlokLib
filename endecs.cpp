@@ -259,21 +259,6 @@ int can_decoder::decode_orig_passed_distance(const CanFrame &frame, int* x)
     return 1;
 }
 
-// MM_ALT_LONG
-int can_decoder::decode_mm_lat_lon(const CanFrame &frame, double* lat, double* lon)
-{
-    if ( frame.getDescriptor () != 0x4268 ) // id: 0x213
-        return -1;
-
-    int lat_i =((int) frame[1]) + (((int) frame[2]) << 8) + (((int) frame[3]) << 16) + (((int) frame[4]) << 24);
-    *lat = (double)lat_i * 1e-8 * 180 / 3.14159265359;
-
-    int lon_i =((int) frame[5]) + (((int) frame[6]) << 8) + (((int) frame[7]) << 16) + (((int) (frame[8]) & 0x7F ) << 24);
-    *lon = (double)lon_i * 1e-8 * 180 / 3.14159265359;
-
-    return 1;
-}
-
 // IPD_DATE
 int can_decoder::decode_ipd_date(const CanFrame &frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds)
 {

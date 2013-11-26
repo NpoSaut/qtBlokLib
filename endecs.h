@@ -37,7 +37,6 @@ public:
     static int decode_epv_released(const CanFrame &frame, int* epv_state);
     static int decode_epv_key(const CanFrame &frame, int* epv_key);
     static int decode_modules_activity(const CanFrame &frame, ModulesActivity* modulesActivity);
-    static int decode_mm_lat_lon(const CanFrame &frame, double* lat, double* lon);
     static int decode_ipd_date(const CanFrame &frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds);
 
     static int decode_driving_mode(const CanFrame &frame, int* driving_mode);
