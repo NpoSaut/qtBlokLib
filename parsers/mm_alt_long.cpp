@@ -35,7 +35,7 @@ bool MmAltLong::parseSuitableMessage(const CanFrame &frame)
     int lon_i =((int) frame[5]) + (((int) frame[6]) << 8) + (((int) frame[7]) << 16) + (((int) (frame[8]) & 0x7F ) << 24);
     update = setLongitude ( (double)lon_i * 1e-8 * 180 / 3.14159265359 ) || update;
 
-    update = setValid (frame[8] & (1 << 7)) || update;
+    update = setValid ( !(frame[8] & (1 << 7)) ) || update;
 
     return update;
 }
