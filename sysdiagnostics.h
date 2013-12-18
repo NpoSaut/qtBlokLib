@@ -26,8 +26,8 @@ private:
 
     const static int moduleCode = 7; // Код модуля БИЛ-УМВ
 
-    const static unsigned int version = 100;
-    const static unsigned int subVersion = 2;
+    const static unsigned int version = 1;
+    const static unsigned int subVersion = 11;
 
     void sendVersion ();
 };
