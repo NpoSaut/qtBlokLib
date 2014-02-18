@@ -7,6 +7,7 @@
 
 #include "parsers/ipd_state.h"
 #include "parsers/mco_limits.h"
+#include "parsers/mco_mode.h"
 #include "parsers/mco_state.h"
 #include "parsers/mm_alt_long.h"
 #include "parsers/mm_coord.h"
@@ -25,6 +26,7 @@ public:
 
     IpdState ipdState;
     McoLimits mcoLimits;
+    McoMode mcoMode;
     McoState mcoState;
     MmAltLong mmAltLong;
     MmCoord mmCoord;
