@@ -48,7 +48,7 @@ public slots:
     // Устанавливает значение
     //   Вызов приводит к попытке записи в МПХ по CAN (локальное значение сразу не изменяется)
     //   При получении подтверждения о записи измениятся локальное значение и выдаётся сигнал onChange()
-    void setVaule(int value);
+    virtual void setVaule(int value);
 
 private slots:
     // В этот слот должны направляться все приходящие сообщения SYS_DATA
@@ -57,7 +57,7 @@ private slots:
     // Вызывается по истечению таймаута на ожидания ответа на запрос
     void answerTimeoutHandler();
 
-private:
+protected:
     Can *can;
 
     // Если переданно сообщение SYS_DATA с индексом равным нашему,
@@ -97,13 +97,27 @@ private:
     QTimer answerWaitTimer;
 };
 
+class CookiePookie : public Cookie
+{
+    Q_OBJECT
+
+public:
+    explicit CookiePookie (Can *onCan, int index, QObject *parent = 0);
+
+public slots:
+    // Устанавливает значение
+    //   Вызов приводит к попытке записи в МПХ по CAN (локальное значение сразу не изменяется)
+    //   При получении подтверждения о записи измениятся локальное значение и выдаётся сигнал onChange()
+    void setVaule(int value);
+};
+
 class Cookies : public QObject
 {
     Q_OBJECT
 public:
     explicit Cookies(Can *onCan, QObject *parent = 0);
 
-    Cookie trackNumbetNotSaved;
+    CookiePookie trackNumbetNotSaved;
     Cookie machinistNumber;
     Cookie trainNumber;
     Cookie categoryTrain;

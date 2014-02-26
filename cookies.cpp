@@ -227,3 +227,27 @@ Cookies::Cookies(Can *onCan, QObject *parent)
       errorPkm2Ov (onCan, 47)
 {
 }
+
+
+void CookiePookie::setVaule(int value)
+{
+    Cookie::setVaule (value);
+
+    std::vector<unsigned char> data(5);
+    data[0] = index;
+
+    Complex<int32_t> valueByte = writeValue;
+    data[1] = valueByte[3];
+    data[2] = valueByte[2];
+    data[3] = valueByte[1];
+    data[4] = valueByte[0];
+
+    CanFrame frame( 0x6265, data ); // SYS_DATA id
+    can->transmitMessage (frame);
+}
+
+
+CookiePookie::CookiePookie(Can *onCan, int index, QObject *parent)
+    : Cookie (onCan, index, parent)
+{
+}
