@@ -453,7 +453,7 @@ void iodrv::slot_serial_ready_read()
             else
                 speed_old = gd.speed;
 
-            qDebug() << "speed from sky: " << "reliable: " << gd.is_reliable << "speed: " gd.speed;
+            qDebug() << "speed from sky: " << "reliable: " << gd.is_reliable << "speed: " << gd.speed;
             emit signal_speed_sky(gd.is_reliable ? gd.speed : -1);
 
             if ( c_is_on_road == 1 &&
