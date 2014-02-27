@@ -79,12 +79,14 @@ bool Cookie::loadDataWithControl(const CanFrame &frame)
         if ( id == index )
         {
             lastUpdateTimer.start ();
-            answerWaitTimer.stop ();                // !!!!
+            ActivityKind lastActivity = activity;
+            stopActivity ();
 
             if ( byte[0] >> 7 ) // Признак ошибка
             {
                 if ( byte[1] == 1 ) // Код ошибки: устройство занято
                 {
+                    startActivity (lastActivity);
                     if (activity == WRITE_ACTION)
                         writeValueRequestSend ();
                     if (activity == READ_ACTION)
@@ -98,7 +100,6 @@ bool Cookie::loadDataWithControl(const CanFrame &frame)
             }
             else
             {
-                stopActivity ();
                 //applyNewValue (Complex<uint32_t> (byte[4], byte[3], byte[2], byte[1]));
                 applyNewValue ( ((unsigned int) (byte[1]) << 3*8) +
                                 ((unsigned int) (byte[2]) << 2*8) +
