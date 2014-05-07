@@ -1,13 +1,13 @@
 #include "sys_diagnostics.h"
 
-#include "QMetaType"
+#include <QMetaType>
 
 SysDiagnostics::SysDiagnostics(QObject *parent) :
     CanBlokMessage(0x468, 7, parent),
     module (NONE),
     operation (NOOP)
 {
-    qRegisterMetaType<AuxModule> ("SysDiagnostics::AuxModule");
+    qRegisterMetaType<SysDiagnostics::AuxModule> ("SysDiagnostics::AuxModule");
     qRegisterMetaType<AuxOperation> ("AuxOperation");
 }
 

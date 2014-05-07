@@ -55,18 +55,17 @@ bool AuxResource::setData(quint32 d)
 
 AuxResourceVersion::AuxResourceVersion(AuxResource::Descriptor descriptor, QObject *parent)
     : AuxResource (descriptor, parent),
-      version (0),
-      subversion (0),
-      checksum (0)
-{ }
+      data (0)
+{
+    setCode (RES_VERSION);
+}
 
 
 void AuxResourceVersion::encodeData()
 {
-    qDebug() << "code fields into data";
-    setData( (quint32 (quint8 (version))    << 24)
-            +(quint32 (quint8 (subversion)) << 16)
-            +(quint32 (quint16(checksum))   <<  0) );
+    setData( (quint32 (quint8 (data->version))    << 24)
+            +(quint32 (quint8 (data->subversion)) << 16)
+            +(quint32 (quint16(data->checksum))   <<  0) );
 }
 
 
@@ -80,10 +79,11 @@ void AuxResourceVersion::processData()
 
 bool AuxResourceVersion::setVersion(int v)
 {
-    if ( version != v )
+    if ( data->version != v )
     {
-        version = v;
-        emit versionChanged (version);
+        data->version = v;
+        setData (data);
+        emit versionChanged (data->version);
         return true;
     }
     return false;
@@ -91,10 +91,11 @@ bool AuxResourceVersion::setVersion(int v)
 
 bool AuxResourceVersion::setSubversion(int subv)
 {
-    if ( subversion != subv )
+    if ( data->subversion != subv )
     {
-        subversion = subv;
-        emit subversionChanged (subversion);
+        data->subversion = subv;
+        setData (data);
+        emit subversionChanged (data->subversion);
         return true;
     }
     return false;
@@ -102,10 +103,11 @@ bool AuxResourceVersion::setSubversion(int subv)
 
 bool AuxResourceVersion::setChecksum(int csum)
 {
-    if ( checksum != csum )
+    if ( data->checksum != csum )
     {
-        checksum = csum;
-        emit checksumChanged (checksum);
+        data->checksum = csum;
+        setData (data);
+        emit checksumChanged (data->checksum);
         return true;
     }
     return false;

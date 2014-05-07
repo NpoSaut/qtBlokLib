@@ -99,9 +99,9 @@ class AuxResourceVersion : public AuxResource
 public:
     explicit AuxResourceVersion (Descriptor descriptor, QObject *parent);
 
-    int getVersion () const { return version; }
-    int getSubversion () const { return subversion; }
-    int getChecksum () const { return checksum; }
+    int getVersion () const { return data->version; }
+    int getSubversion () const { return data->subversion; }
+    int getChecksum () const { return data->checksum; }
 
 signals:
     void versionChanged (int version);
