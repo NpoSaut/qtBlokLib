@@ -4,6 +4,8 @@
 
 Parser::Parser(Can *onCan, QObject *parent) :
     QObject(parent),
+    consoleKey1(),
+    consoleKey2(),
     ipdState(),
     mcoLimits(),
     mcoMode(),
@@ -18,6 +20,8 @@ Parser::Parser(Can *onCan, QObject *parent) :
     uktolDd1(),
     vdsState()
 {
+    consoleKey1.connect (onCan, SIGNAL(messageReceived(CanFrame)), SLOT(processCanMessage(CanFrame)));
+    consoleKey2.connect (onCan, SIGNAL(messageReceived(CanFrame)), SLOT(processCanMessage(CanFrame)));
     ipdState.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(processCanMessage(CanFrame)));
     mcoLimits.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(processCanMessage(CanFrame)));
     mcoMode.connect (onCan, SIGNAL(messageReceived(CanFrame)), SLOT(processCanMessage(CanFrame)));
@@ -32,6 +36,8 @@ Parser::Parser(Can *onCan, QObject *parent) :
     uktolDd1.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(processCanMessage(CanFrame)));
     vdsState.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(processCanMessage(CanFrame)));
 
+    this->connect (&consoleKey1, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
+    this->connect (&consoleKey1, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&ipdState, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&mcoLimits, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&mcoMode, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));

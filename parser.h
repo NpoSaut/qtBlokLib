@@ -5,6 +5,7 @@
 
 #include "qtCanLib/can.h"
 
+#include "parsers/console_key.h"
 #include "parsers/ipd_state.h"
 #include "parsers/mco_limits.h"
 #include "parsers/mco_mode.h"
@@ -25,6 +26,8 @@ class Parser : public QObject
 public:
     explicit Parser(Can *onCan, QObject *parent = 0);
 
+    ConsoleKeysState consoleKey1;
+    ConsoleKeysState consoleKey2;
     IpdState ipdState;
     McoLimits mcoLimits;
     McoMode mcoMode;
