@@ -13,6 +13,7 @@
 #include "parsers/mm_coord.h"
 #include "parsers/mp_state.h"
 #include "parsers/mvd_dd.h"
+#include "parsers/saut_state.h"
 #include "parsers/sys_key.h"
 #include "parsers/tskbm_state.h"
 #include "parsers/uktol_dd1.h"
@@ -32,6 +33,7 @@ public:
     MmCoord mmCoord;
     MpState mpState;
     MvdDd mvdDd;
+    SautState sautState;
     SysKeysState sysKey;
     TskbmState tskbmState;
     UktolDd1 uktolDd1;

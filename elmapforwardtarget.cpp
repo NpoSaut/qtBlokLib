@@ -35,11 +35,10 @@ void ElmapForwardTarget::getNameFromMmSignal(CanFrame mmSignal)
 
 void ElmapForwardTarget::getDistanceFromMcoState (CanFrame mcoState)
 {
-#ifndef WIN32
     if ( mcoState.getDescriptor () == 0x0A08 ) // id: 0x050 MCO_STATE
     {
         signed char high = unsigned(mcoState[4] & 0x1F);
-        Complex<int16_t> newDistance ({mcoState[5], high & (1 << 4) ? high | 0xF0 : high });
+        qint16 newDistance = (quint16( high & (1 << 4) ? high | 0xF0 : high ) << 8) | mcoState[5];
 
         if ( newDistance != distance )
         {
@@ -47,7 +46,6 @@ void ElmapForwardTarget::getDistanceFromMcoState (CanFrame mcoState)
             emit distanceChanged (distance);
         }
     }
-#endif
 }
 
 void ElmapForwardTarget::getKindFromMcoLimits (CanFrame mcoLimits)
