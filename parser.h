@@ -12,6 +12,7 @@
 #include "parsers/mco_state.h"
 #include "parsers/mm_alt_long.h"
 #include "parsers/mm_coord.h"
+#include "parsers/mm_station.h"
 #include "parsers/mp_state.h"
 #include "parsers/mvd_dd.h"
 #include "parsers/saut_state.h"
@@ -34,6 +35,7 @@ public:
     McoState mcoState;
     MmAltLong mmAltLong;
     MmCoord mmCoord;
+    MmStation mmStation;
     MpState mpState;
     MvdDd mvdDd;
     SautState sautState;
