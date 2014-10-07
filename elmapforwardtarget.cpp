@@ -23,7 +23,7 @@ void ElmapForwardTarget::getNameFromMmSignal(CanFrame mmSignal)
     {
         QString newName = cp1251Decoder->toUnicode(
                     reinterpret_cast<const char *> (mmSignal.getData().data()),
-                    8 );
+                    8 ).trimmed();
 
         if ( newName != name )
         {
