@@ -81,6 +81,8 @@ protected:
     // Если по заходу в timerEvent флаг обнаруживается не выставленным, то fresh устанавливается в false
     // В противном случае fresh устанавливается в true
     bool checkin;
+
+    bool theFirstFreshReport;
 };
 
 #endif // CANBLOKMESSAGE_H

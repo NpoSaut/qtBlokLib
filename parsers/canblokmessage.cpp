@@ -33,7 +33,8 @@ void CanBlokMessage::processCanMessage(CanFrame canFrame)
 PeriodicalCanBlokMessage::PeriodicalCanBlokMessage(int id, unsigned int size, QObject *parent) :
     CanBlokMessage (id, size, parent),
     fresh (false),
-    checkin (false)
+    checkin (false),
+    theFirstFreshReport (true)
 {
     QObject::connect (this, SIGNAL(messageReceived()), this, SLOT(checkinMessage()));
     startTimer (1000);
@@ -52,10 +53,13 @@ void PeriodicalCanBlokMessage::timerEvent(QTimerEvent *event)
 
 void PeriodicalCanBlokMessage::setFresh(bool f)
 {
-    if ( fresh != f || theFirstTime )
+    if ( fresh != f || theFirstFreshReport )
     {
         fresh = f;
         emit freshChanged (fresh);
+
+        if (theFirstFreshReport)
+            theFirstFreshReport = false;
     }
 }
 
