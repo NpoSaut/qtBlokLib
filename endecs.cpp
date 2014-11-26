@@ -4,100 +4,6 @@
 #include "endecs.h"
 #include "cDoodahLib/lowlevel.h"
 
-
-
-CanFrame can_encoder::encode_mm_alt_long(double lat, double lon, bool reliability)
-{
-    CanFrame frame (0x4268, std::vector<unsigned char> (8)); // id: 0x213
-
-    int flat = (int) ( lat * (double)1e8 * 3.14159265359 / (double)180 );
-    int flon = ((int) ( lon * (double)1e8 * 3.14159265359 / (double)180 ));
-    int flonr = reliability ? ( flon & (~(1 << 31)) ) : ( flon | (1 << 31) );
-
-    frame[1]= flat & 0xFF;
-    frame[2] = (flat >> 8) & 0xFF;
-    frame[3] = (flat >> 16) & 0xFF;
-    frame[4] = (flat >> 24) & 0xFF;
-
-    frame[5] = flonr & 0xFF;
-    frame[6] = (flonr >> 8) & 0xFF;
-    frame[7] = (flonr >> 16) & 0xFF;
-    frame[8] = (flonr >> 24) & 0xFF;
-
-    return frame;
-}
-
-CanFrame can_encoder::encode_ipd_date(int year, int month, int day, int hours, int minutes, int seconds)
-{
-    CanFrame frame (0x18E7, std::vector<unsigned char> (8)); // id: 0x0C7
-
-    frame[1] = (year >> 8) & 0xFF;
-    frame[2] = year & 0xFF;
-    frame[3] = month;
-    frame[4] = day;
-
-    frame[5] = hours;
-    frame[6] = minutes;
-    frame[7] = seconds;
-
-    return frame;
-}
-
-CanFrame can_encoder::encode_sys_key(key_state k_state, int key_code)
-{
-    CanFrame frame (0x0C01, std::vector<unsigned char> (1) ); // id: 0x060
-
-    int key_state_flag = 0;
-    switch(k_state)
-    {
-        case is_pressed:
-            key_state_flag = 1;
-            break;
-        case is_released:
-            key_state_flag = ( 1 << 1 );
-            break;
-    }
-
-    frame[1] = key_code + (key_state_flag << 6);
-
-    return frame;
-}
-
-CanFrame can_encoder::encode_mm_data(int speed, int milage)
-{
-    CanFrame frame ( 0x4228, std::vector<unsigned char> (8) ); // id: 0x211
-
-    frame[1] = 0;
-    frame[2] = speed & 0xFF;
-    frame[3] = 0;
-    frame[4] = char(milage/256/256);
-    frame[5] = char(milage/256);
-    frame[6] = char(milage);
-    frame[7] = 0;
-    frame[8] = 0;
-
-    return frame;
-}
-
-CanFrame can_encoder::encode_ipd_state( double speed, int distance, bool reliable )
-{
-    CanFrame frame ( 0x1888, std::vector<unsigned char> (8) ); // id: 0x0C4
-
-    distance = abs(distance);
-
-    frame[1] = reliable ? 0 : 1;
-    frame[2] = speed != 0 ? 4 : 0; // наличие движения
-    frame[3] = speed;
-    frame[4] = char(distance/256);
-    frame[5] = char(distance);
-    frame[6] = char(distance/256/256);
-    frame[7] = reliable ? 0 : 1;
-    frame[8] = 0;
-
-    return frame;
-}
-
-
 // Decode
 
 //======================================
@@ -255,24 +161,6 @@ int can_decoder::decode_orig_passed_distance(const CanFrame &frame, int* x)
 #ifdef CPP11
     (*x) = Complex<int32_t> ({frame[5], frame[4], frame[6], (frame[6] & (1 << 7)) ? 0xFF : 0});
 #endif
-
-    return 1;
-}
-
-// IPD_DATE
-int can_decoder::decode_ipd_date(const CanFrame &frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds)
-{
-    if ( frame.getDescriptor () != 0x18E7 ) // id: 0x0C7
-        return -1;
-
-    *ipd_year = ( ((int)(frame[1])) << 8 ) + (int)(frame[2]);
-
-    *ipd_month = (int) frame[3];
-    *ipd_day = (int) frame[4];
-
-    *ipd_hours = (int) frame[5];
-    *ipd_minutes = (int) frame[6];
-    *ipd_seconds = (int) frame[7];
 
     return 1;
 }
