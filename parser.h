@@ -8,6 +8,7 @@
 
 #include "parsers/aux_resource.h"
 #include "parsers/console_key.h"
+#include "parsers/ipd_date.h"
 #include "parsers/ipd_state.h"
 #include "parsers/mco_limits.h"
 #include "parsers/mco_mode.h"
@@ -31,6 +32,7 @@ public:
     QMap<AuxResource::Descriptor, AuxResourceVersion *> auxResources;
     ConsoleKeysState consoleKey1;
     ConsoleKeysState consoleKey2;
+    IpdDate ipdDate;
     IpdState ipdState;
     McoLimits mcoLimits;
     McoMode mcoMode;
