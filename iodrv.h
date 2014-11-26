@@ -157,12 +157,6 @@ private:
     int decode_vigilance(const CanFrame &frame);
     int decode_reg_tape_avl(const CanFrame &frame);
 
-#ifdef WITH_SERIALPORT
-    QSerialPort serial_port;
-#endif
-    int init_serial_port();
-
-
     int c_ipd_hours; int c_ipd_mins; int c_ipd_secs;
     int c_ipd_year; int c_ipd_month; int c_ipd_day;
 

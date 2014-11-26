@@ -44,31 +44,4 @@ public:
     static int decode_reg_tape_avl(const CanFrame &frame, int* reg_tape_avl);
 };
 
-
-// Если будет больше RMC пакета, то нужно сделать структуру union'ом и ввести enum из пакетов
-// http://stackoverflow.com/questions/1127396/structure-constructor-in-c
-struct gps_data
-{
-    double lat;
-    double lon;
-    int is_reliable;
-    int hours;
-    int minutes;
-    int seconds;
-    int subseconds;
-    int day;
-    int month;
-    int year;
-
-    double speed;
-};
-
-class nmea
-{
-public:
-    static bool decode_nmea_message(QString message, struct gps_data* gd);
-    static void decode_rmc(QString message, struct gps_data* gd);
-};
-
-
 #endif // CANENDEC_H
