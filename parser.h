@@ -15,6 +15,7 @@
 #include "parsers/mco_state.h"
 #include "parsers/mm_alt_long.h"
 #include "parsers/mm_coord.h"
+#include "parsers/mm_data.h"
 #include "parsers/mp_state.h"
 #include "parsers/mvd_dd.h"
 #include "parsers/sys_diagnostics.h"
@@ -39,6 +40,7 @@ public:
     McoState mcoState;
     MmAltLong mmAltLong;
     MmCoord mmCoord;
+    MmData mmData;
     MpState mpState;
     MvdDd mvdDd;
     SysDiagnostics sysDiagnostics;

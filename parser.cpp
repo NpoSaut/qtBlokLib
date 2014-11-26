@@ -11,8 +11,9 @@ Parser::Parser(Can *onCan, QObject *parent) :
     mcoLimits(),
     mcoMode(),
     mcoState(),
-    mmCoord(),
     mmAltLong(),
+    mmCoord(),
+    mmData(),
     mpState(),
     mvdDd(),
     sysDiagnostics(),
@@ -41,6 +42,7 @@ Parser::Parser(Can *onCan, QObject *parent) :
     mcoState.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(processCanMessage(CanFrame)));
     mmAltLong.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(processCanMessage(CanFrame)));
     mmCoord.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(processCanMessage(CanFrame)));
+    mmData.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(processCanMessage(CanFrame)));
     mpState.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(processCanMessage(CanFrame)));
     mvdDd.connect (onCan, SIGNAL(messageReceived(CanFrame)),SLOT(processCanMessage(CanFrame)));
     sysDiagnostics.connect (onCan, SIGNAL(messageReceived(CanFrame)), SLOT(processCanMessage(CanFrame)));
@@ -58,6 +60,7 @@ Parser::Parser(Can *onCan, QObject *parent) :
     this->connect (&mcoState, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&mmAltLong, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&mmCoord, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
+    this->connect (&mmData, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&mpState, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&mvdDd, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&sysDiagnostics, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
