@@ -225,7 +225,8 @@ Cookies::Cookies(Can *onCan, QObject *parent)
       errorPkm1Tv (onCan, 44),
       errorPkm1Ov (onCan, 45),
       errorPkm2Tv (onCan, 46),
-      errorPkm2Ov (onCan, 47)
+      errorPkm2Ov (onCan, 47),
+      timeZone (onCan, 111)
 {
 }
 

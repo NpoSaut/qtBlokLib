@@ -171,6 +171,8 @@ public:
     Cookie errorPkm1Ov;
     Cookie errorPkm2Tv;
     Cookie errorPkm2Ov;
+    // --- Свойства САУТ ---
+    Cookie timeZone;
 
 signals:
     
