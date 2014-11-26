@@ -424,7 +424,7 @@ void iodrv::slot_serial_ready_read()
 
         if ( nmea::decode_nmea_message(nmeaMessage, &gd) )
         {
-            int h = gd.hours + 4;
+            int h = gd.hours + 3;
             if (h < 0) h += 24;
             if (h > 24) h -= 24;
             gd.hours = h;
