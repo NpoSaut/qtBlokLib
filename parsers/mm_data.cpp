@@ -12,7 +12,7 @@ bool MmData::setSpeed(double kmh)
     if ( speed != kmh || theFirstTime )
     {
         speed = kmh;
-        emit dateTimeChanged(speed);
+        emit speedChanged(speed);
         return true;
     }
     return false;
@@ -23,7 +23,7 @@ bool MmData::setMilage(int meters)
     if ( milage != meters || theFirstTime )
     {
         milage = meters;
-        emit dateTimeChanged(milage);
+        emit milageChanged(milage);
         return true;
     }
     return false;
