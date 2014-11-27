@@ -47,8 +47,6 @@ iodrv::iodrv(Can *onCan, QObject *parent)
     }
     total_passed_distance = stored_passed_distance;
 
-    pgd.lat = 0;
-
     c_speed = -1;
     c_speed_limit = -1;
     c_target_speed = -1;
@@ -159,10 +157,9 @@ void iodrv::process_can_messages(CanFrame frame)
     decode_movement_direction(frame);
     decode_reg_tape_avl(frame);
 
-#ifndef WITH_SERIALPORT
-    decode_ipd_datetime(frame);
-#endif
-
+//#ifndef WITH_SERIALPORT
+//    decode_ipd_datetime(frame);
+//#endif
 }
 
 
@@ -314,31 +311,31 @@ int iodrv::decode_modules_activity(const CanFrame &frame)
     return 0;
 }
 
-int iodrv::decode_ipd_datetime(const CanFrame &frame)
-{
-    switch (can_decoder::decode_ipd_date(frame, &c_ipd_year, &c_ipd_month, &c_ipd_day, &c_ipd_hours, &c_ipd_mins, &c_ipd_secs))
-    {
-        case 1:
-            if ((p_ipd_secs == -1) || (p_ipd_secs != -1 && p_ipd_secs != c_ipd_secs))
-            {
-                // printf("Time: %d:%d:%d\n", c_ipd_hours, c_ipd_mins, c_ipd_secs); fflush(stdout);
+//int iodrv::decode_ipd_datetime(const CanFrame &frame)
+//{
+//    switch (can_decoder::decode_ipd_date(frame, &c_ipd_year, &c_ipd_month, &c_ipd_day, &c_ipd_hours, &c_ipd_mins, &c_ipd_secs))
+//    {
+//        case 1:
+//            if ((p_ipd_secs == -1) || (p_ipd_secs != -1 && p_ipd_secs != c_ipd_secs))
+//            {
+//                // printf("Time: %d:%d:%d\n", c_ipd_hours, c_ipd_mins, c_ipd_secs); fflush(stdout);
 
-                QString time = QString("%1:%2:%3").arg(c_ipd_hours, 2, 10, QChar('0')).arg(c_ipd_mins, 2, 10, QChar('0')).arg(c_ipd_secs, 2, 10, QChar('0'));
-                emit signal_time(time);
-            }
-            if ((p_ipd_day == -1) || (p_ipd_day != -1 && p_ipd_day != c_ipd_day))
-            {
-                QString monthString[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
-                QString date = QString("%1 %2 %3").arg(c_ipd_day, 2, 10, QChar('0')).arg(monthString[c_ipd_month-1]).arg(c_ipd_year, 2, 10, QChar('0'));
+//                QString time = QString("%1:%2:%3").arg(c_ipd_hours, 2, 10, QChar('0')).arg(c_ipd_mins, 2, 10, QChar('0')).arg(c_ipd_secs, 2, 10, QChar('0'));
+//                emit signal_time(time);
+//            }
+//            if ((p_ipd_day == -1) || (p_ipd_day != -1 && p_ipd_day != c_ipd_day))
+//            {
+//                QString monthString[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+//                QString date = QString("%1 %2 %3").arg(c_ipd_day, 2, 10, QChar('0')).arg(monthString[c_ipd_month-1]).arg(c_ipd_year, 2, 10, QChar('0'));
 
-                emit signal_date(date);
-            }
-            p_ipd_secs = c_ipd_secs;
-            p_ipd_day = c_ipd_day;
-            return 1;
-    }
-    return 0;
-}
+//                emit signal_date(date);
+//            }
+//            p_ipd_secs = c_ipd_secs;
+//            p_ipd_day = c_ipd_day;
+//            return 1;
+//    }
+//    return 0;
+//}
 
 int iodrv::decode_vigilance(const CanFrame &frame)
 {
@@ -387,43 +384,43 @@ void iodrv::slot_send_message(CanFrame frame)
     write_canmsg_async ( write_socket_0, frame );
 }
 
-void iodrv::slot_f_key_down()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x1C);
-    write_canmsg_async(write_socket_0, frame);
-    write_canmsg_async(write_socket_1, frame);
-}
+//void iodrv::slot_f_key_down()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x1C);
+//    write_canmsg_async(write_socket_0, frame);
+//    write_canmsg_async(write_socket_1, frame);
+//}
 
-void iodrv::slot_f_key_up()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x1C);
-    write_canmsg_async(write_socket_0, frame);
-    write_canmsg_async(write_socket_1, frame);
-}
+//void iodrv::slot_f_key_up()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x1C);
+//    write_canmsg_async(write_socket_0, frame);
+//    write_canmsg_async(write_socket_1, frame);
+//}
 
-void iodrv::slot_vk_key_down()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x14);
-    write_canmsg_async(write_socket_0, frame);
-    write_canmsg_async(write_socket_1, frame);
-}
+//void iodrv::slot_vk_key_down()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x14);
+//    write_canmsg_async(write_socket_0, frame);
+//    write_canmsg_async(write_socket_1, frame);
+//}
 
-void iodrv::slot_vk_key_up()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x14);
-    write_canmsg_async(write_socket_0, frame);
-    write_canmsg_async(write_socket_1, frame);
-}
+//void iodrv::slot_vk_key_up()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x14);
+//    write_canmsg_async(write_socket_0, frame);
+//    write_canmsg_async(write_socket_1, frame);
+//}
 
-void iodrv::slot_rmp_key_down()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x16);
-    write_canmsg_async(write_socket_0, frame);
-}
+//void iodrv::slot_rmp_key_down()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x16);
+//    write_canmsg_async(write_socket_0, frame);
+//}
 
-void iodrv::slot_rmp_key_up()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x16);
-    write_canmsg_async(write_socket_0, frame);
-    write_canmsg_async(write_socket_1, frame);
-}
+//void iodrv::slot_rmp_key_up()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x16);
+//    write_canmsg_async(write_socket_0, frame);
+//    write_canmsg_async(write_socket_1, frame);
+//}

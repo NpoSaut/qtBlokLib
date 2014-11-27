@@ -7,6 +7,22 @@
 #include "iodrvmain.h"
 #include "modulesactivity.h"
 
+struct gps_data
+{
+    double lat;
+    double lon;
+    int is_reliable;
+    int hours;
+    int minutes;
+    int seconds;
+    int subseconds;
+    int day;
+    int month;
+    int year;
+
+    double speed;
+};
+
 class can_decoder
 {
 public:
