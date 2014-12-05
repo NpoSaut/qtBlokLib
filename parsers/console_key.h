@@ -65,8 +65,8 @@ public:
     explicit ConsoleKey(ConsKey key = NONE, Action action = RESERV0, int cabine = 0, QObject *parent = 0);
 
 signals:
-    void keyPressed (ConsKey key);
-    void keyReleased (ConsKey key);
+    void keyPressed (ConsoleKey::ConsKey key);
+    void keyReleased (ConsoleKey::ConsKey key);
 
 protected:
     Action decodeAction (const CanFrame &frame) const;

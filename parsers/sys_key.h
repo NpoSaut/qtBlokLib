@@ -38,8 +38,8 @@ public:
     explicit SysKey(Key key = DUMMY, Action action = RESERV0, QObject *parent = 0);
 
 signals:
-    void keyPressed (Key key);
-    void keyReleased (Key key);
+    void keyPressed (SysKey::Key key);
+    void keyReleased (SysKey::Key key);
 
 protected:
     Action decodeAction (const CanFrame &frame) const;
