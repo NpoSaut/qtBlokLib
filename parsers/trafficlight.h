@@ -14,11 +14,11 @@ enum Trafficlight
     WHITE_BLINK = 8,
     RED_EN = 9,
     YELLOW_RED_EN = 10,
-    YELLOW_EN = 11,
-    GREEN_1_EN = 12,
-    GREEN_2_EN = 13,
-    GREEN_3_EN = 14,
-    GREEN_4_EN = 15
+    FREE_ZONE_1 = 11,
+    FREE_ZONE_2 = 12,
+    FREE_ZONE_3 = 13,
+    FREE_ZONE_4 = 14,
+    FREE_ZONE_5 = 15
 };
 
 enum AlsnLight
