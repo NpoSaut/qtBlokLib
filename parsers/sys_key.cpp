@@ -12,7 +12,7 @@ SysKey::SysKey(Key key, Action action, QObject *parent) :
 
 void SysKey::fillMessage(CanFrame &frame) const
 {
-    frame[1] = (qint8 (action) << 6) | (qint8 (key) & 0x1F);
+    frame[1] = (qint8 (action) << 6) | (qint8 (key) & 0x3F);
 }
 
 // Внимание! Здесь логика отличается от обычной.
@@ -34,7 +34,7 @@ SysKey::Action SysKey::decodeAction(const CanFrame &frame) const
 
 SysKey::Key SysKey::decodeKey(const CanFrame &frame) const
 {
-    return (Key) (frame[1] & 0x1F);
+    return (Key) (frame[1] & 0x3F);
 }
 
 SysKeysState::SysKeysState(QObject *parent)

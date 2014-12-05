@@ -12,7 +12,7 @@ ConsoleKey::ConsoleKey(ConsKey key, Action action, int cabine, QObject *parent) 
 
 void ConsoleKey::fillMessage(CanFrame &frame) const
 {
-    frame[1] = (qint8 (action) << 6) | (qint8 (key) & 0x1F);
+    frame[1] = (qint8 (action) << 6) | (qint8 (key) & 0x3F);
 }
 
 // Внимание! Здесь логика отличается от обычной.
@@ -34,7 +34,7 @@ ConsoleKey::Action ConsoleKey::decodeAction(const CanFrame &frame) const
 
 ConsoleKey::ConsKey ConsoleKey::decodeKey(const CanFrame &frame) const
 {
-    return (ConsKey) (frame[1] & 0x1F);
+    return (ConsKey) (frame[1] & 0x3F);
 }
 
 ConsoleKeysState::ConsoleKeysState(int cabine, QObject *parent)
