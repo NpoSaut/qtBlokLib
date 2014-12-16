@@ -1,6 +1,5 @@
 #include <QDate>
 #include <QtCore/qmath.h>
-
 #include <QFile>
 
 #include "qtCanLib/can.h"
@@ -47,8 +46,6 @@ iodrv::iodrv(Can *onCan, QObject *parent)
         stored_passed_distance = 0;
     }
     total_passed_distance = stored_passed_distance;
-
-    pgd.lat = 0;
 
     c_speed = -1;
     c_speed_limit = -1;
@@ -102,16 +99,6 @@ int iodrv::start(gps_data_source gps_datasource)
     }
 
     QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(process_can_messages(CanFrame)));
-
-    // Инициализация и начало асинхронного чтения с последовательного порта.
-    // Если не выбрано другое.
-    if (gps_source == gps_data_source_gps)
-    {
-        if (init_serial_port() == 0)
-        {
-            return 0;
-        }
-    }
 
     // Инициализация и запуск таймеров
     init_timers();
@@ -170,10 +157,9 @@ void iodrv::process_can_messages(CanFrame frame)
     decode_movement_direction(frame);
     decode_reg_tape_avl(frame);
 
-#ifndef WITH_SERIALPORT
-    decode_ipd_datetime(frame);
-#endif
-
+//#ifndef WITH_SERIALPORT
+//    decode_ipd_datetime(frame);
+//#endif
 }
 
 
@@ -325,31 +311,31 @@ int iodrv::decode_modules_activity(const CanFrame &frame)
     return 0;
 }
 
-int iodrv::decode_ipd_datetime(const CanFrame &frame)
-{
-    switch (can_decoder::decode_ipd_date(frame, &c_ipd_year, &c_ipd_month, &c_ipd_day, &c_ipd_hours, &c_ipd_mins, &c_ipd_secs))
-    {
-        case 1:
-            if ((p_ipd_secs == -1) || (p_ipd_secs != -1 && p_ipd_secs != c_ipd_secs))
-            {
-                // printf("Time: %d:%d:%d\n", c_ipd_hours, c_ipd_mins, c_ipd_secs); fflush(stdout);
+//int iodrv::decode_ipd_datetime(const CanFrame &frame)
+//{
+//    switch (can_decoder::decode_ipd_date(frame, &c_ipd_year, &c_ipd_month, &c_ipd_day, &c_ipd_hours, &c_ipd_mins, &c_ipd_secs))
+//    {
+//        case 1:
+//            if ((p_ipd_secs == -1) || (p_ipd_secs != -1 && p_ipd_secs != c_ipd_secs))
+//            {
+//                // printf("Time: %d:%d:%d\n", c_ipd_hours, c_ipd_mins, c_ipd_secs); fflush(stdout);
 
-                QString time = QString("%1:%2:%3").arg(c_ipd_hours, 2, 10, QChar('0')).arg(c_ipd_mins, 2, 10, QChar('0')).arg(c_ipd_secs, 2, 10, QChar('0'));
-                emit signal_time(time);
-            }
-            if ((p_ipd_day == -1) || (p_ipd_day != -1 && p_ipd_day != c_ipd_day))
-            {
-                QString monthString[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
-                QString date = QString("%1 %2 %3").arg(c_ipd_day, 2, 10, QChar('0')).arg(monthString[c_ipd_month-1]).arg(c_ipd_year, 2, 10, QChar('0'));
+//                QString time = QString("%1:%2:%3").arg(c_ipd_hours, 2, 10, QChar('0')).arg(c_ipd_mins, 2, 10, QChar('0')).arg(c_ipd_secs, 2, 10, QChar('0'));
+//                emit signal_time(time);
+//            }
+//            if ((p_ipd_day == -1) || (p_ipd_day != -1 && p_ipd_day != c_ipd_day))
+//            {
+//                QString monthString[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+//                QString date = QString("%1 %2 %3").arg(c_ipd_day, 2, 10, QChar('0')).arg(monthString[c_ipd_month-1]).arg(c_ipd_year, 2, 10, QChar('0'));
 
-                emit signal_date(date);
-            }
-            p_ipd_secs = c_ipd_secs;
-            p_ipd_day = c_ipd_day;
-            return 1;
-    }
-    return 0;
-}
+//                emit signal_date(date);
+//            }
+//            p_ipd_secs = c_ipd_secs;
+//            p_ipd_day = c_ipd_day;
+//            return 1;
+//    }
+//    return 0;
+//}
 
 int iodrv::decode_vigilance(const CanFrame &frame)
 {
@@ -381,122 +367,11 @@ int iodrv::decode_reg_tape_avl(const CanFrame &frame)
     return 0;
 }
 
-int iodrv::init_serial_port()
-{
-#ifdef WITH_SERIALPORT
-    // В каком место разместить соединение сигнала и слота?
-    connect(&serial_port, SIGNAL(readyRead()), this, SLOT(slot_serial_ready_read()));
-
-    QList<QSerialPortInfo> spinfo = QSerialPortInfo::availablePorts();
-    if (spinfo.count() == 0)
-    {
-        fprintf(stderr, "Не найдено ни одного последовательного порта\n"); fflush(stderr);
-        // Для обхода бага библиотеки QtSerialPort под arm обходим эту проверку
-        //return 0;
-    }
-
-    //serial_port.setPort(spinfo.at(0));
-    serial_port.setPortName("/dev/ttySAC1");
-    serial_port.setDataBits(QSerialPort::Data8);
-    serial_port.setBaudRate(QSerialPort::Baud115200);
-    serial_port.setParity(QSerialPort::NoParity);
-    serial_port.setStopBits(QSerialPort::OneStop);
-    serial_port.setFlowControl(QSerialPort::NoFlowControl);
-
-    serial_port.open(QIODevice::ReadOnly);
-
-    return 1;
-#else
-    printf("Отключена компиляция SerialPort; используйте WITH_SERIALPORT.\n"); fflush(stdout);
-
-    return 1;
-#endif
-}
-
 void iodrv::slot_serial_ready_read()
 {
-#ifdef WITH_SERIALPORT
-    while (serial_port.canReadLine())
-    {
-        gps_data gd;    // TODO: Сделать глобальной?
+//#ifdef WITH_SERIALPORT
 
-        QString nmeaMessage = QString(serial_port.readLine());
-
-        if ( nmea::decode_nmea_message(nmeaMessage, &gd) )
-        {
-            int h = gd.hours + 4;
-            if (h < 0) h += 24;
-            if (h > 24) h -= 24;
-            gd.hours = h;
-            QString time = QString("%1:%2:%3").arg(h, 2, 10, QChar('0')).arg(gd.minutes, 2, 10, QChar('0')).arg(gd.seconds, 2, 10, QChar('0'));
-            emit signal_time(time);
-
-            QString monthString[13] = {"n/a", "января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
-            gd.month = ( gd.month >= 1 && gd.month <= 12 ) ? gd.month : 0;
-            QString date = QString("%1 %2 %3").arg(gd.day, 2, 10, QChar('0')).arg(monthString[gd.month]).arg(gd.year, 2, 10, QChar('0'));
-            emit signal_date(date);
-
-            emit signal_lat(gd.lat);
-            emit signal_lon(gd.lon);
-            emit signal_lat_lon (gd.lat, gd.lon);
-
-            static double speed_old = 0;
-
-            if (gd.speed < 1.2)
-                gd.speed = 0;
-
-            if (speed_old != -1000 && abs(speed_old - gd.speed) > 5)
-            {
-                gd.speed = speed_old;
-                speed_old = -1000;
-            }
-            else
-                speed_old = gd.speed;
-
-            qDebug() << "speed from sky: " << "reliable: " << gd.is_reliable << "speed: " << gd.speed;
-            emit signal_speed_sky(gd.is_reliable ? gd.speed : -1);
-
-            if ( c_is_on_road == 1 &&
-                    pgd.lat != 0 )
-            {
-                total_passed_distance += DistanceBetweenCoordinates(gd.lat, gd.lon, pgd.lat, pgd.lon);
-
-                if ( (total_passed_distance - stored_passed_distance) >= 100 )
-                {
-                    if( distance_store_file.open(QIODevice::ReadWrite) )
-                    {
-                        QTextStream distance_store_stream (&distance_store_file);
-                        distance_store_stream << int(total_passed_distance) << endl;
-                        distance_store_stream.flush();
-                        distance_store_file.close();
-                        stored_passed_distance = total_passed_distance;
-                    }
-                    else
-                    {
-                        qDebug() << "Error open milage.txt!" << endl;
-                    }
-                }
-
-                emit signal_passed_distance(total_passed_distance);
-            }
-
-            pgd = gd;
-
-            // Отправка в CAN
-
-            wframe_mmaltlon = can_encoder::encode_mm_alt_long(gd.lat, gd.lon, (bool)gd.is_reliable);
-            wframe_ipddate = can_encoder::encode_ipd_date(gd.year, gd.month, gd.day, gd.hours, gd.minutes, gd.seconds);
-            wframe_mmdata = can_encoder::encode_mm_data(qRound(gd.speed), total_passed_distance);
-
-            write_canmsg_async(write_socket_0, wframe_mmaltlon);
-            write_canmsg_async(write_socket_1, wframe_mmaltlon);
-            write_canmsg_async(write_socket_0, wframe_ipddate);
-            write_canmsg_async(write_socket_1, wframe_ipddate);
-            write_canmsg_async(write_socket_0, wframe_mmdata);
-            write_canmsg_async(write_socket_1, wframe_mmdata);
-        }
-    }
-#endif
+//#endif
 }
 
 
@@ -509,43 +384,43 @@ void iodrv::slot_send_message(CanFrame frame)
     write_canmsg_async ( write_socket_0, frame );
 }
 
-void iodrv::slot_f_key_down()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x1C);
-    write_canmsg_async(write_socket_0, frame);
-    write_canmsg_async(write_socket_1, frame);
-}
+//void iodrv::slot_f_key_down()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x1C);
+//    write_canmsg_async(write_socket_0, frame);
+//    write_canmsg_async(write_socket_1, frame);
+//}
 
-void iodrv::slot_f_key_up()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x1C);
-    write_canmsg_async(write_socket_0, frame);
-    write_canmsg_async(write_socket_1, frame);
-}
+//void iodrv::slot_f_key_up()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x1C);
+//    write_canmsg_async(write_socket_0, frame);
+//    write_canmsg_async(write_socket_1, frame);
+//}
 
-void iodrv::slot_vk_key_down()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x14);
-    write_canmsg_async(write_socket_0, frame);
-    write_canmsg_async(write_socket_1, frame);
-}
+//void iodrv::slot_vk_key_down()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x14);
+//    write_canmsg_async(write_socket_0, frame);
+//    write_canmsg_async(write_socket_1, frame);
+//}
 
-void iodrv::slot_vk_key_up()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x14);
-    write_canmsg_async(write_socket_0, frame);
-    write_canmsg_async(write_socket_1, frame);
-}
+//void iodrv::slot_vk_key_up()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x14);
+//    write_canmsg_async(write_socket_0, frame);
+//    write_canmsg_async(write_socket_1, frame);
+//}
 
-void iodrv::slot_rmp_key_down()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x16);
-    write_canmsg_async(write_socket_0, frame);
-}
+//void iodrv::slot_rmp_key_down()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_pressed, 0x16);
+//    write_canmsg_async(write_socket_0, frame);
+//}
 
-void iodrv::slot_rmp_key_up()
-{
-    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x16);
-    write_canmsg_async(write_socket_0, frame);
-    write_canmsg_async(write_socket_1, frame);
-}
+//void iodrv::slot_rmp_key_up()
+//{
+//    CanFrame frame = can_encoder::encode_sys_key(is_released, 0x16);
+//    write_canmsg_async(write_socket_0, frame);
+//    write_canmsg_async(write_socket_1, frame);
+//}

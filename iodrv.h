@@ -57,21 +57,15 @@ signals:
     void signal_movement_direction(int movement_direction);
     void signal_reg_tape_avl(bool reg_tape_avl);
 
-    void signal_lat(double lat);
-    void signal_lon(double lon);
-    void signal_lat_lon(double lat, double lon);
-    void signal_time(QString time);
-    void signal_date(QString date);
-
 public slots:
     void slot_send_message(CanFrame frame);
 
-    void slot_f_key_down();
-    void slot_f_key_up();
-    void slot_vk_key_down();
-    void slot_vk_key_up();
-    void slot_rmp_key_down();
-    void slot_rmp_key_up();
+//    void slot_f_key_down();
+//    void slot_f_key_up();
+//    void slot_vk_key_down();
+//    void slot_vk_key_up();
+//    void slot_rmp_key_down();
+//    void slot_rmp_key_up();
 
 private slots:
     void process_can_messages(CanFrame frame);
@@ -153,15 +147,9 @@ private:
     int decode_trafficlight_freq(const CanFrame &frame);
     int decode_orig_passed_distance (const CanFrame &frame);
     int decode_modules_activity(const CanFrame &frame);
-    int decode_ipd_datetime(const CanFrame &frame);
+//    int decode_ipd_datetime(const CanFrame &frame);
     int decode_vigilance(const CanFrame &frame);
     int decode_reg_tape_avl(const CanFrame &frame);
-
-#ifdef WITH_SERIALPORT
-    QSerialPort serial_port;
-#endif
-    int init_serial_port();
-
 
     int c_ipd_hours; int c_ipd_mins; int c_ipd_secs;
     int c_ipd_year; int c_ipd_month; int c_ipd_day;

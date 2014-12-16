@@ -4,100 +4,6 @@
 #include "endecs.h"
 #include "cDoodahLib/lowlevel.h"
 
-
-
-CanFrame can_encoder::encode_mm_alt_long(double lat, double lon, bool reliability)
-{
-    CanFrame frame (0x4268, std::vector<unsigned char> (8)); // id: 0x213
-
-    int flat = (int) ( lat * (double)1e8 * 3.14159265359 / (double)180 );
-    int flon = ((int) ( lon * (double)1e8 * 3.14159265359 / (double)180 ));
-    int flonr = reliability ? ( flon & (~(1 << 31)) ) : ( flon | (1 << 31) );
-
-    frame[1]= flat & 0xFF;
-    frame[2] = (flat >> 8) & 0xFF;
-    frame[3] = (flat >> 16) & 0xFF;
-    frame[4] = (flat >> 24) & 0xFF;
-
-    frame[5] = flonr & 0xFF;
-    frame[6] = (flonr >> 8) & 0xFF;
-    frame[7] = (flonr >> 16) & 0xFF;
-    frame[8] = (flonr >> 24) & 0xFF;
-
-    return frame;
-}
-
-CanFrame can_encoder::encode_ipd_date(int year, int month, int day, int hours, int minutes, int seconds)
-{
-    CanFrame frame (0x18E7, std::vector<unsigned char> (8)); // id: 0x0C7
-
-    frame[1] = (year >> 8) & 0xFF;
-    frame[2] = year & 0xFF;
-    frame[3] = month;
-    frame[4] = day;
-
-    frame[5] = hours;
-    frame[6] = minutes;
-    frame[7] = seconds;
-
-    return frame;
-}
-
-CanFrame can_encoder::encode_sys_key(key_state k_state, int key_code)
-{
-    CanFrame frame (0x0C01, std::vector<unsigned char> (1) ); // id: 0x060
-
-    int key_state_flag = 0;
-    switch(k_state)
-    {
-        case is_pressed:
-            key_state_flag = 1;
-            break;
-        case is_released:
-            key_state_flag = ( 1 << 1 );
-            break;
-    }
-
-    frame[1] = key_code + (key_state_flag << 6);
-
-    return frame;
-}
-
-CanFrame can_encoder::encode_mm_data(int speed, int milage)
-{
-    CanFrame frame ( 0x4228, std::vector<unsigned char> (8) ); // id: 0x211
-
-    frame[1] = 0;
-    frame[2] = speed & 0xFF;
-    frame[3] = 0;
-    frame[4] = char(milage/256/256);
-    frame[5] = char(milage/256);
-    frame[6] = char(milage);
-    frame[7] = 0;
-    frame[8] = 0;
-
-    return frame;
-}
-
-CanFrame can_encoder::encode_ipd_state( double speed, int distance, bool reliable )
-{
-    CanFrame frame ( 0x1888, std::vector<unsigned char> (8) ); // id: 0x0C4
-
-    distance = abs(distance);
-
-    frame[1] = reliable ? 0 : 1;
-    frame[2] = speed != 0 ? 4 : 0; // наличие движения
-    frame[3] = speed;
-    frame[4] = char(distance/256);
-    frame[5] = char(distance);
-    frame[6] = char(distance/256/256);
-    frame[7] = reliable ? 0 : 1;
-    frame[8] = 0;
-
-    return frame;
-}
-
-
 // Decode
 
 //======================================
@@ -259,24 +165,6 @@ int can_decoder::decode_orig_passed_distance(const CanFrame &frame, int* x)
     return 1;
 }
 
-// IPD_DATE
-int can_decoder::decode_ipd_date(const CanFrame &frame, int* ipd_year, int* ipd_month, int* ipd_day, int* ipd_hours, int* ipd_minutes, int* ipd_seconds)
-{
-    if ( frame.getDescriptor () != 0x18E7 ) // id: 0x0C7
-        return -1;
-
-    *ipd_year = ( ((int)(frame[1])) << 8 ) + (int)(frame[2]);
-
-    *ipd_month = (int) frame[3];
-    *ipd_day = (int) frame[4];
-
-    *ipd_hours = (int) frame[5];
-    *ipd_minutes = (int) frame[6];
-    *ipd_seconds = (int) frame[7];
-
-    return 1;
-}
-
 // MCO_LIMITS_A
 int can_decoder::decode_driving_mode(const CanFrame &frame, int* driving_mode)
 {
@@ -313,78 +201,6 @@ int can_decoder::decode_reg_tape_avl(const CanFrame &frame, int* reg_tape_avl)
     return 1;
 }
 
-bool nmea::decode_nmea_message(QString message, struct gps_data* gd)
-{
-    if (message.mid(3,3) == "RMC")
-    {
-        decode_rmc(message, gd);
-        return true;
-    }
-    else return false;
-}
 
-// $GPRMC,024607.000,V,5651.27857,N,06035.91777,E,0.0,0.0,241212,,,N*70
-//-$GхRMC,HHMMSS.SS,A,BBBB.BBBB,a,LLLLL.LLLL,a,v.v,z.z,DDMMYY,x.x,a,b* hh
-/* Формат сообщения RMC
- 0|  $GNRMC,
- 1|  HHMMSS.SSSS,
- 2|  A,
- 3|  BBBB.BBBB,
- 4|  a,
- 5|  LLLLL.LLLL,
- 6|  a,
- 7|  v.v,
- 8|  z.z,
- 9|  DDMMYY,
-10|  x.x,
-11|  a,
-12|  b* hh<CR><LF> */
-void nmea::decode_rmc(QString message, struct gps_data* gd)
-{
-    QStringList fields = message.split(",");
-
-    // Datetime
-    int dth = fields.at(1).mid(0,2).toInt();
-    int dtm = fields.at(1).mid(2,2).toInt();
-    int dts = fields.at(1).mid(4,2).toInt();
-    int dtss = fields.at(1).mid(7,-1).toInt();
-    int dtd = fields.at(9).mid(0,2).toInt();
-    int dtmn = fields.at(9).mid(2,2).toInt();
-    int dty = ("20" + fields.at(9).mid(4,2)).toInt();
-
-    // Reliability
-    bool IsReliable = fields.at(2).toLower().contains("a");
-
-    // Lattitude, degrees
-    double latd = fields.at(3).mid(0,2).toDouble();
-    double latmmm = fields.at(3).mid(2,-1).toDouble();
-    double lat = latd + latmmm/60;
-    if (fields.at(4) == "S")
-        lat = -lat;
-
-    // Longitude, degrees
-    double lond = fields.at(5).mid(0,3).toDouble();
-    double lonmmm = fields.at(5).mid(3,-1).toDouble();
-    double lon = lond + lonmmm/60;
-    if (fields.at(6) == "W")
-        lon = -lon;
-
-    // Velocityvoid
-    //QStringList v_list = fields.at(7).split("."); // И целая, и дробная части могут быть переменной длины.
-    //double speed_kmh = ( v_list.at(0).toDouble() + v_list.at(1).toDouble() ) * 1.852;
-    double speed_kmh = fields.at(7).toDouble() * 1.852;
-
-    gd->lat = lat;
-    gd->lon = lon;
-    gd->is_reliable = IsReliable;
-    gd->hours = dth;
-    gd->minutes = dtm;
-    gd->seconds = dts;
-    gd->subseconds = dtss;
-    gd->day = dtd;
-    gd->month = dtmn;
-    gd->year = dty;
-    gd->speed = speed_kmh;
-}
 
 
