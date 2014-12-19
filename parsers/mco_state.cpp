@@ -82,6 +82,17 @@ bool McoState::setConClosed(bool closed)
     return false;
 }
 
+bool McoState::setModulesActivity(ModulesActivity ma)
+{
+    if ( modulesActivity != ma || theFirstTime )
+    {
+        modulesActivity = ma;
+        emit modulesActivityChanged(modulesActivity);
+        return true;
+    }
+    return false;
+}
+
 bool McoState::parseSuitableMessage(const CanFrame &frame)
 {
     bool update = false;
@@ -90,6 +101,7 @@ bool McoState::parseSuitableMessage(const CanFrame &frame)
     update =  setEpvReleased      (frame[6] & (1 << 5))  || update;
     update =  setTrafficlight     (Trafficlight (frame[6] & 0xF)) || update;
     update =  setConClosed        (frame[8] & (1 << 1))  || update;
+    update =  setModulesActivity (ModulesActivity::loadFromMcoState(QByteArray((const char *)frame.getData().data(), frame.getData().size())));
     return update;
 }
 

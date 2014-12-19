@@ -3,6 +3,7 @@
 
 #include "canblokmessage.h"
 #include "trafficlight.h"
+#include "../modulesactivity.h"
 
 // MCO_STATE
 // id: 0x050
@@ -19,6 +20,7 @@ public:
     bool isEpvReleased () const { return epvReleased; }
     Trafficlight getTrafficlight () const { return trafficlight; }
     bool isConClosed () const { return conClosed; }
+    ModulesActivity getModulesActivity () const { return modulesActivity; }
 
 signals:
     void tractionChanged (bool traction);
@@ -26,6 +28,7 @@ signals:
     void epvReleasedChanged (bool epvReleased);
     void trafficlightChanged (Trafficlight light);
     void conClosedChanged (bool close);
+    void modulesActivityChanged (ModulesActivity modulesActivity);
 
 public slots:
     bool setTraction (bool traction);
@@ -33,6 +36,7 @@ public slots:
     bool setEpvReleased (bool released);
     bool setTrafficlight (Trafficlight light);
     bool setConClosed (bool closed);
+    bool setModulesActivity (ModulesActivity ma);
     
 private:
     void fillMessage (CanFrame &frame) const;
@@ -43,6 +47,7 @@ private:
     bool epvReleased;
     Trafficlight trafficlight;
     bool conClosed;
+    ModulesActivity modulesActivity;
 };
 
 #endif // MCO_STATE_H
