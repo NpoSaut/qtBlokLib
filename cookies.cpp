@@ -21,7 +21,7 @@ int Cookie::getValue()
         requestValue (false);
         while ( activity != NO_ACTION ); // Дожидаемся обновления
         if ( !valid )
-            emit onValidChange (valid); // Повторяем сигнал
+            emit update(value, valid); // Повторяем сигнал
     }
     return value;
 }
@@ -66,7 +66,7 @@ void Cookie::answerTimeoutHandler()
     else
     {
         stopActivity ();
-        applyNewValidity (false);
+        update(value, false);
     }
 }
 
@@ -95,44 +95,33 @@ bool Cookie::loadDataWithControl(const CanFrame &frame)
                 else
                 {
                     stopActivity ();
-                    applyNewValidity (false);
+                    update (value, false);
                 }
             }
             else
             {
-                //applyNewValue (Complex<uint32_t> (byte[4], byte[3], byte[2], byte[1]));
-                applyNewValue ( ((unsigned int) (byte[1]) << 3*8) +
-                                ((unsigned int) (byte[2]) << 2*8) +
-                                ((unsigned int) (byte[3]) << 1*8) +
-                                ((unsigned int) (byte[4]) << 0*8) );
-                applyNewValidity (true); // в случае forceUpdate форсированно передадутся данные, а не достоверность
+                update( ((unsigned int) (byte[1]) << 3*8) +
+                        ((unsigned int) (byte[2]) << 2*8) +
+                        ((unsigned int) (byte[3]) << 1*8) +
+                        ((unsigned int) (byte[4]) << 0*8),
+                        true );
             }
 
             return true;
         }
     }
-return false;
+    return false;
 }
 
-void Cookie::applyNewValue(int newValue)
+void Cookie::update(int newValue, bool newValid)
 {
-    if ( newValue != value || forceUpdate )
+    if ( newValue != value || newValid != valid || forceUpdate )
     {
         forceUpdate = false;
 
         value = newValue;
-        emit onChange (value);
-    }
-}
-
-void Cookie::applyNewValidity(bool newValid)
-{
-    if ( newValid != valid || forceUpdate )
-    {
-        forceUpdate = false;
-
         valid = newValid;
-        emit onValidChange (valid);
+        emit updated(value, valid);
     }
 }
 
