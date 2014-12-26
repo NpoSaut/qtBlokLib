@@ -27,11 +27,15 @@ public:
         TSKBM_K = 9,
         UKTOL = 10,
         SHLUZ = 11,
-        BR_UMO = 14,
+        BS_SN = 14,
         TSKBM_P = 15,
         BS_DPS = 16,
         PTK = 17,
-        EPK = 18
+        EPK = 18,
+        MCC = 19,
+        MVV = 20,
+        OUT = 22,
+        VDS = 31
     };
 
     enum AuxOperation

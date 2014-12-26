@@ -42,7 +42,7 @@ public:
         MP2_B = 0x9285,
         TSKBM_K_A = 0xD805,
         TSKBM_K_B = 0xD825,
-        TKSBM_P_A = 0xDA05,
+        TSKBM_P_A = 0xDA05,
         TSKBM_P_B = 0xDA25,
         AMR = 0xCC05,
         SAUT_PTK_A = 0x9065,
@@ -66,7 +66,15 @@ public:
         MSUTP = 0xC445,
         MSUL_A = 0xC405,
         MSUL_B = 0xC425,
-        EPK = 0x4E85
+        EPK = 0x4E85,
+        RC_A = 0xA205,
+        RC_B = 0xA605,
+        MV_A = 0xE005,
+        MV_B = 0xE105,
+        VDS_A = 0xDC25,
+        VDS_B = 0xDC45,
+        OUT_A = 0xDC65,
+        OUT_B = 0xDC85
     };
 
     explicit AuxResource(Descriptor descriptor, QObject *parent = 0);
