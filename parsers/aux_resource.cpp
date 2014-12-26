@@ -63,6 +63,7 @@ AuxResourceVersion::AuxResourceVersion(AuxResource::Descriptor descriptor, QObje
 
 void AuxResourceVersion::encodeData()
 {
+    setCode(RES_VERSION);
     setData( (quint32 (quint8 (data->version))    << 24)
             +(quint32 (quint8 (data->subversion)) << 16)
             +(quint32 (quint16(data->checksum))   <<  0) );
@@ -71,9 +72,16 @@ void AuxResourceVersion::encodeData()
 
 void AuxResourceVersion::processData()
 {
-    setVersion    ( quint8 (getData() >> 24) );
-    setSubversion ( quint8 (getData() >> 16) );
-    setChecksum   ( quint16(getData() >>  0) );
+    if (getCode() == RES_VERSION)
+    {
+        bool update = false;
+        update = setVersion    ( quint8 (getData() >> 24) ) || update;
+        update = setSubversion ( quint8 (getData() >> 16) ) || update;
+        update = setChecksum   ( quint16(getData() >>  0) ) || update;
+
+        if (update)
+            emit updated(data->version, data->subversion, data->checksum);
+    }
 }
 
 
@@ -83,7 +91,6 @@ bool AuxResourceVersion::setVersion(int v)
     {
         data->version = v;
         setData (data);
-        emit updated(data->version, data->subversion, data->checksum);
         return true;
     }
     return false;
@@ -95,7 +102,6 @@ bool AuxResourceVersion::setSubversion(int subv)
     {
         data->subversion = subv;
         setData (data);
-        emit updated(data->version, data->subversion, data->checksum);
         return true;
     }
     return false;
@@ -107,7 +113,6 @@ bool AuxResourceVersion::setChecksum(int csum)
     {
         data->checksum = csum;
         setData (data);
-        emit updated(data->version, data->subversion, data->checksum);
         return true;
     }
     return false;
