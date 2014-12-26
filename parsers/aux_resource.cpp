@@ -83,7 +83,7 @@ bool AuxResourceVersion::setVersion(int v)
     {
         data->version = v;
         setData (data);
-        emit versionChanged (data->version);
+        emit updated(data->version, data->subversion, data->checksum);
         return true;
     }
     return false;
@@ -95,7 +95,7 @@ bool AuxResourceVersion::setSubversion(int subv)
     {
         data->subversion = subv;
         setData (data);
-        emit subversionChanged (data->subversion);
+        emit updated(data->version, data->subversion, data->checksum);
         return true;
     }
     return false;
@@ -107,7 +107,7 @@ bool AuxResourceVersion::setChecksum(int csum)
     {
         data->checksum = csum;
         setData (data);
-        emit checksumChanged (data->checksum);
+        emit updated(data->version, data->subversion, data->checksum);
         return true;
     }
     return false;

@@ -104,9 +104,7 @@ public:
     int getChecksum () const { return data->checksum; }
 
 signals:
-    void versionChanged (int version);
-    void subversionChanged (int subversion);
-    void checksumChanged (int checksum);
+    void updated (int version, int subversion, int checksum);
 
 public slots:
     bool setVersion (int v);
