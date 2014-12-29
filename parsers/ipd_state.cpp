@@ -2,7 +2,8 @@
 
 IpdState::IpdState(QObject *parent) :
     PeriodicalCanBlokMessage(0x0C4, 8, parent),
-    inMotion(false)
+    inMotion(false),
+    activeDps(-1)
 {
 }
 
@@ -14,7 +15,7 @@ void IpdState::fillMessage(CanFrame &frame) const
     frame[4] = 0;
     frame[5] = 0;
     frame[6] = 0;
-    frame[7] = 0;
+    frame[7] = ( ((getActiveDpsNumber()-1)&1) << 3 );
     frame[8] = 0;
 }
 
@@ -29,11 +30,22 @@ bool IpdState::setInMotion(bool motion)
     return false;
 }
 
-
+bool IpdState::setActiveDpsNumber(int activeDpsNumber)
+{
+    if ( activeDps != activeDpsNumber || theFirstTime )
+    {
+        activeDps = activeDpsNumber;
+        emit activeDpsNumberChanged (activeDps);
+        return true;
+    }
+    return false;
+}
 
 bool IpdState::parseSuitableMessage(const CanFrame &frame)
 {
-    return
-        setInMotion (frame[2] & (1 << 2));
+    bool update = false;
+    update = setInMotion (frame[2] & (1 << 2)) || update;
+    update = setActiveDpsNumber( ((frame[7] & (1 << 3)) >> 3) + 1 ) || update;
+    return update;
 }
 
