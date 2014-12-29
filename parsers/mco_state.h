@@ -15,6 +15,7 @@ class McoState : public PeriodicalCanBlokMessage
 public:
     explicit McoState(QObject *parent = 0);
 
+    int getActiveHalfset () const { return activeHalfset; }
     bool isTraction () const { return traction; }
     bool isEpvReady () const { return epvReady; }
     bool isEpvReleased () const { return epvReleased; }
@@ -23,6 +24,7 @@ public:
     ModulesActivity getModulesActivity () const { return modulesActivity; }
 
 signals:
+    void activeHalfsetChanged (int halfsetNumber);
     void tractionChanged (bool traction);
     void epvReadyChanged (bool epvReady);
     void epvReleasedChanged (bool epvReleased);
@@ -31,6 +33,7 @@ signals:
     void modulesActivityChanged (ModulesActivity modulesActivity);
 
 public slots:
+    bool setActiveHalfset (int halfsetNumber);
     bool setTraction (bool traction);
     bool setEpvReady (bool ready);
     bool setEpvReleased (bool released);
@@ -42,6 +45,7 @@ private:
     void fillMessage (CanFrame &frame) const;
     bool parseSuitableMessage (const CanFrame &frame);
 
+    int activeHalfset;
     bool traction;
     bool epvReady;
     bool epvReleased;

@@ -4,6 +4,7 @@
 
 McoState::McoState(QObject *parent) :
     PeriodicalCanBlokMessage(0x050, 8, parent),
+    activeHalfset (-1),
     traction (false),
     epvReady (false),
     epvReleased (false),
@@ -16,7 +17,8 @@ McoState::McoState(QObject *parent) :
 void McoState::fillMessage(CanFrame &frame) const
 {
     frame[1] = (qint8 (isEpvReady ()) << 6)
-            | (qint8 (!isTraction ()) << 5);
+            | (qint8 (!isTraction ()) << 5)
+       | ( ((getActiveHalfset()-1)&1) << 4 );
     frame[2] = 0;
     frame[3] = 0;
     frame[4] = 0;
@@ -25,6 +27,17 @@ void McoState::fillMessage(CanFrame &frame) const
             | (quint8 (getTrafficlight ()) & 0xF);
     frame[7] = 0;
     frame[8] = (quint8 (isConClosed ()) << 1);
+}
+
+bool McoState::setActiveHalfset(int halfsetNumber)
+{
+    if ( activeHalfset != halfsetNumber || theFirstTime )
+    {
+        activeHalfset = halfsetNumber;
+        emit activeHalfsetChanged (activeHalfset);
+        return true;
+    }
+    return false;
 }
 
 bool McoState::setEpvReady(bool ready)
@@ -96,7 +109,8 @@ bool McoState::setModulesActivity(ModulesActivity ma)
 bool McoState::parseSuitableMessage(const CanFrame &frame)
 {
     bool update = false;
-    update =   setTraction      (!(frame[1] & (1 << 5))) || update;
+    update =  setActiveHalfset  (((frame[1] & (1 << 4)) >> 4) + 1) || update;
+    update =  setTraction       (!(frame[1] & (1 << 5))) || update;
     update =  setEpvReady         (frame[1] & (1 << 6))  || update;
     update =  setEpvReleased      (frame[6] & (1 << 5))  || update;
     update =  setTrafficlight     (Trafficlight (frame[6] & 0xF)) || update;
