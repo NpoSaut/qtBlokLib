@@ -2,6 +2,7 @@
 #define SYSDIAGNOSTICS_H
 
 #include "canblokmessage.h"
+#include "autolockmode.h"
 
 // SYS_DIAGNOSTICS
 // id: 0x468
@@ -57,12 +58,47 @@ public slots:
     bool setModule (AuxModule mod);
     bool setOperation (AuxOperation op);
 
-private:
+protected:
     void fillMessage (CanFrame &frame) const;
     bool parseSuitableMessage (const CanFrame &frame);
 
     AuxModule module;
     AuxOperation operation;
+};
+
+class MpAlsSysDiagnostics : public SysDiagnostics
+{
+    Q_OBJECT
+public:
+    MpAlsSysDiagnostics (QObject *parent = 0);
+
+protected:
+    bool parseSuitableMessage (const CanFrame &frame);
+};
+
+class AutolockModeSysDiagnostics : public MpAlsSysDiagnostics
+{
+    Q_OBJECT
+public:
+    AutolockModeSysDiagnostics (QObject *parent = 0);
+
+    AutolockMode getAutolockMode () const { return mode; }
+    int getSpeedRestriction () const { return speed; }
+
+signals:
+    void autolockModeChanged (AutolockMode mode);
+    void speedRestrictionChanged (int speed);
+
+public slots:
+    bool setAutolockMode (AutolockMode mode);
+    bool setSpeedRestriction (int speed);
+
+protected:
+    void fillMessage (CanFrame &frame) const;
+    bool parseSuitableMessage (const CanFrame &frame);
+
+    AutolockMode mode;
+    int speed;
 };
 
 #endif // SYSDIAGNOSTICS_H
