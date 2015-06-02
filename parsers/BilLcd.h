@@ -22,7 +22,7 @@ signals:
     void lcdBacklightChanged (bool );
     void keyboardBacklightChanged (bool );
     void autoControlChanged (bool );
-    void lightChagned (int );
+    void lightChanged (int );
 
 public slots:
     bool setLcdBacklight (bool v);
