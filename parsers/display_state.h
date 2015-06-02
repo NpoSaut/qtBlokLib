@@ -59,7 +59,7 @@ private:
     bool oc;
     bool k20;
     bool freq;
-    
+    int backlightLevel;
 };
 
 // DISP_STATE_B

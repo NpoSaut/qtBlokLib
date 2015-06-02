@@ -4,7 +4,7 @@
 
 DisplayStateA::DisplayStateA(QObject *parent) :
     PeriodicalCanBlokMessage(0x28F, 3, parent),
-    rb (false), rbs (false), vk (false), mode (TRAIN), pull (false), otpr (false), oc (false), k20 (false), freq (false)
+    rb (false), rbs (false), vk (false), mode (TRAIN), pull (false), otpr (false), oc (false), k20 (false), freq (false), backlightLevel (0)
 {
     qRegisterMetaType<DriveMode> ("DriveMode");
 }
@@ -21,7 +21,8 @@ void DisplayStateA::fillMessage(CanFrame &frame) const
              | ( (quint8)isOcPressed ()     << 1 )
              | ( (quint8)isK20Pressed ()    << 0 );
     frame[3] = ( (quint8)isFreqPressed ()    << 7 )
-            | ( (getDriveMode () == WORKING)  << 6 );
+            |  ( (getDriveMode () == WORKING)  << 6 )
+            |  ( (quint8)getBacklightLevel () & 0b111);
 }
 
 bool DisplayStateA::setRb(bool press)
@@ -123,17 +124,29 @@ bool DisplayStateA::setFreq(bool press)
     return false;
 }
 
+bool DisplayStateA::setBacklightLevel(int v)
+{
+    if ( backlightLevel != v || theFirstTime )
+    {
+        backlightLevel = v;
+        emit backlightLevelChanged (v);
+        return true;
+    }
+    return false;
+}
+
 bool DisplayStateA::parseSuitableMessage(const CanFrame &frame)
 {
     bool update = false;
-    update =  setRb       (frame[2] & (1 << 7)) || update;
-    update =  setRbs      (frame[2] & (1 << 6)) || update;
-    update =  setVk       (frame[2] & (1 << 5)) || update;
-    update =  setPull     (frame[2] & (1 << 3)) || update;
-    update =  setOtpr     (frame[2] & (1 << 2)) || update;
-    update =  setOc       (frame[2] & (1 << 1)) || update;
-    update =  setK20      (frame[2] & (1 << 0)) || update;
-    update =  setFreq     (frame[3] & (1 << 7)) || update;
+    update =  setRb             (frame[2] & (1 << 7)) || update;
+    update =  setRbs            (frame[2] & (1 << 6)) || update;
+    update =  setVk             (frame[2] & (1 << 5)) || update;
+    update =  setPull           (frame[2] & (1 << 3)) || update;
+    update =  setOtpr           (frame[2] & (1 << 2)) || update;
+    update =  setOc             (frame[2] & (1 << 1)) || update;
+    update =  setK20            (frame[2] & (1 << 0)) || update;
+    update =  setFreq           (frame[3] & (1 << 7)) || update;
+    update =  setBacklightLevel (frame[3] & 0b111)    || update;
 
     if (frame[3] & (1 << 6))
         update = update || setDriveMode (WORKING);
