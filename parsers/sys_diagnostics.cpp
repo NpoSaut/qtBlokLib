@@ -102,7 +102,7 @@ bool AutolockModeSysDiagnostics::setRestrictionSpeed(int s)
     if ( speed != s || theFirstTime )
     {
         speed = s;
-        emit autolockModeChanged(speed);
+        emit speedRestrictionChanged(speed);
         return true;
     }
     return false;
@@ -118,7 +118,7 @@ bool AutolockModeSysDiagnostics::parseSuitableMessage(const CanFrame &frame)
     return update;
 }
 
-quint8 AutolockModeSysDiagnostics::code(AutolockMode mode)
+quint8 AutolockModeSysDiagnostics::code(AutolockMode mode) const
 {
     switch (mode) {
     case AB:
@@ -130,7 +130,7 @@ quint8 AutolockModeSysDiagnostics::code(AutolockMode mode)
     }
 }
 
-AutolockMode AutolockModeSysDiagnostics::decode(quint8 code)
+AutolockMode AutolockModeSysDiagnostics::decode(quint8 code) const
 {
     switch (code) {
     case 0x20:

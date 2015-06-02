@@ -91,11 +91,13 @@ signals:
 
 public slots:
     bool setAutolockMode (AutolockMode mode);
-    bool setSpeedRestriction (int speed);
+    bool setRestrictionSpeed (int speed);
 
 protected:
     void fillMessage (CanFrame &frame) const;
     bool parseSuitableMessage (const CanFrame &frame);
+    quint8 code(AutolockMode mode) const;
+    AutolockMode decode(quint8 code) const;
 
     AutolockMode mode;
     int speed;
