@@ -1,7 +1,11 @@
 #include "BilLcd.h"
 
 BilLcd::BilLcd(int cabine, QObject *parent)
-    : PeriodicalCanBlokMessage ( cabine == 2 ? 0x682 : 0x680, 1, parent)
+    : PeriodicalCanBlokMessage ( cabine == 2 ? 0x682 : 0x680, 1, parent),
+      lcdBacklight (false),
+      keyboardBacklight (false),
+      autoControl (false),
+      light (0)
 {
 }
 
