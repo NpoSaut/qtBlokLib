@@ -23,6 +23,7 @@ public:
     bool isOcPressed () const {return oc;}
     bool isK20Pressed () const {return k20;}
     bool isFreqPressed () const {return freq;}
+    int getBacklightLevel () const { return backlightLevel; }
     
 signals:
     void rbChanged (bool press);
@@ -34,6 +35,7 @@ signals:
     void ocChanged (bool press);
     void k20Changed (bool press);
     void freqChanged (bool press);
+    void backlightLevelChanged (int );
 
 public slots:
     bool setRb (bool press);
@@ -45,6 +47,7 @@ public slots:
     bool setOc (bool press);
     bool setK20 (bool press);
     bool setFreq (bool press);
+    bool setBacklightLevel (int v);
 
 private:
     void fillMessage (CanFrame &frame) const;
