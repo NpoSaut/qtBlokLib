@@ -11,7 +11,7 @@ class BilLcd : public PeriodicalCanBlokMessage
 {
     Q_OBJECT
 public:
-    BilLcd(int cabine, QObject *parent);
+    BilLcd(int cabine, QObject *parent = 0);
 
     bool getLcdBacklight () const { return lcdBacklight; }
     bool getKeyboardBacklight () const { return keyboardBacklight; }
