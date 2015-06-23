@@ -169,6 +169,7 @@ public:
     Cookie errorPkm2Ov;
     // --- Свойства САУТ ---
     Cookie timeZone;
+    Cookie monitorKhConfiguration;
 
 signals:
     
