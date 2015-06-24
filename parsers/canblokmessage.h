@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "qtCanLib/canframe.h"
+#include "qtCanLib/CanFrame.h"
 
 // Абстрактный класс для кодирования/декодирования CAN-сообщений системы БЛОК
 class CanBlokMessage : public QObject

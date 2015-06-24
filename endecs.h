@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#include <qtCanLib/canframe.h>
+#include <qtCanLib/CanFrame.h>
 #include "iodrvmain.h"
 #include "modulesactivity.h"
 

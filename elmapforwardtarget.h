@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QString>
 #include "qtCanLib/can.h"
-#include "qtCanLib/canframe.h"
+#include "qtCanLib/CanFrame.h"
 
 class ElmapForwardTarget : public QObject
 {
