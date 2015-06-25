@@ -5,7 +5,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 
-#include "qtCanLib/can.h"
+#include "qtCanLib/ICan.h"
 
 // Класс - локальная версия некоторого значения, хранимого в МПХ под индексом index
 //   Обеспечивает проверку всех входящих сообщений, при обнаружении новго значения
@@ -15,7 +15,7 @@ class Cookie : public QObject
 {
     Q_OBJECT
 public:
-    explicit Cookie (Can *onCan, int index, QObject *parent = 0);
+    explicit Cookie (ICan *onCan, int index, QObject *parent = 0);
 
     // Возвращает локальную копию значения, хранимого в МПХ
     //   При необходимости обновляет локальное значение по данным МПХ,
@@ -55,7 +55,7 @@ private slots:
     void answerTimeoutHandler();
 
 protected:
-    Can *can;
+    ICan *can;
 
     // Если переданно сообщение SYS_DATA с индексом равным нашему,
     // то загружает данные и возвращает true,
@@ -102,7 +102,7 @@ class CookiePookie : public Cookie
     Q_OBJECT
 
 public:
-    explicit CookiePookie (Can *onCan, int index, QObject *parent = 0);
+    explicit CookiePookie (ICan *onCan, int index, QObject *parent = 0);
 
 public slots:
     // Устанавливает значение
@@ -115,7 +115,7 @@ class Cookies : public QObject
 {
     Q_OBJECT
 public:
-    explicit Cookies(Can *onCan, QObject *parent = 0);
+    explicit Cookies(ICan *onCan, QObject *parent = 0);
 
     CookiePookie trackNumbetNotSaved;
     Cookie machinistNumber;
@@ -176,7 +176,7 @@ signals:
 public slots:
 
 private: // не для всех
-    Can *can;
+    ICan *can;
     
 };
 

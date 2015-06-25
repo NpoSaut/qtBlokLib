@@ -4,7 +4,7 @@
 #include <QFile>
 #include <QTextStream>
 
-#include "qtCanLib/can.h"
+#include "qtCanLib/ICan.h"
 
 #include "iodrvmain.h"
 #include "endecs.h"
@@ -26,7 +26,7 @@ class iodrv : public QObject
     Q_OBJECT
 
 public:
-    iodrv(Can *onCan, QObject *parent = 0);
+    iodrv(ICan *onCan, QObject *parent = 0);
 
 
 public:
@@ -72,7 +72,7 @@ private slots:
     void slot_serial_ready_read();
 
 private:
-    Can *can;
+    ICan *can;
     gps_data_source gps_source;
     int read_socket_0;
     int write_socket_0;

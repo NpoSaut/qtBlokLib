@@ -1,12 +1,12 @@
 #include "cDoodahLib/lowlevel.h"
 #include "cookies.h"
 
-Cookie::Cookie(Can *onCan, int index, QObject *parent)
+Cookie::Cookie(ICan *onCan, int index, QObject *parent)
     : QObject(parent),
       can(onCan),
       answerWaitTimer(), index (index), valid (false), forceUpdate (false), activity(NO_ACTION), attempt (0)
 {
-    QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(loadData(CanFrame)));
+    QObject::connect (can, SIGNAL(received(CanFrame)), this, SLOT(loadData(CanFrame)));
 
     answerWaitTimer.setSingleShot (true);
     answerWaitTimer.setInterval (answerTimeout);
@@ -137,13 +137,13 @@ void Cookie::writeValueRequestSend()
     data[4] = valueByte[0];
 
     CanFrame frame( 0x6205, data ); // INPUT_DATA id: 0x310
-    can->transmitMessage (frame);
+    can->send (frame);
 }
 
 void Cookie::requestValueRequestSend()
 {
     CanFrame frame( 0x0E01, std::vector<unsigned char> (1,index) ); // SYS_DATA_QUERY id: 0x070
-    can->transmitMessage (frame);
+    can->send (frame);
 }
 
 void Cookie::startActivity(ActivityKind kind)
@@ -162,7 +162,7 @@ void Cookie::stopActivity()
 
 // --------- Cookies ---------
 
-Cookies::Cookies(Can *onCan, QObject *parent)
+Cookies::Cookies(ICan *onCan, QObject *parent)
     : QObject(parent),
       can(onCan),
       trackNumbetNotSaved (onCan, 1),
@@ -235,11 +235,11 @@ void CookiePookie::setVaule(int value)
     data[4] = valueByte[0];
 
     CanFrame frame( 0x6265, data ); // SYS_DATA id
-    can->transmitMessage (frame);
+    can->send (frame);
 }
 
 
-CookiePookie::CookiePookie(Can *onCan, int index, QObject *parent)
+CookiePookie::CookiePookie(ICan *onCan, int index, QObject *parent)
     : Cookie (onCan, index, parent)
 {
 }

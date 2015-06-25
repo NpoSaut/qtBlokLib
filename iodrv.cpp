@@ -2,7 +2,6 @@
 #include <QtCore/qmath.h>
 #include <QFile>
 
-#include "qtCanLib/can.h"
 #include "iodrv.h"
 
 // Distance between coordinates in kilometers
@@ -23,7 +22,7 @@ static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2
     return 1000 * qAtan(num / denum) * 6372.795;
 }
 
-iodrv::iodrv(Can *onCan, QObject *parent)
+iodrv::iodrv(ICan *onCan, QObject *parent)
     : QObject(parent),
       distance_store_file("/media/milage.txt"),
       c_modulesActivity(), p_modulesActivity(),
@@ -98,7 +97,7 @@ int iodrv::start(gps_data_source gps_datasource)
         return 0;
     }
 
-    QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(process_can_messages(CanFrame)));
+    QObject::connect (can, SIGNAL(received(CanFrame)), this, SLOT(process_can_messages(CanFrame)));
 
     // Инициализация и запуск таймеров
     init_timers();
@@ -139,7 +138,7 @@ int iodrv::init_sktcan()
 
 void iodrv::write_canmsg_async(int write_socket, const CanFrame &frame)
 {
-    can->transmitMessage (frame);
+    can->send (frame);
 }
 
 void iodrv::process_can_messages(CanFrame frame)

@@ -3,14 +3,13 @@
 
 #include <QObject>
 #include <QString>
-#include "qtCanLib/can.h"
-#include "qtCanLib/CanFrame.h"
+#include "qtCanLib/ICan.h"
 
 class ElmapForwardTarget : public QObject
 {
     Q_OBJECT
 public:
-    explicit ElmapForwardTarget(Can *onCan, QObject *parent = 0);
+    explicit ElmapForwardTarget(ICan *onCan, QObject *parent = 0);
 
     QString getName () const { return name; }
     int getDistance () const { return distance; }
@@ -27,7 +26,7 @@ public slots:
     void getKindFromMcoLimits (CanFrame mcoLimits);
 
 private:
-    Can *can;
+    ICan *can;
     QString name;
     int distance;
     int kind;

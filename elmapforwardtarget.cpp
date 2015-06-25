@@ -3,18 +3,17 @@
 #include <QTextCodec>
 
 #include "cDoodahLib/lowlevel.h"
-#include "qtCanLib/can.h"
 
 QTextDecoder *cp1251Decoder = QTextCodec::codecForName("CP1251")->makeDecoder ();
 
-ElmapForwardTarget::ElmapForwardTarget(Can *onCan, QObject *parent) :
+ElmapForwardTarget::ElmapForwardTarget(ICan *onCan, QObject *parent) :
     QObject(parent),
     name (), distance (-1), kind (-1),
     can(onCan)
 {
-    QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(getNameFromMmSignal(CanFrame)));
-    QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(getDistanceFromMcoState(CanFrame)));
-    QObject::connect (can, SIGNAL(messageReceived(CanFrame)), this, SLOT(getKindFromMcoLimits(CanFrame)));
+    QObject::connect (can, SIGNAL(received(CanFrame)), this, SLOT(getNameFromMmSignal(CanFrame)));
+    QObject::connect (can, SIGNAL(received(CanFrame)), this, SLOT(getDistanceFromMcoState(CanFrame)));
+    QObject::connect (can, SIGNAL(received(CanFrame)), this, SLOT(getKindFromMcoLimits(CanFrame)));
 }
 
 void ElmapForwardTarget::getNameFromMmSignal(CanFrame mmSignal)

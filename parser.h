@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QMap>
 
-#include "qtCanLib/can.h"
+#include "qtCanLib/ICan.h"
 
 #include "parsers/aux_resource.h"
 #include "parsers/console_key.h"
@@ -30,7 +30,7 @@ class Parser : public QObject
 {
     Q_OBJECT
 public:
-    explicit Parser(Can *onCan, QObject *parent = 0);
+    explicit Parser(ICan *onCan, QObject *parent = 0);
 
     QMap<AuxResource::Descriptor, AuxResourceVersion *> auxResources;
     ConsoleKeysState consoleKey1;
