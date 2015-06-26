@@ -13,19 +13,6 @@ Cookie::Cookie(ICan *onCan, int index, QObject *parent)
     QObject::connect (&answerWaitTimer, SIGNAL(timeout()), this, SLOT(answerTimeoutHandler()));
 }
 
-int Cookie::getValue()
-{
-    if ( lastUpdateTimer.elapsed () > 60000 ) // Время жизни данных - одна минута
-    {
-        // Обновление
-        requestValue (false);
-        while ( activity != NO_ACTION ); // Дожидаемся обновления
-        if ( !valid )
-            emit update(value, valid); // Повторяем сигнал
-    }
-    return value;
-}
-
 void Cookie::requestValue(bool forceUpdate)
 {
     this->forceUpdate = forceUpdate;
