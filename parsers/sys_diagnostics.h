@@ -35,7 +35,7 @@ public:
         EPK = 18,
         MCC = 19,
         MVV = 20,
-        OUT = 22,
+        OUTPUT = 22,
         VDS = 31
     };
 

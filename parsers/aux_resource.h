@@ -73,8 +73,8 @@ public:
         MV_B = 0xE105,
         VDS_A = 0xDC25,
         VDS_B = 0xDC45,
-        OUT_A = 0xDC65,
-        OUT_B = 0xDC85
+        OUTPUT_A = 0xDC65,
+        OUTPUT_B = 0xDC85
     };
 
     explicit AuxResource(Descriptor descriptor, QObject *parent = 0);
