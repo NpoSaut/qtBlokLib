@@ -19,9 +19,9 @@ void McoState::fillMessage(CanFrame &frame) const
     frame[1] = (qint8 (isEpvReady ()) << 6)
             | (qint8 (!isTraction ()) << 5)
        | ( ((getActiveHalfset()-1)&1) << 4 );
-    frame[2] = 0;
+    frame[2] = quint8(getSpeedRestriction());
     frame[3] = 0;
-    frame[4] = 0;
+    frame[4] = quint8((getSpeedRestriction() >> 8) & 0x80);
     frame[5] = 0;
     frame[6] = (qint8 (isEpvReleased ()) << 5)
             | (quint8 (getTrafficlight ()) & 0xF);
@@ -106,6 +106,17 @@ bool McoState::setModulesActivity(ModulesActivity ma)
     return false;
 }
 
+bool McoState::setSpeedRestriction(int sr)
+{
+    if ( speedRestriction != sr || theFirstTime )
+    {
+        speedRestriction = sr;
+        emit speedRestrictionChanged(speedRestriction);
+        return true;
+    }
+    return false;
+}
+
 bool McoState::parseSuitableMessage(const CanFrame &frame)
 {
     bool update = false;
@@ -116,6 +127,7 @@ bool McoState::parseSuitableMessage(const CanFrame &frame)
     update =  setTrafficlight     (Trafficlight (frame[6] & 0xF)) || update;
     update =  setConClosed        (frame[8] & (1 << 1))  || update;
     update =  setModulesActivity (ModulesActivity::loadFromMcoState(QByteArray((const char *)frame.getData().data(), frame.getData().size())));
+    update =  setSpeedRestriction(( ((int)( frame[4] & 0x80 )) << 8 ) + (int)(frame[2]));
     return update;
 }
 

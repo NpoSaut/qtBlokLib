@@ -22,6 +22,7 @@ public:
     Trafficlight getTrafficlight () const { return trafficlight; }
     bool isConClosed () const { return conClosed; }
     ModulesActivity getModulesActivity () const { return modulesActivity; }
+    int getSpeedRestriction () const { return speedRestriction; }
 
 signals:
     void activeHalfsetChanged (int halfsetNumber);
@@ -31,6 +32,7 @@ signals:
     void trafficlightChanged (Trafficlight light);
     void conClosedChanged (bool close);
     void modulesActivityChanged (ModulesActivity modulesActivity);
+    void speedRestrictionChanged (int speedRestriction);
 
 public slots:
     bool setActiveHalfset (int halfsetNumber);
@@ -40,6 +42,7 @@ public slots:
     bool setTrafficlight (Trafficlight light);
     bool setConClosed (bool closed);
     bool setModulesActivity (ModulesActivity ma);
+    bool setSpeedRestriction (int sr);
     
 private:
     void fillMessage (CanFrame &frame) const;
@@ -52,6 +55,7 @@ private:
     Trafficlight trafficlight;
     bool conClosed;
     ModulesActivity modulesActivity;
+    int speedRestriction;
 };
 
 #endif // MCO_STATE_H
