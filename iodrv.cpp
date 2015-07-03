@@ -1,4 +1,3 @@
-#include <QDate>
 #include <QtCore/qmath.h>
 #include <QFile>
 
@@ -155,10 +154,6 @@ void iodrv::process_can_messages(CanFrame frame)
     decode_vigilance(frame);
     decode_movement_direction(frame);
     decode_reg_tape_avl(frame);
-
-//#ifndef WITH_SERIALPORT
-//    decode_ipd_datetime(frame);
-//#endif
 }
 
 
@@ -309,32 +304,6 @@ int iodrv::decode_modules_activity(const CanFrame &frame)
     }
     return 0;
 }
-
-//int iodrv::decode_ipd_datetime(const CanFrame &frame)
-//{
-//    switch (can_decoder::decode_ipd_date(frame, &c_ipd_year, &c_ipd_month, &c_ipd_day, &c_ipd_hours, &c_ipd_mins, &c_ipd_secs))
-//    {
-//        case 1:
-//            if ((p_ipd_secs == -1) || (p_ipd_secs != -1 && p_ipd_secs != c_ipd_secs))
-//            {
-//                // printf("Time: %d:%d:%d\n", c_ipd_hours, c_ipd_mins, c_ipd_secs); fflush(stdout);
-
-//                QString time = QString("%1:%2:%3").arg(c_ipd_hours, 2, 10, QChar('0')).arg(c_ipd_mins, 2, 10, QChar('0')).arg(c_ipd_secs, 2, 10, QChar('0'));
-//                emit signal_time(time);
-//            }
-//            if ((p_ipd_day == -1) || (p_ipd_day != -1 && p_ipd_day != c_ipd_day))
-//            {
-//                QString monthString[12] = {"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
-//                QString date = QString("%1 %2 %3").arg(c_ipd_day, 2, 10, QChar('0')).arg(monthString[c_ipd_month-1]).arg(c_ipd_year, 2, 10, QChar('0'));
-
-//                emit signal_date(date);
-//            }
-//            p_ipd_secs = c_ipd_secs;
-//            p_ipd_day = c_ipd_day;
-//            return 1;
-//    }
-//    return 0;
-//}
 
 int iodrv::decode_vigilance(const CanFrame &frame)
 {

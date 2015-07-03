@@ -147,7 +147,6 @@ private:
     int decode_trafficlight_freq(const CanFrame &frame);
     int decode_orig_passed_distance (const CanFrame &frame);
     int decode_modules_activity(const CanFrame &frame);
-//    int decode_ipd_datetime(const CanFrame &frame);
     int decode_vigilance(const CanFrame &frame);
     int decode_reg_tape_avl(const CanFrame &frame);
 
