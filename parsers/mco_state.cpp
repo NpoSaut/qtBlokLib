@@ -12,6 +12,7 @@ McoState::McoState(QObject *parent) :
     conClosed (true)
 {
     qRegisterMetaType<Trafficlight>("Trafficlight");
+    qRegisterMetaType<ModulesActivity>("ModulesActivity");
 }
 
 void McoState::fillMessage(CanFrame &frame) const
