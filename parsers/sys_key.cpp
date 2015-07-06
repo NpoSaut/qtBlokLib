@@ -7,7 +7,7 @@ SysKey::SysKey(Key key, Action action, QObject *parent) :
      key (key),
      action (action)
 {
-    qRegisterMetaType<Key> ("Key");
+    qRegisterMetaType<Key> ("SysKey");
 }
 
 void SysKey::fillMessage(CanFrame &frame) const
