@@ -23,6 +23,7 @@ public:
     bool isConClosed () const { return conClosed; }
     ModulesActivity getModulesActivity () const { return modulesActivity; }
     int getSpeedRestriction () const { return speedRestriction; }
+    int getTargetSpeed () const { return targetSpeed; }
 
 signals:
     void activeHalfsetChanged (int halfsetNumber);
@@ -33,6 +34,7 @@ signals:
     void conClosedChanged (bool close);
     void modulesActivityChanged (ModulesActivity modulesActivity);
     void speedRestrictionChanged (int speedRestriction);
+    void targetSpeedChanged (int targetSpeed);
 
 public slots:
     bool setActiveHalfset (int halfsetNumber);
@@ -43,6 +45,7 @@ public slots:
     bool setConClosed (bool closed);
     bool setModulesActivity (ModulesActivity ma);
     bool setSpeedRestriction (int sr);
+    bool setTargetSpeed (int ts);
     
 private:
     void fillMessage (CanFrame &frame) const;
@@ -56,6 +59,7 @@ private:
     bool conClosed;
     ModulesActivity modulesActivity;
     int speedRestriction;
+    int targetSpeed;
 };
 
 #endif // MCO_STATE_H
