@@ -26,6 +26,7 @@ public:
     bool tskbm;
     bool controlSystem;
     bool outputModule;
+    bool saut;
 
     bool isCollected () const { return collected; }
     QString toString () const;

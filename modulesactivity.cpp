@@ -17,7 +17,7 @@ QString ModulesActivity::toString() const
           << (navigation    ? "5" : "-")
           << (electronicMap ? "6" : "-")
           << (breaksBrain   ? "7" : "-")
-          << (false         ? "8" : "-")
+          << (saut          ? "8" : "-")
           << (radio         ? "9" : "-")
           << (outputModule  ? "A" : "-")
           << (tskbm         ? "B" : "-")
@@ -40,7 +40,7 @@ ModulesActivity ModulesActivity::loadFromMcoState(const QByteArray &mcoStateMess
     ma.controlSystem    = mcoStateMessage[6] & (1 << 2);
     ma.radio            = mcoStateMessage[6] & (1 << 3);
     ma.monitor          = mcoStateMessage[6] & (1 << 4);
-//    ma.saut           = mcoStateMessage[6] & (1 << 5);
+    ma.saut             = mcoStateMessage[6] & (1 << 5);
     ma.tskbm            = mcoStateMessage[6] & (1 << 6);
     ma.breaksBrain      = mcoStateMessage[6] & (1 << 7);
 
@@ -64,6 +64,7 @@ bool ModulesActivity::operator ==(const ModulesActivity &b)
             radio == b.radio &&
             tskbm == b.tskbm &&
             controlSystem == b.controlSystem &&
+            saut == b.saut &&
             collected == b.collected;
 }
 
