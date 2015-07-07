@@ -14,7 +14,7 @@ void McoLimits::fillMessage(CanFrame &frame) const
 {
     frame[1] = 0;
     frame[2] = getDriveMode () == ROAD ? (1 << 6) : 0;
-    frame[3] = 0;
+    frame[3] = isSlipping() ? (1 << 7) : 0;
     frame[4] = 0;
     frame[5] = 0;
     frame[6] = 0;
@@ -45,6 +45,17 @@ bool McoLimits::setTractionShutdownCommand(bool shutdown)
     return false;
 }
 
+bool McoLimits::setSlipping(bool s)
+{
+    if ( slipping != s || theFirstTime )
+    {
+        slipping = s;
+        emit slippingChanged (slipping);
+        return true;
+    }
+    return false;
+}
+
 bool McoLimits::parseSuitableMessage(const CanFrame &frame)
 {
     DriveMode newMode;
@@ -62,6 +73,7 @@ bool McoLimits::parseSuitableMessage(const CanFrame &frame)
     bool update = false;
     update = setDriveMode (newMode) || update;
     update = setTractionShutdownCommand ( !(frame[8] & (1 << 7) ) ) || update;
+    update = setSlipping ( frame[3] & (1 << 7) ) || update;
     return update;
 }
 

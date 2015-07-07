@@ -16,14 +16,17 @@ public:
 
     DriveMode getDriveMode () const { return driveMode; }
     bool isTractionShutdownCommand () const { return tractionShutdownCommand; }
+    bool isSlipping () const { return slipping; }
 
 signals:
     void driveModeChanged (DriveMode mode);
     void tractionShutdownCommandChanged (bool tractionShutdownCommand);
+    void slippingChanged (bool s);
 
 public slots:
     bool setDriveMode (DriveMode dm);
     bool setTractionShutdownCommand (bool shutdown);
+    bool setSlipping (bool s);
     
 private:
     void fillMessage (CanFrame &frame) const;
@@ -31,7 +34,7 @@ private:
 
     DriveMode driveMode;
     bool tractionShutdownCommand;
-    
+    bool slipping;
 };
 
 #endif // MCO_LIMITS_H
