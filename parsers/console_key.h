@@ -20,7 +20,7 @@ public:
         L   = 0x02,
         OTM = 0x03,
         P1  = 0x04,
-        P2  = 0x05,
+        TVK = 0x05,
         P3  = 0x06,
         PLUS= 0x08,
         F1  = 0x09,
