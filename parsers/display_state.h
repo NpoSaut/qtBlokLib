@@ -23,6 +23,7 @@ public:
     bool isOcPressed () const {return oc;}
     bool isK20Pressed () const {return k20;}
     bool isFreqPressed () const {return freq;}
+    bool isTvkPressed () const {return tvk;}
     int getBacklightLevel () const { return backlightLevel; }
     
 signals:
@@ -35,6 +36,7 @@ signals:
     void ocChanged (bool press);
     void k20Changed (bool press);
     void freqChanged (bool press);
+    void tvkChanged (bool press);
     void backlightLevelChanged (int );
 
 public slots:
@@ -47,6 +49,7 @@ public slots:
     bool setOc (bool press);
     bool setK20 (bool press);
     bool setFreq (bool press);
+    bool setTvk (bool press);
     bool setBacklightLevel (int v);
 
 private:
@@ -62,6 +65,7 @@ private:
     bool oc;
     bool k20;
     bool freq;
+    bool tvk;
     int backlightLevel;
 };
 

@@ -20,8 +20,9 @@ void DisplayStateA::fillMessage(CanFrame &frame) const
              | ( (quint8)isOtprPressed ()   << 2 )
              | ( (quint8)isOcPressed ()     << 1 )
              | ( (quint8)isK20Pressed ()    << 0 );
-    frame[3] = ( (quint8)isFreqPressed ()    << 7 )
-            |  ( (getDriveMode () == WORKING)  << 6 )
+    frame[3] = ( (quint8)isFreqPressed ()     << 7 )
+            |  ( (getDriveMode () == WORKING) << 6 )
+            |  ( (quint8)isTvkPressed ()      << 5 )
             |  ( (quint8)getBacklightLevel () & 0b111);
 }
 
@@ -124,6 +125,17 @@ bool DisplayStateA::setFreq(bool press)
     return false;
 }
 
+bool DisplayStateA::setTvk(bool press)
+{
+    if ( tvk != press || theFirstTime )
+    {
+        tvk = press;
+        emit tvkChanged (tvk);
+        return true;
+    }
+    return false;
+}
+
 bool DisplayStateA::setBacklightLevel(int v)
 {
     if ( backlightLevel != v || theFirstTime )
@@ -146,6 +158,7 @@ bool DisplayStateA::parseSuitableMessage(const CanFrame &frame)
     update =  setOc             (frame[2] & (1 << 1)) || update;
     update =  setK20            (frame[2] & (1 << 0)) || update;
     update =  setFreq           (frame[3] & (1 << 7)) || update;
+    update =  setTvk            (frame[3] & (1 << 6)) || update;
     update =  setBacklightLevel (frame[3] & 0b111)    || update;
 
     if (frame[3] & (1 << 6))
