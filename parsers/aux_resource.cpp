@@ -72,12 +72,13 @@ void AuxResourceVersion::encodeData()
 
 void AuxResourceVersion::processData()
 {
+    auto _data = getData();
     if (getCode() == RES_VERSION)
     {
         bool update = false;
-        update = setVersion    ( quint8 (getData() >> 24) ) || update;
-        update = setSubversion ( quint8 (getData() >> 16) ) || update;
-        update = setChecksum   ( quint16(getData() >>  0) ) || update;
+        update = setVersion    ( quint8 (_data >> 24) ) || update;
+        update = setSubversion ( quint8 (_data >> 16) ) || update;
+        update = setChecksum   ( quint16(_data >>  0) ) || update;
 
         if (update)
             emit updated(data->version, data->subversion, data->checksum);
