@@ -94,8 +94,6 @@ protected:
     void fillMessage (CanFrame &frame) const;
     bool parseSuitableMessage (const CanFrame &frame);
 
-    virtual void processData () { }
-
 private:
     AuxResourceCode code;
     quint32 data;
@@ -119,9 +117,8 @@ public slots:
     bool setSubversion (int subv);
     bool setChecksum (int csum);
 
-protected:
+private slots:
     void processData ();
-    void encodeData ();
 
 private:
     PACKED(

@@ -26,7 +26,6 @@ bool AuxResource::parseSuitableMessage(const CanFrame &frame)
                       + (quint32 (frame[3]) << 16)
                       + (quint32 (frame[4]) <<  8)
                       + (quint32 (frame[5]) <<  0)) || update;
-    processData ();
     return update;
 }
 
@@ -58,30 +57,18 @@ AuxResourceVersion::AuxResourceVersion(AuxResource::Descriptor descriptor, QObje
       data (0)
 {
     setCode (RES_VERSION);
+    QObject::connect(this, SIGNAL(whateverChanged()), this, SLOT(processData()), Qt::DirectConnection);
 }
-
-
-void AuxResourceVersion::encodeData()
-{
-    setCode(RES_VERSION);
-    setData( (quint32 (quint8 (data->version))    << 24)
-            +(quint32 (quint8 (data->subversion)) << 16)
-            +(quint32 (quint16(data->checksum))   <<  0) );
-}
-
 
 void AuxResourceVersion::processData()
 {
-    auto _data = getData();
     if (getCode() == RES_VERSION)
     {
-        bool update = false;
-        update = setVersion    ( quint8 (_data >> 24) ) || update;
-        update = setSubversion ( quint8 (_data >> 16) ) || update;
-        update = setChecksum   ( quint16(_data >>  0) ) || update;
-
-        if (update)
+        if (data != getData())
+        {
+            data = getData();
             emit updated(data->version, data->subversion, data->checksum);
+        }
     }
 }
 
