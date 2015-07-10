@@ -223,6 +223,8 @@ void CookiePookie::setVaule(int value)
 
     CanFrame frame( 0x6265, data ); // SYS_DATA id
     can->send (frame);
+
+    emit updated(value, true);
 }
 
 

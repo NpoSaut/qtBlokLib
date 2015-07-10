@@ -120,7 +120,7 @@ public:
     Cookie lengthInWagons;
     Cookie locomotiveNumber;
     Cookie mass;
-    Cookie startOrdinate;
+    CookiePookie startOrdinate;
     Cookie timeshift;
     Cookie locomotiveKind;
     Cookie speedLimitWhite;
