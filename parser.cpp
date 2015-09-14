@@ -2,6 +2,7 @@
 
 Parser::Parser(ICan *onCan, QObject *parent) :
     QObject(parent),
+    bilBrightnessLevel(),
     consoleKey1(),
     consoleKey2(),
     ipdDate(),
@@ -33,6 +34,7 @@ Parser::Parser(ICan *onCan, QObject *parent) :
         this->connect (auxResources[descriptor], SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     }
 
+    bilBrightnessLevel.connect (onCan, SIGNAL(received(CanFrame)), SLOT(processCanMessage(CanFrame)));
     consoleKey1.connect (onCan, SIGNAL(received(CanFrame)), SLOT(processCanMessage(CanFrame)));
     consoleKey2.connect (onCan, SIGNAL(received(CanFrame)), SLOT(processCanMessage(CanFrame)));
     ipdDate.connect (onCan, SIGNAL(received(CanFrame)),SLOT(processCanMessage(CanFrame)));

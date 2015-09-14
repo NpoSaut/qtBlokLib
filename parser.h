@@ -7,6 +7,7 @@
 #include "qtCanLib/ICan.h"
 
 #include "parsers/aux_resource.h"
+#include "parsers/bil_bright_level.h"
 #include "parsers/console_key.h"
 #include "parsers/ipd_date.h"
 #include "parsers/ipd_state.h"
@@ -33,6 +34,7 @@ public:
     explicit Parser(ICan *onCan, QObject *parent = 0);
 
     QMap<AuxResource::Descriptor, AuxResourceVersion *> auxResources;
+    BilBrightLevel bilBrightnessLevel;
     ConsoleKeysState consoleKey1;
     ConsoleKeysState consoleKey2;
     IpdDate ipdDate;
