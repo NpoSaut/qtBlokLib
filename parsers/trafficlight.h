@@ -18,7 +18,8 @@ enum Trafficlight
     FREE_ZONE_2 = 12,
     FREE_ZONE_3 = 13,
     FREE_ZONE_4 = 14,
-    FREE_ZONE_5 = 15
+    FREE_ZONE_5 = 15,
+    LIGHT_UNKNOWN = -1
 };
 
 enum AlsnLight
