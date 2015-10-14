@@ -17,6 +17,7 @@ Parser::Parser(ICan *onCan, QObject *parent) :
     mpState(),
     mvdDd(),
     sautState(),
+    soundCommand(),
     sysDiagnostics(),
     sysKey(),
     tskbmState(),
@@ -49,6 +50,7 @@ Parser::Parser(ICan *onCan, QObject *parent) :
     mpState.connect (onCan, SIGNAL(received(CanFrame)),SLOT(processCanMessage(CanFrame)));
     mvdDd.connect (onCan, SIGNAL(received(CanFrame)),SLOT(processCanMessage(CanFrame)));
     sautState.connect (onCan, SIGNAL(received(CanFrame)),SLOT(processCanMessage(CanFrame)));
+    soundCommand.connect (onCan, SIGNAL(received(CanFrame)),SLOT(processCanMessage(CanFrame)));
     sysDiagnostics.connect (onCan, SIGNAL(received(CanFrame)), SLOT(processCanMessage(CanFrame)));
     sysKey.connect (onCan, SIGNAL(received(CanFrame)), SLOT(processCanMessage(CanFrame)));
     tskbmState.connect (onCan, SIGNAL(received(CanFrame)),SLOT(processCanMessage(CanFrame)));
@@ -69,6 +71,7 @@ Parser::Parser(ICan *onCan, QObject *parent) :
     this->connect (&mpState, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&mvdDd, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&sautState, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
+    this->connect (&soundCommand, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&sysDiagnostics, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&sysKey, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));
     this->connect (&tskbmState, SIGNAL(whateverChanged()), SLOT(getChildChagnedSignal()));

@@ -21,6 +21,7 @@
 #include "parsers/mp_state.h"
 #include "parsers/mvd_dd.h"
 #include "parsers/saut_state.h"
+#include "parsers/sound_command.h"
 #include "parsers/sys_diagnostics.h"
 #include "parsers/sys_key.h"
 #include "parsers/tskbm_state.h"
@@ -49,6 +50,7 @@ public:
     MpState mpState;
     MvdDd mvdDd;
     SautState sautState;
+    SoundCommand soundCommand;
     SysDiagnostics sysDiagnostics;
     SysKeysState sysKey;
     TskbmState tskbmState;
