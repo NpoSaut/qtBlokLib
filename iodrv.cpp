@@ -23,7 +23,6 @@ static double DistanceBetweenCoordinates(double lat1d, double lon1d, double lat2
 
 iodrv::iodrv(ICan *onCan, QObject *parent)
     : QObject(parent),
-      distance_store_file("/media/milage.txt"),
       c_modulesActivity(), p_modulesActivity(),
       can(onCan)
 {
@@ -31,19 +30,6 @@ iodrv::iodrv(ICan *onCan, QObject *parent)
     read_socket_0 = -1;
     write_socket_0 = -1;
     write_socket_1 = -1;
-
-    if( distance_store_file.open(QIODevice::ReadWrite) )
-    {
-        QTextStream distance_store_stream (&distance_store_file);
-        stored_passed_distance = distance_store_stream.readLine().toInt();
-        distance_store_file.close();
-    }
-    else
-    {
-        qDebug() << "Error open milage.txt!" << endl;
-        stored_passed_distance = 0;
-    }
-    total_passed_distance = stored_passed_distance;
 
     c_speed = -1;
     c_speed_limit = -1;
@@ -244,36 +230,12 @@ int iodrv::decode_passed_distance(const CanFrame &frame)
     switch (can_decoder::decode_passed_distance(frame, &c_passed_distance))
     {
         case 1:
-            /*if ((p_passed_distance == -1) || (p_passed_distance != -1 && p_passed_distance != c_passed_distance))
+            if ((p_passed_distance == -1) || (p_passed_distance != -1 && p_passed_distance != c_passed_distance))
             {
                 emit signal_passed_distance(c_passed_distance);
             }
-            p_passed_distance = c_passed_distance;*/
-
-            // Общий одометр
-            if ( c_is_on_road == 0 &&
-                    p_passed_distance != -1 && c_passed_distance != -1)
-            {
-                total_passed_distance += abs(c_passed_distance - p_passed_distance);
-                emit signal_passed_distance(total_passed_distance);
-
-                if ( (total_passed_distance - stored_passed_distance) >= 100 )
-                {
-                    if( distance_store_file.open(QIODevice::ReadWrite) )
-                    {
-                        QTextStream distance_store_stream (&distance_store_file);
-                        distance_store_stream << int(total_passed_distance) << endl;
-                        distance_store_stream.flush();
-                        distance_store_file.close();
-                        stored_passed_distance = total_passed_distance;
-                    }
-                    else
-                    {
-                        qDebug() << "Error open milage.txt!" << endl;
-                    }
-                }
-            }
             p_passed_distance = c_passed_distance;
+
             return 1;
     }
     return 0;

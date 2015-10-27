@@ -84,9 +84,6 @@ private:
     // TODO: Контролировать были ли сообщения отосланы и если нет, то что-нибудь делать.
     void write_canmsg_async(int socket, const CanFrame &frame);
 
-    QFile distance_store_file;
-    double total_passed_distance;
-    double stored_passed_distance;
     gps_data pgd;
 
     CanFrame wframe_mmaltlon;
